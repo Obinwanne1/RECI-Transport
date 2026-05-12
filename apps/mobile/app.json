@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "RECI Transport",
+    "slug": "reci-transport",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "recitransport",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#407E3C"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "de.recitransport.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#407E3C"
+      },
+      "package": "de.recitransport.app"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

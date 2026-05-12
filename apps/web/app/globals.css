@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #407E3C;
+    --color-primary-hover: #356834;
+    --color-accent: #5a9e56;
+    --color-text: #1A1A1A;
+    --color-text-muted: #6B7280;
+    --color-error: #DC2626;
+    --color-success: #16A34A;
+    --color-bg: #FFFFFF;
+    --color-surface: #F9FAFB;
+    --color-border: #E5E7EB;
+  }
+
+  .dark {
+    --color-bg: #0F1A0E;
+    --color-surface: #1A2E18;
+    --color-border: #2D4A2A;
+    --color-text: #F9FAFB;
+    --color-text-muted: #9CA3AF;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: 'Poppins', sans-serif;
+    color: var(--color-text);
+    background: var(--color-bg);
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white font-medium px-4 py-2 rounded-button transition-colors;
+    @apply hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-white border border-[#E5E7EB] rounded-card p-4 shadow-card;
+  }
+
+  .input-field {
+    @apply w-full border border-[#E5E7EB] rounded-button px-3 py-2 text-sm;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply placeholder:text-text-muted;
+  }
+}
