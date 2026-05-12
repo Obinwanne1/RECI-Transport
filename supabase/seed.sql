@@ -34,52 +34,52 @@ VALUES
 INSERT INTO vehicles (id, category_id, location_id, make, model, year, registration_plate, fuel_type, transmission, color, mileage, features)
 VALUES
   -- Economy x2
-  ('v0000000-0000-0000-0000-000000000001',
+  ('e0000000-0000-0000-0000-000000000001',
    'c0000000-0000-0000-0000-000000000001',
    'a1b2c3d4-0000-0000-0000-000000000001',
    'Volkswagen', 'Polo', 2023, 'B-RT 1001', 'petrol', 'manual', 'Silver', 12450,
    ARRAY['Bluetooth', 'USB-C', 'Rear camera']),
 
-  ('v0000000-0000-0000-0000-000000000002',
+  ('e0000000-0000-0000-0000-000000000002',
    'c0000000-0000-0000-0000-000000000001',
    'a1b2c3d4-0000-0000-0000-000000000001',
    'Toyota', 'Yaris', 2024, 'B-RT 1002', 'hybrid', 'automatic', 'White', 4800,
    ARRAY['Bluetooth', 'Lane assist', 'Apple CarPlay', 'Android Auto']),
 
   -- Compact x2
-  ('v0000000-0000-0000-0000-000000000003',
+  ('e0000000-0000-0000-0000-000000000003',
    'c0000000-0000-0000-0000-000000000002',
    'a1b2c3d4-0000-0000-0000-000000000001',
    'Volkswagen', 'Golf', 2023, 'B-RT 2001', 'petrol', 'automatic', 'Black', 18200,
    ARRAY['Bluetooth', 'Cruise control', 'Parking sensors', 'Apple CarPlay']),
 
-  ('v0000000-0000-0000-0000-000000000004',
+  ('e0000000-0000-0000-0000-000000000004',
    'c0000000-0000-0000-0000-000000000002',
    'a1b2c3d4-0000-0000-0000-000000000001',
    'Seat', 'Leon', 2024, 'B-RT 2002', 'diesel', 'manual', 'Grey', 9100,
    ARRAY['Bluetooth', 'USB-C', 'Rear camera', 'Climate control']),
 
   -- SUV x2
-  ('v0000000-0000-0000-0000-000000000005',
+  ('e0000000-0000-0000-0000-000000000005',
    'c0000000-0000-0000-0000-000000000003',
    'a1b2c3d4-0000-0000-0000-000000000001',
    'Volkswagen', 'Tiguan', 2023, 'B-RT 3001', 'diesel', 'automatic', 'Blue', 22300,
    ARRAY['Bluetooth', 'Navigation', 'Panoramic roof', 'Heated seats', '4WD']),
 
-  ('v0000000-0000-0000-0000-000000000006',
+  ('e0000000-0000-0000-0000-000000000006',
    'c0000000-0000-0000-0000-000000000003',
    'a1b2c3d4-0000-0000-0000-000000000001',
    'Toyota', 'RAV4', 2024, 'B-RT 3002', 'hybrid', 'automatic', 'White', 8700,
    ARRAY['Bluetooth', 'Apple CarPlay', 'Android Auto', 'Adaptive cruise', 'Heated seats']),
 
   -- Van x2
-  ('v0000000-0000-0000-0000-000000000007',
+  ('e0000000-0000-0000-0000-000000000007',
    'c0000000-0000-0000-0000-000000000004',
    'a1b2c3d4-0000-0000-0000-000000000001',
    'Mercedes-Benz', 'Sprinter', 2022, 'B-RT 4001', 'diesel', 'manual', 'White', 45600,
    ARRAY['Bluetooth', 'Rear camera', 'Loading ramp', 'Bulkhead']),
 
-  ('v0000000-0000-0000-0000-000000000008',
+  ('e0000000-0000-0000-0000-000000000008',
    'c0000000-0000-0000-0000-000000000004',
    'a1b2c3d4-0000-0000-0000-000000000001',
    'Ford', 'Transit', 2023, 'B-RT 4002', 'diesel', 'automatic', 'Silver', 31200,

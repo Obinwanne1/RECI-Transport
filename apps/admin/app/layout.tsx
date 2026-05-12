@@ -3,23 +3,28 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import AdminNav from '@/components/AdminNav'
 import './globals.css'
 
+const SUPABASE_CONFIGURED =
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co'
+
 export const metadata: Metadata = {
   title: 'RECI Admin',
   description: 'RECI Transport fleet and operations dashboard.',
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  // Try to get user — may not exist on /auth/login
   let userEmail = ''
-  try {
-    const supabase = createServerSupabaseClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    userEmail = user?.email ?? ''
-  } catch {
-    // Not authenticated — middleware will redirect; layout renders auth page
+  if (SUPABASE_CONFIGURED) {
+    try {
+      const supabase = createServerSupabaseClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      userEmail = user?.email ?? ''
+    } catch {
+      // Not authenticated — middleware will redirect
+    }
   }
 
-  const isAuthPage = !userEmail
+  const isAuthPage = SUPABASE_CONFIGURED && !userEmail
 
   return (
     <html lang="en">
@@ -28,7 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           children
         ) : (
           <div className="flex min-h-screen">
-            <AdminNav userEmail={userEmail} />
+            <AdminNav userEmail={userEmail || 'dev@localhost'} />
             <main className="flex-1 overflow-auto">
               {children}
             </main>

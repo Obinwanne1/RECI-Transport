@@ -1,108 +1,87 @@
 import Link from 'next/link'
 import type { Vehicle } from '@/lib/schemas'
 
-const FUEL_LABELS: Record<string, string> = {
-  petrol: 'Petrol',
-  diesel: 'Diesel',
-  electric: 'Electric',
-  hybrid: 'Hybrid',
+const FUEL_BADGES: Record<string, { label: string; cls: string }> = {
+  petrol:   { label: 'Petrol',   cls: 'bg-orange-50 text-orange-600 border-orange-100' },
+  diesel:   { label: 'Diesel',   cls: 'bg-blue-50 text-blue-600 border-blue-100' },
+  electric: { label: 'Electric', cls: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+  hybrid:   { label: 'Hybrid',   cls: 'bg-teal-50 text-teal-600 border-teal-100' },
 }
 
-const FUEL_COLORS: Record<string, string> = {
-  petrol: 'bg-orange-100 text-orange-700',
-  diesel: 'bg-blue-100 text-blue-700',
-  electric: 'bg-green-100 text-green-700',
-  hybrid: 'bg-teal-100 text-teal-700',
-}
-
-interface VehicleCardProps {
-  vehicle: Vehicle
-}
-
-export default function VehicleCard({ vehicle }: VehicleCardProps) {
-  const { id, make, model, year, fuel_type, transmission, image_urls, daily_rate, category } =
-    vehicle
-
+export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
+  const { id, make, model, year, fuel_type, transmission, image_urls, daily_rate, category } = vehicle
   const image = image_urls?.[0] ?? null
+  const fuel = FUEL_BADGES[fuel_type] ?? { label: fuel_type, cls: 'bg-gray-50 text-gray-500 border-gray-100' }
 
   return (
-    <div className="card flex flex-col h-full">
+    <div className="group bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col">
       {/* Image */}
-      <div className="aspect-[16/9] rounded-md overflow-hidden bg-[#F3F4F6] mb-4 flex items-center justify-center">
+      <div className="aspect-[16/9] bg-[#F3F4F6] relative overflow-hidden">
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt={`${make} ${model}`} className="w-full h-full object-cover" />
+          <img src={image} alt={`${make} ${model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (
-          <div className="flex flex-col items-center gap-2 text-[#6B7280]">
-            <svg
-              className="w-12 h-12 opacity-40"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M8 17h8M5 10l1.5-4.5h11L19 10M5 10H3l-.5 3H3v4h2v-1h14v1h2v-4h-.5L18 10H5z"
-              />
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-[#D1D5DB]">
+            <svg className="w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 17h8M5 10l1.5-4.5h11L19 10M5 10H3l-.5 3H3v4h2v-1h14v1h2v-4h-.5L18 10H5z" />
             </svg>
-            <span className="text-xs">No image</span>
+            <span className="text-xs font-medium text-[#9CA3AF]">{make} {model}</span>
           </div>
         )}
-      </div>
-
-      {/* Category badge */}
-      {category && (
-        <span className="text-xs font-medium text-primary uppercase tracking-wide mb-1">
-          {category.name}
-        </span>
-      )}
-
-      {/* Title */}
-      <h3 className="font-semibold text-[#1A1A1A] text-lg leading-tight">
-        {make} {model}
-      </h3>
-      <p className="text-sm text-[#6B7280] mb-3">{year}</p>
-
-      {/* Badges */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <span className={`text-xs px-2 py-1 rounded-full font-medium ${FUEL_COLORS[fuel_type] ?? 'bg-gray-100 text-gray-600'}`}>
-          {FUEL_LABELS[fuel_type] ?? fuel_type}
-        </span>
-        <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600 capitalize">
-          {transmission}
-        </span>
+        {/* Category ribbon */}
         {category && (
-          <>
-            <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600">
-              {category.passenger_capacity} seats
-            </span>
-            <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600">
-              {category.luggage_capacity} bags
-            </span>
-          </>
+          <span className="absolute top-3 left-3 bg-[#407E3C] text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
+            {category.name}
+          </span>
         )}
       </div>
 
-      {/* Price + CTA */}
-      <div className="mt-auto flex items-center justify-between pt-4 border-t border-[#E5E7EB]">
-        <div>
-          {daily_rate != null ? (
+      {/* Content */}
+      <div className="p-5 flex flex-col flex-1">
+        <div className="mb-3">
+          <h3 className="font-bold text-[#1A1A1A] text-lg leading-tight">{make} {model}</h3>
+          <p className="text-sm text-[#9CA3AF] font-medium">{year}</p>
+        </div>
+
+        {/* Specs badges */}
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${fuel.cls}`}>
+            {fuel.label}
+          </span>
+          <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-gray-50 text-gray-500 border-gray-100 capitalize">
+            {transmission}
+          </span>
+          {category && (
             <>
-              <span className="text-2xl font-bold text-[#1A1A1A]">€{daily_rate}</span>
-              <span className="text-sm text-[#6B7280]">/day</span>
+              <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-gray-50 text-gray-500 border-gray-100">
+                {category.passenger_capacity} seats
+              </span>
+              <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-gray-50 text-gray-500 border-gray-100">
+                {category.luggage_capacity} bags
+              </span>
             </>
-          ) : (
-            <span className="text-sm text-[#6B7280]">Price on request</span>
           )}
         </div>
-        <Link
-          href={`/book/${id}`}
-          className="btn-primary text-sm"
-        >
-          Book Now
-        </Link>
+
+        {/* Price + CTA */}
+        <div className="mt-auto flex items-center justify-between pt-4 border-t border-[#F3F4F6]">
+          <div>
+            {daily_rate != null ? (
+              <div className="leading-none">
+                <span className="text-2xl font-bold text-[#407E3C]">€{daily_rate}</span>
+                <span className="text-sm text-[#9CA3AF] ml-1">/day</span>
+              </div>
+            ) : (
+              <span className="text-sm text-[#9CA3AF]">Price on request</span>
+            )}
+          </div>
+          <Link
+            href={`/book/${id}`}
+            className="bg-[#407E3C] hover:bg-[#356834] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+          >
+            Book Now
+          </Link>
+        </div>
       </div>
     </div>
   )

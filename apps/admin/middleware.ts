@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+const SUPABASE_CONFIGURED =
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'placeholder-anon-key'
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -9,6 +15,8 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/auth/login')) {
     return NextResponse.next()
   }
+
+  if (!SUPABASE_CONFIGURED) return NextResponse.next()
 
   const response = NextResponse.next({ request })
 

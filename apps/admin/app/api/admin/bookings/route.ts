@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { SUPABASE_CONFIGURED, MOCK_BOOKINGS } from '@/lib/mock-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +12,13 @@ export async function GET(request: NextRequest) {
   const perPage = 20
   const from = (page - 1) * perPage
   const to = from + perPage - 1
+
+  if (!SUPABASE_CONFIGURED) {
+    let results = MOCK_BOOKINGS
+    if (status && status !== 'all') results = results.filter((b) => b.status === status)
+    if (search) results = results.filter((b) => b.booking_ref.includes(search) || b.driver_email.includes(search))
+    return NextResponse.json({ bookings: results.slice(from, to + 1), total: results.length, page, per_page: perPage })
+  }
 
   const supabase = createAdminClient()
 

@@ -96,7 +96,8 @@ export async function POST(request: NextRequest) {
 
   let parsed: unknown
   try {
-    parsed = JSON.parse(jsonText)
+    // Strip null values — schema uses .optional() which accepts undefined, not null
+    parsed = JSON.parse(jsonText, (_, v) => (v === null ? undefined : v))
   } catch {
     console.error('Claude returned non-JSON:', rawText)
     return NextResponse.json({ error: 'AI returned malformed response' }, { status: 422 })

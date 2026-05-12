@@ -4,7 +4,6 @@
 -- ============================================================
 
 -- ─── Extensions ──────────────────────────────────────────────────────────────
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- ─── Enums ───────────────────────────────────────────────────────────────────
@@ -39,7 +38,7 @@ CREATE SEQUENCE booking_ref_seq START 1;
 
 -- ─── Locations ───────────────────────────────────────────────────────────────
 CREATE TABLE locations (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          TEXT NOT NULL,
   address       TEXT NOT NULL,
   city          TEXT NOT NULL,
@@ -52,7 +51,7 @@ CREATE TABLE locations (
 
 -- ─── Vehicle Categories ───────────────────────────────────────────────────────
 CREATE TABLE vehicle_categories (
-  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name                TEXT NOT NULL,
   slug                TEXT NOT NULL UNIQUE,
   tier                vehicle_tier NOT NULL,
@@ -65,7 +64,7 @@ CREATE TABLE vehicle_categories (
 
 -- ─── Vehicles ─────────────────────────────────────────────────────────────────
 CREATE TABLE vehicles (
-  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   category_id         UUID NOT NULL REFERENCES vehicle_categories(id) ON DELETE RESTRICT,
   location_id         UUID NOT NULL REFERENCES locations(id) ON DELETE RESTRICT,
   make                TEXT NOT NULL,
@@ -88,7 +87,7 @@ CREATE INDEX idx_vehicles_is_active ON vehicles(is_active);
 
 -- ─── Pricing Rules ────────────────────────────────────────────────────────────
 CREATE TABLE pricing_rules (
-  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   category_id           UUID NOT NULL REFERENCES vehicle_categories(id) ON DELETE CASCADE,
   location_id           UUID REFERENCES locations(id) ON DELETE CASCADE,
   base_rate_per_day     DECIMAL(10, 2) NOT NULL,
@@ -102,7 +101,7 @@ CREATE TABLE pricing_rules (
 
 -- ─── Pricing Overrides (seasonal / demand surcharges) ────────────────────────
 CREATE TABLE pricing_overrides (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   category_id     UUID REFERENCES vehicle_categories(id) ON DELETE CASCADE,
   location_id     UUID REFERENCES locations(id) ON DELETE CASCADE,
   name            TEXT NOT NULL,
@@ -115,7 +114,7 @@ CREATE TABLE pricing_overrides (
 
 -- ─── Corporate Accounts ───────────────────────────────────────────────────────
 CREATE TABLE corporate_accounts (
-  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   company_name          TEXT NOT NULL,
   company_registration  TEXT,
   vat_number            TEXT,
@@ -131,7 +130,7 @@ CREATE TABLE corporate_accounts (
 
 -- ─── Corporate Pricing ────────────────────────────────────────────────────────
 CREATE TABLE corporate_pricing (
-  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   corporate_account_id  UUID NOT NULL REFERENCES corporate_accounts(id) ON DELETE CASCADE,
   category_id           UUID NOT NULL REFERENCES vehicle_categories(id) ON DELETE CASCADE,
   rate_per_day          DECIMAL(10, 2) NOT NULL,
@@ -142,7 +141,7 @@ CREATE TABLE corporate_pricing (
 
 -- ─── Extras ───────────────────────────────────────────────────────────────────
 CREATE TABLE extras (
-  id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name             TEXT NOT NULL,
   description      TEXT,
   price_per_day    DECIMAL(10, 2) NOT NULL,
@@ -185,7 +184,7 @@ CREATE TRIGGER on_auth_user_created
 
 -- ─── Bookings ─────────────────────────────────────────────────────────────────
 CREATE TABLE bookings (
-  id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   booking_ref             TEXT NOT NULL UNIQUE DEFAULT (
     'RECI-' || TO_CHAR(NOW(), 'YYYY') || '-' || LPAD(nextval('booking_ref_seq')::TEXT, 5, '0')
   ),
@@ -219,7 +218,7 @@ CREATE INDEX idx_bookings_corporate ON bookings(corporate_account_id);
 
 -- ─── Booking Extras ───────────────────────────────────────────────────────────
 CREATE TABLE booking_extras (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   booking_id      UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
   extra_id        UUID NOT NULL REFERENCES extras(id) ON DELETE RESTRICT,
   quantity        INT NOT NULL DEFAULT 1,
@@ -229,7 +228,7 @@ CREATE TABLE booking_extras (
 
 -- ─── Availability Blocks ──────────────────────────────────────────────────────
 CREATE TABLE availability_blocks (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id    UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   start_date    TIMESTAMPTZ NOT NULL,
   end_date      TIMESTAMPTZ NOT NULL,
@@ -243,7 +242,7 @@ CREATE INDEX idx_availability_blocks_vehicle ON availability_blocks(vehicle_id, 
 
 -- ─── Payments ─────────────────────────────────────────────────────────────────
 CREATE TABLE payments (
-  id                          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   booking_id                  UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
   amount                      DECIMAL(10, 2) NOT NULL,
   currency                    TEXT NOT NULL DEFAULT 'EUR',
@@ -260,7 +259,7 @@ CREATE INDEX idx_payments_stripe_pi ON payments(stripe_payment_intent_id);
 
 -- ─── Email Logs ───────────────────────────────────────────────────────────────
 CREATE TABLE email_logs (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   booking_id  UUID REFERENCES bookings(id) ON DELETE SET NULL,
   user_id     UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   to_email    TEXT NOT NULL,
@@ -273,7 +272,7 @@ CREATE TABLE email_logs (
 
 -- ─── Vehicle Inspections (AI damage detection) ────────────────────────────────
 CREATE TABLE vehicle_inspections (
-  id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   booking_id        UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
   inspection_type   inspection_type NOT NULL,
   photo_urls        TEXT[] NOT NULL DEFAULT '{}',
@@ -285,7 +284,7 @@ CREATE TABLE vehicle_inspections (
 
 -- ─── AI Conversations (conversational search) ────────────────────────────────
 CREATE TABLE ai_conversations (
-  id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id           UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   session_id        TEXT NOT NULL,
   messages          JSONB NOT NULL DEFAULT '[]',
@@ -298,7 +297,7 @@ CREATE INDEX idx_ai_conversations_session ON ai_conversations(session_id);
 
 -- ─── Licence Verifications (AI OCR) ──────────────────────────────────────────
 CREATE TABLE licence_verifications (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   extracted_data  JSONB,
   confidence      DECIMAL(4, 3),
@@ -311,7 +310,7 @@ CREATE INDEX idx_licence_verifications_user ON licence_verifications(user_id);
 
 -- ─── Pricing Signals (dynamic demand, Phase 8c) ───────────────────────────────
 CREATE TABLE pricing_signals (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   category_id   UUID NOT NULL REFERENCES vehicle_categories(id) ON DELETE CASCADE,
   date          DATE NOT NULL,
   demand_score  DECIMAL(4, 3) NOT NULL DEFAULT 0,

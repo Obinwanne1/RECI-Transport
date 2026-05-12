@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, use } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import CheckoutStepper from '@/components/booking/CheckoutStepper'
@@ -9,8 +9,8 @@ import { useBookingStore } from '@/hooks/useBookingStore'
 import { calculatePrice } from '@reci/utils'
 import type { Vehicle } from '@/lib/schemas'
 
-export default function BookStep1Page({ params }: { params: Promise<{ vehicleId: string }> }) {
-  const { vehicleId } = use(params)
+export default function BookStep1Page({ params }: { params: { vehicleId: string } }) {
+  const { vehicleId } = params
   const router = useRouter()
   const { setVehicle, setDates, setPricing, pickupDate, dropoffDate, vehicle: storedVehicle } = useBookingStore()
 

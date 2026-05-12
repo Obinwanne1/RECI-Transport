@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { z } from 'zod'
+import { SUPABASE_CONFIGURED, MOCK_BOOKINGS } from '@/lib/mock-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +21,12 @@ const PatchSchema = z.object({
 })
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+  if (!SUPABASE_CONFIGURED) {
+    const booking = MOCK_BOOKINGS.find((b) => b.id === params.id)
+    if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+    return NextResponse.json(booking)
+  }
+
   const supabase = createAdminClient()
 
   const { data, error } = await supabase
