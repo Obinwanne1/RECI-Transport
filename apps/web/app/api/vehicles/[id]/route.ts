@@ -11,8 +11,10 @@ export async function GET(
     .from('vehicles')
     .select(`
       *,
-      category:vehicle_categories(*),
-      pricing:pricing_rules(base_rate_per_day)
+      category:vehicle_categories(
+        *,
+        pricing:pricing_rules(base_rate_per_day)
+      )
     `)
     .eq('id', params.id)
     .eq('is_active', true)
@@ -22,10 +24,9 @@ export async function GET(
     return NextResponse.json({ error: 'Vehicle not found' }, { status: 404 })
   }
 
-  const pricingArr = data.pricing as Array<{ base_rate_per_day: number }> | null
-  const daily_rate = pricingArr?.[0]?.base_rate_per_day ?? null
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { pricing, ...vehicle } = data
+  const category = data.category as { pricing?: Array<{ base_rate_per_day: number }> } & Record<string, unknown> | null
+  const daily_rate = category?.pricing?.[0]?.base_rate_per_day ?? null
+  const vehicle = data
 
   return NextResponse.json({ ...vehicle, daily_rate })
 }

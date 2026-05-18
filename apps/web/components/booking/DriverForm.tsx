@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { DriverDetailsSchema, type DriverDetails } from '@/lib/schemas'
+import LicenceUpload from '@/components/booking/LicenceUpload'
 
 interface DriverFormProps {
   defaultValues?: Partial<DriverDetails>
@@ -14,11 +15,16 @@ export default function DriverForm({ defaultValues, onSubmit, loading }: DriverF
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<DriverDetails>({
     resolver: zodResolver(DriverDetailsSchema),
     defaultValues,
   })
+
+  const firstName = watch('first_name') ?? ''
+  const lastName = watch('last_name') ?? ''
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -75,9 +81,12 @@ export default function DriverForm({ defaultValues, onSubmit, loading }: DriverF
           className="input-field"
           placeholder="B123456789"
         />
-        <p className="text-xs text-[#6B7280] mt-1">
-          Required at vehicle pick-up. AI verification available in Phase 8.
-        </p>
+        <p className="text-xs text-[#6B7280] mt-1">Required at vehicle pick-up.</p>
+        <LicenceUpload
+          firstName={firstName}
+          lastName={lastName}
+          onVerified={(licenceNumber) => setValue('licence_number', licenceNumber)}
+        />
       </div>
 
       <button

@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import CheckoutStepper from '@/components/booking/CheckoutStepper'
+import TripCopilot from '@/components/booking/TripCopilot'
 import { useBookingStore } from '@/hooks/useBookingStore'
 import type { BookingConfirmation } from '@/lib/schemas'
 
@@ -241,6 +242,18 @@ function BookConfirmationContent() {
                 Questions? Call us at <strong className="text-[#1A1A1A]">+49 30 0000 0000</strong>
               </li>
             </ul>
+          </div>
+
+          {/* Trip Co-pilot */}
+          <div className="mb-6">
+            <TripCopilot
+              bookingId={booking.id}
+              pickupLocation="RECI HQ, Berlin"
+              fuelType={(booking.vehicle.fuel_type as 'petrol' | 'diesel' | 'electric' | 'hybrid') ?? 'petrol'}
+              pickupDate={booking.pickup_datetime}
+              dropoffDate={booking.dropoff_datetime}
+              vehicleName={`${booking.vehicle.year} ${booking.vehicle.make} ${booking.vehicle.model}`}
+            />
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

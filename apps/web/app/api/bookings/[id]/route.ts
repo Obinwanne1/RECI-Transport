@@ -15,7 +15,7 @@ export async function GET(
       id, booking_ref, status,
       driver_first_name, driver_last_name, driver_email,
       pickup_datetime, dropoff_datetime, total_price,
-      vehicle:vehicles(make, model, year, category:vehicle_categories(name)),
+      vehicle:vehicles(make, model, year, fuel_type, category:vehicle_categories(name)),
       extras:booking_extras(quantity, price_snapshot, extra:extras(name))
     `
     )
@@ -27,9 +27,8 @@ export async function GET(
   }
 
   // Normalise Supabase join shapes
-  const vehicleRaw = booking.vehicle as unknown as
-    | Array<{ make: string; model: string; year: number; category: Array<{ name: string }> | { name: string } | null }>
-    | { make: string; model: string; year: number; category: Array<{ name: string }> | { name: string } | null }
+  type VehicleShape = { make: string; model: string; year: number; fuel_type?: string; category: Array<{ name: string }> | { name: string } | null }
+  const vehicleRaw = booking.vehicle as unknown as Array<VehicleShape> | VehicleShape
 
   const vehicleObj = Array.isArray(vehicleRaw) ? vehicleRaw[0] : vehicleRaw
   const catRaw = vehicleObj?.category
@@ -66,6 +65,7 @@ export async function GET(
       make: vehicleObj?.make ?? '',
       model: vehicleObj?.model ?? '',
       year: vehicleObj?.year ?? 0,
+      fuel_type: vehicleObj?.fuel_type,
       category: catObj ? { name: catObj.name } : undefined,
     },
     extras,

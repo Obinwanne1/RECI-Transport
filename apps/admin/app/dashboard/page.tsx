@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
+import DemandCard from '@/components/DemandCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,6 +51,24 @@ async function getKpis() {
       .limit(10),
   ])
 
+  // Demand signals for today
+  const { data: demandSignals } = await supabase
+    .from('pricing_signals')
+    .select('demand_score, signal_type, vehicles_remaining, computed_at, vehicle_categories(name)')
+    .eq('date', todayStr)
+    .order('demand_score', { ascending: false })
+
+  const demandRows = (demandSignals ?? []).map((row: any) => {
+    const cat = Array.isArray(row.vehicle_categories) ? row.vehicle_categories[0] : row.vehicle_categories
+    return {
+      category_name: cat?.name ?? 'Unknown',
+      demand_score: row.demand_score,
+      signal_type: row.signal_type as 'normal' | 'high' | 'peak',
+      vehicles_remaining: row.vehicles_remaining ?? null,
+      computed_at: row.computed_at ?? null,
+    }
+  })
+
   return {
     pickups_today: pickupsToday ?? 0,
     revenue_this_month: (revenueData ?? []).reduce((sum, r) => sum + Number(r.amount), 0),
@@ -57,6 +76,7 @@ async function getKpis() {
     fleet_total: fleetTotal ?? 0,
     pending_payment: pendingPayment ?? 0,
     recent_bookings: recentBookings ?? [],
+    demand_rows: demandRows,
   }
 }
 
@@ -189,7 +209,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions + Demand */}
         <div className="space-y-4">
           <div className="bg-white border border-[#E5E7EB] rounded-xl shadow-sm p-5">
             <h2 className="text-sm font-semibold text-[#1A1A1A] mb-4">Quick Actions</h2>
@@ -235,6 +255,7 @@ export default async function DashboardPage() {
               ))}
             </div>
           </div>
+          <DemandCard rows={kpis.demand_rows} />
         </div>
       </div>
     </div>

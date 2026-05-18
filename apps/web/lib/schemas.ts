@@ -96,6 +96,7 @@ export const PricingSignalSchema = z.object({
   signal: z.enum(['normal', 'high', 'peak']),
   surcharge_pct: z.number(),
   message: z.string().nullable(),
+  vehicles_remaining: z.number().optional(),
 })
 
 export type Vehicle = z.infer<typeof VehicleSchema>
@@ -134,6 +135,7 @@ export const BookingConfirmationSchema = z.object({
     make: z.string(),
     model: z.string(),
     year: z.number(),
+    fuel_type: z.enum(['petrol', 'diesel', 'electric', 'hybrid']).optional(),
     category: z.object({ name: z.string() }).optional(),
   }),
   extras: z.array(
@@ -148,3 +150,62 @@ export const BookingConfirmationSchema = z.object({
 export type CreatePaymentIntent = z.infer<typeof CreatePaymentIntentSchema>
 export type PaymentIntentResponse = z.infer<typeof PaymentIntentResponseSchema>
 export type BookingConfirmation = z.infer<typeof BookingConfirmationSchema>
+
+// ─── Phase 8: AI Layer ────────────────────────────────────────────────────────
+
+// Führerschein OCR
+export const LicenceOCRResponseSchema = z.object({
+  name: z.string().nullable(),
+  licence_number: z.string().nullable(),
+  expiry_date: z.string().nullable(),
+  categories: z.array(z.string()),
+  issuing_country: z.string().nullable(),
+  confidence: z.number().min(0).max(1),
+  name_match: z.boolean(),
+})
+
+// Trip Co-pilot
+export const TripCopilotRequestSchema = z.object({
+  booking_id: z.string().uuid(),
+  pickup_location: z.string(),
+  fuel_type: z.enum(['petrol', 'diesel', 'electric', 'hybrid']),
+  pickup_date: z.string(),
+  dropoff_date: z.string(),
+  vehicle_name: z.string(),
+})
+
+export const TripCopilotResponseSchema = z.object({
+  route_summary: z.string(),
+  estimated_fuel_cost_eur: z.number().nullable(),
+  top_stops: z.array(
+    z.object({
+      name: z.string(),
+      description: z.string(),
+    })
+  ),
+  parking_tips: z.string(),
+  fuel_note: z.string().nullable(),
+})
+
+// AI Damage Detection
+export const DamageDetectionRequestSchema = z.object({
+  booking_id: z.string().uuid(),
+  inspection_type: z.enum(['pickup', 'return']),
+  photo_urls: z.array(z.string().url()).min(1).max(8),
+  baseline_photo_urls: z.array(z.string().url()).optional(),
+})
+
+export const DamageReportSchema = z.object({
+  new_damage: z.boolean(),
+  severity: z.enum(['none', 'minor', 'major']),
+  locations: z.array(z.string()),
+  confidence: z.number().min(0).max(1),
+  reasoning: z.string(),
+  needs_human_review: z.boolean().optional(),
+})
+
+export type LicenceOCRResponse = z.infer<typeof LicenceOCRResponseSchema>
+export type TripCopilotRequest = z.infer<typeof TripCopilotRequestSchema>
+export type TripCopilotResponse = z.infer<typeof TripCopilotResponseSchema>
+export type DamageDetectionRequest = z.infer<typeof DamageDetectionRequestSchema>
+export type DamageReport = z.infer<typeof DamageReportSchema>

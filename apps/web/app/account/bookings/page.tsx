@@ -96,14 +96,30 @@ export default function AccountBookingsPage() {
                   {formatDate(b.pickup_datetime)} → {formatDate(b.dropoff_datetime)}
                 </p>
               </div>
-              <div className="text-right shrink-0">
+              <div className="text-right shrink-0 space-y-1">
                 <p className="text-base font-bold text-primary">€{Number(b.total_price).toFixed(2)}</p>
                 {b.status === 'confirmed' && (
                   <Link
                     href={`/book/confirmation?booking_id=${b.id}`}
-                    className="text-xs text-primary hover:underline mt-1 block"
+                    className="text-xs text-primary hover:underline block"
                   >
                     View details →
+                  </Link>
+                )}
+                {b.status === 'active' && (
+                  <Link
+                    href={`/account/bookings/${b.id}/inspect-pickup`}
+                    className="text-xs text-[#407E3C] font-medium hover:underline block"
+                  >
+                    Inspect vehicle →
+                  </Link>
+                )}
+                {(b.status === 'completed' || b.status === 'active') && (
+                  <Link
+                    href={`/account/bookings/${b.id}/inspect-return`}
+                    className="text-xs text-[#6B7280] hover:underline block"
+                  >
+                    Return inspection →
                   </Link>
                 )}
               </div>

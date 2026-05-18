@@ -1,15 +1,16 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useVehicleSearch } from '@/hooks/useVehicleSearch'
 
-const BERLIN_HQ_ID = 'a1b2c3d4-0000-0000-0000-000000000001'
+interface Location { id: string; name: string; city: string }
 
 const FormSchema = z
   .object({
+    pickup_location_id: z.string().min(1, 'Required'),
     pickup_date: z.string().min(1, 'Required'),
     dropoff_date: z.string().min(1, 'Required'),
     category_slug: z.string().optional(),
@@ -31,10 +32,19 @@ const labelCls = "block text-xs font-semibold text-[#6B7280] uppercase tracking-
 
 export default function SearchWidget({ initialValues, onSearch }: SearchWidgetProps) {
   const { search, setParams } = useVehicleSearch()
+  const [locations, setLocations] = useState<Location[]>([])
+
+  useEffect(() => {
+    fetch('/api/locations')
+      .then((r) => r.json())
+      .then((data) => setLocations(Array.isArray(data) ? data : []))
+      .catch(() => {})
+  }, [])
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
+      pickup_location_id: 'a1b2c3d4-0000-0000-0000-000000000001',
       pickup_date: initialValues?.pickup_date ?? '',
       dropoff_date: initialValues?.dropoff_date ?? '',
       category_slug: initialValues?.category_slug ?? '',
@@ -44,6 +54,7 @@ export default function SearchWidget({ initialValues, onSearch }: SearchWidgetPr
   useEffect(() => {
     if (initialValues) {
       reset({
+        pickup_location_id: 'a1b2c3d4-0000-0000-0000-000000000001',
         pickup_date: initialValues.pickup_date ?? '',
         dropoff_date: initialValues.dropoff_date ?? '',
         category_slug: initialValues.category_slug ?? '',
@@ -56,13 +67,13 @@ export default function SearchWidget({ initialValues, onSearch }: SearchWidgetPr
       pickup_date: values.pickup_date,
       dropoff_date: values.dropoff_date,
       category_slug: values.category_slug || undefined,
-      pickup_location_id: BERLIN_HQ_ID,
+      pickup_location_id: values.pickup_location_id,
     })
     search({
       pickup_date: values.pickup_date,
       dropoff_date: values.dropoff_date,
       category_slug: values.category_slug || undefined,
-      pickup_location_id: BERLIN_HQ_ID,
+      pickup_location_id: values.pickup_location_id,
     })
     onSearch?.()
   }
@@ -77,12 +88,17 @@ export default function SearchWidget({ initialValues, onSearch }: SearchWidgetPr
           <label className={labelCls}>
             <span className="mr-1">📍</span>Pick-up Location
           </label>
-          <input
-            type="text"
-            value="Berlin HQ"
-            readOnly
-            className={`${inputCls} bg-[#F9FAFB] text-[#9CA3AF] cursor-not-allowed`}
-          />
+          <select {...register('pickup_location_id')} className={inputCls}>
+            {locations.length === 0 && (
+              <option value="a1b2c3d4-0000-0000-0000-000000000001">Berlin HQ</option>
+            )}
+            {locations.map((loc) => (
+              <option key={loc.id} value={loc.id}>{loc.city}</option>
+            ))}
+          </select>
+          {errors.pickup_location_id && (
+            <p className="text-[#DC2626] text-xs mt-1">{errors.pickup_location_id.message}</p>
+          )}
         </div>
 
         {/* Pick-up */}

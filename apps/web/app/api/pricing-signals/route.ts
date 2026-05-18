@@ -51,7 +51,25 @@ export async function GET(request: NextRequest) {
 
   const fleetSize = (fleet as unknown as { count: number } | null)?.count ?? 0
   const booked = bookingCount ?? 0
-  const demandRatio = fleetSize > 0 ? booked / fleetSize : 0
+  const realtimeDemandRatio = fleetSize > 0 ? booked / fleetSize : 0
+  const vehiclesRemaining = Math.max(0, fleetSize - booked)
+
+  // Check pre-computed signals (higher confidence from batch computation)
+  const { data: precomputed } = await supabase
+    .from('pricing_signals')
+    .select('demand_score, signal_type, vehicles_remaining')
+    .eq('category_id', category_id)
+    .gte('date', start_date)
+    .lte('date', end_date)
+    .order('demand_score', { ascending: false })
+    .limit(1)
+
+  const precomputedSignal = precomputed?.[0]
+  const demandRatio = precomputedSignal
+    ? Math.max(realtimeDemandRatio, precomputedSignal.demand_score)
+    : realtimeDemandRatio
+
+  const remaining = precomputedSignal?.vehicles_remaining ?? vehiclesRemaining
 
   const topOverride = overrides?.[0]
   const surchargePct = topOverride?.surcharge_pct ?? 0
@@ -61,13 +79,17 @@ export async function GET(request: NextRequest) {
 
   if (demandRatio >= 0.8 || surchargePct > 15) {
     signal = 'peak'
-    message = `Peak demand — prices are at their highest for these dates`
+    message = remaining <= 3
+      ? `Peak demand — only ${remaining} left for these dates`
+      : `Peak demand — prices are at their highest for these dates`
   } else if (demandRatio >= 0.5 || surchargePct > 0) {
     signal = 'high'
     message = topOverride?.name
       ? `${topOverride.name} — prices elevated for these dates`
+      : remaining <= 3
+      ? `High demand — only ${remaining} available for these dates`
       : `High demand for these dates — lock in your rate now`
   }
 
-  return NextResponse.json({ signal, surcharge_pct: surchargePct, message })
+  return NextResponse.json({ signal, surcharge_pct: surchargePct, message, vehicles_remaining: remaining })
 }
