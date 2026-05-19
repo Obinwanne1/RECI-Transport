@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         .select('id, booking_ref, vehicle_id, pickup_datetime, dropoff_datetime, status, driver_first_name, driver_last_name')
         .gte('dropoff_datetime', start)
         .lte('pickup_datetime', end)
-        .not('status', 'in', '(cancelled,payment_failed)'),
+        .in('status', ['pending', 'confirmed', 'active', 'completed']),
       supabase
         .from('availability_blocks')
         .select('id, vehicle_id, start_date, end_date, reason')
