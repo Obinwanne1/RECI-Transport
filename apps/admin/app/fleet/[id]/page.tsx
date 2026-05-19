@@ -21,6 +21,9 @@ const Schema = z.object({
 })
 type FormData = z.infer<typeof Schema>
 
+const inputCls = 'w-full border border-[#E5E7EB] dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-[#1A1A1A] dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#407E3C] focus:border-transparent transition-colors'
+const labelCls = 'block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1.5'
+
 export default function EditVehiclePage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [categories, setCategories] = useState<any[]>([])
@@ -28,6 +31,7 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
   const [serverError, setServerError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [deactivating, setDeactivating] = useState(false)
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false)
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(Schema),
@@ -43,14 +47,11 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
       const cat = Array.isArray(vehicle.category) ? vehicle.category[0] : vehicle.category
       const loc = Array.isArray(vehicle.location) ? vehicle.location[0] : vehicle.location
       reset({
-        make: vehicle.make,
-        model: vehicle.model,
-        year: vehicle.year,
+        make: vehicle.make, model: vehicle.model, year: vehicle.year,
         registration_plate: vehicle.registration_plate,
         category_id: cat?.id ?? vehicle.category_id,
         location_id: loc?.id ?? vehicle.location_id,
-        fuel_type: vehicle.fuel_type,
-        transmission: vehicle.transmission,
+        fuel_type: vehicle.fuel_type, transmission: vehicle.transmission,
         color: vehicle.color,
         seats: vehicle.seats ?? undefined,
         mileage: vehicle.mileage ?? undefined,
@@ -77,65 +78,95 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
     router.push('/fleet')
   }
 
-  if (loading) return <div className="p-6 text-[#6B7280]">Loading…</div>
+  if (loading) {
+    return (
+      <div className="p-6 max-w-2xl mx-auto animate-pulse space-y-4">
+        <div className="h-4 w-16 bg-[#F3F4F6] dark:bg-gray-800 rounded" />
+        <div className="h-7 w-40 bg-[#F3F4F6] dark:bg-gray-800 rounded" />
+        <div className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-xl p-6 space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-10 bg-[#F3F4F6] dark:bg-gray-800 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <button onClick={() => router.back()} className="text-sm text-[#6B7280] hover:text-[#1A1A1A] mb-4 inline-block">← Back</button>
-      <h1 className="text-2xl font-bold text-[#1A1A1A] mb-6">Edit Vehicle</h1>
+      <button onClick={() => router.back()} className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] dark:text-gray-400 hover:text-[#1A1A1A] dark:hover:text-gray-100 mb-5 transition-colors">
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back
+      </button>
+      <h1 className="text-2xl font-bold text-[#1A1A1A] dark:text-gray-100 tracking-tight mb-6">Edit Vehicle</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white border border-[#E5E7EB] rounded-lg p-6 space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-xl p-6 space-y-5 shadow-sm">
         <div className="grid grid-cols-2 gap-4">
           {(['make', 'model', 'registration_plate', 'color'] as const).map((name) => (
             <div key={name}>
-              <label className="block text-sm font-medium text-[#1A1A1A] mb-1 capitalize">{name.replace('_', ' ')}</label>
-              <input type="text" className="w-full border border-[#E5E7EB] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#407E3C]" {...register(name)} />
-              {errors[name] && <p className="mt-1 text-xs text-[#DC2626]">{errors[name]?.message as string}</p>}
+              <label className={labelCls}>{name.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</label>
+              <input type="text" className={inputCls} {...register(name)} />
+              {errors[name] && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors[name]?.message as string}</p>}
             </div>
           ))}
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Year</label>
-            <input type="number" className="w-full border border-[#E5E7EB] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#407E3C]" {...register('year')} />
+            <label className={labelCls}>Year</label>
+            <input type="number" className={inputCls} {...register('year')} />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="border-t border-[#F3F4F6] dark:border-gray-800 pt-5 grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Fuel type</label>
-            <select className="w-full border border-[#E5E7EB] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#407E3C]" {...register('fuel_type')}>
+            <label className={labelCls}>Fuel type</label>
+            <select className={inputCls} {...register('fuel_type')}>
               {['petrol','diesel','electric','hybrid'].map((f) => <option key={f} value={f}>{f}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Transmission</label>
-            <select className="w-full border border-[#E5E7EB] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#407E3C]" {...register('transmission')}>
+            <label className={labelCls}>Transmission</label>
+            <select className={inputCls} {...register('transmission')}>
               <option value="automatic">Automatic</option>
               <option value="manual">Manual</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Category</label>
-            <select className="w-full border border-[#E5E7EB] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#407E3C]" {...register('category_id')}>
+            <label className={labelCls}>Category</label>
+            <select className={inputCls} {...register('category_id')}>
               {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Location</label>
-            <select className="w-full border border-[#E5E7EB] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#407E3C]" {...register('location_id')}>
+            <label className={labelCls}>Location</label>
+            <select className={inputCls} {...register('location_id')}>
               {locations.map((l: any) => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </div>
         </div>
 
-        {serverError && <p className="text-sm text-[#DC2626] bg-red-50 border border-red-200 rounded px-3 py-2">{serverError}</p>}
+        {serverError && (
+          <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">{serverError}</p>
+        )}
 
-        <div className="flex gap-3">
-          <button type="submit" disabled={isSubmitting} className="flex-1 bg-[#407E3C] hover:bg-[#356834] text-white font-semibold py-2.5 rounded-md text-sm transition-colors disabled:opacity-50">
+        <div className="flex gap-3 pt-1">
+          <button type="submit" disabled={isSubmitting} className="flex-1 bg-[#407E3C] hover:bg-[#356834] text-white font-semibold py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 shadow-sm">
             {isSubmitting ? 'Saving…' : 'Save changes'}
           </button>
-          <button type="button" onClick={handleDeactivate} disabled={deactivating} className="px-4 py-2.5 border border-[#DC2626] text-[#DC2626] text-sm font-semibold rounded-md hover:bg-red-50 transition-colors disabled:opacity-50">
-            {deactivating ? 'Deactivating…' : 'Deactivate'}
-          </button>
+          {confirmDeactivate ? (
+            <div className="flex gap-2">
+              <button type="button" onClick={handleDeactivate} disabled={deactivating} className="px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50">
+                {deactivating ? 'Deactivating…' : 'Confirm'}
+              </button>
+              <button type="button" onClick={() => setConfirmDeactivate(false)} className="px-4 py-2.5 border border-[#E5E7EB] dark:border-gray-700 text-[#6B7280] dark:text-gray-400 text-sm font-semibold rounded-lg hover:bg-[#F9FAFB] dark:hover:bg-gray-800 transition-colors">
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button type="button" onClick={() => setConfirmDeactivate(true)} className="px-4 py-2.5 border border-[#E5E7EB] dark:border-gray-700 text-[#DC2626] dark:text-red-400 text-sm font-semibold rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+              Deactivate
+            </button>
+          )}
         </div>
       </form>
     </div>

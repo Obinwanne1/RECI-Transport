@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import AdminNav from '@/components/AdminNav'
+import { ThemeProvider } from '@/components/ThemeProvider'
+import TopBar from '@/components/TopBar'
 import './globals.css'
 
 const SUPABASE_CONFIGURED =
@@ -27,18 +29,34 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const isAuthPage = SUPABASE_CONFIGURED && !userEmail
 
   return (
-    <html lang="en">
-      <body className="bg-[#F9FAFB] font-sans">
-        {isAuthPage ? (
-          children
-        ) : (
-          <div className="flex min-h-screen">
-            <AdminNav userEmail={userEmail || 'dev@localhost'} />
-            <main className="flex-1 overflow-auto">
+    <html lang="en" suppressHydrationWarning>
+      {/* Anti-FOUC: set dark class before React hydrates */}
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          try {
+            var t = localStorage.getItem('reci-theme') ||
+              (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (t === 'dark') document.documentElement.classList.add('dark');
+          } catch(e) {}
+        ` }} />
+      </head>
+      <body className="bg-[#F9FAFB] dark:bg-gray-950 font-sans transition-colors duration-150">
+        <ThemeProvider>
+          {isAuthPage ? (
+            <>
+              <TopBar />
               {children}
-            </main>
-          </div>
-        )}
+            </>
+          ) : (
+            <div className="flex min-h-screen">
+              <AdminNav userEmail={userEmail || 'dev@localhost'} />
+              <main className="flex-1 overflow-auto min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
+                <TopBar />
+                {children}
+              </main>
+            </div>
+          )}
+        </ThemeProvider>
       </body>
     </html>
   )

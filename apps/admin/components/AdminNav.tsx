@@ -31,7 +31,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/availability', label: 'Availability',
-    icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+    icon: 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636',
   },
 ]
 
@@ -53,33 +53,33 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
   return (
     <aside className="w-60 shrink-0 bg-[#1A2E18] min-h-screen flex flex-col">
       {/* Brand */}
-      <div className="h-16 flex items-center px-5 border-b border-white/10">
+      <div className="h-12 flex items-center px-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#407E3C] rounded-lg flex items-center justify-center shadow-sm">
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-7 h-7 bg-[#407E3C] rounded-lg flex items-center justify-center shadow-sm shrink-0">
+            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
             </svg>
           </div>
           <div>
             <p className="text-white font-bold text-sm leading-none">RECI</p>
-            <p className="text-white/50 text-xs leading-none mt-0.5">Admin Portal</p>
+            <p className="text-white/40 text-[10px] leading-none mt-0.5">Admin Portal</p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-5 px-3 space-y-0.5">
-        <p className="text-white/30 text-[10px] font-semibold uppercase tracking-widest px-3 mb-3">Navigation</p>
+      <nav className="flex-1 py-4 px-3 space-y-0.5">
+        <p className="text-white/25 text-[9px] font-bold uppercase tracking-widest px-3 mb-2.5">Navigation</p>
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + '/')
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                 active
                   ? 'bg-[#407E3C] text-white shadow-sm'
-                  : 'text-white/60 hover:bg-white/10 hover:text-white'
+                  : 'text-white/55 hover:bg-white/8 hover:text-white'
               }`}
             >
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,15 +93,15 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
 
       {/* User */}
       <div className="p-3 border-t border-white/10">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
-          <div className="w-8 h-8 rounded-full bg-[#407E3C] flex items-center justify-center text-white text-xs font-bold shrink-0">
+        <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg">
+          <div className="w-7 h-7 rounded-full bg-[#407E3C] flex items-center justify-center text-white text-[10px] font-bold shrink-0">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-xs font-medium truncate">{userEmail || 'Admin'}</p>
+            <p className="text-white text-xs font-medium truncate leading-snug">{userEmail || 'Admin'}</p>
             <button
               onClick={handleSignOut}
-              className="text-white/40 hover:text-red-400 text-xs transition-colors"
+              className="text-white/35 hover:text-red-400 text-[10px] transition-colors leading-snug"
             >
               Sign out
             </button>

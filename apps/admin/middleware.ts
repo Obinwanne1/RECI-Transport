@@ -11,8 +11,8 @@ const SUPABASE_CONFIGURED =
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Allow auth login page through
-  if (pathname.startsWith('/auth/login')) {
+  // Allow all auth pages through (login, forgot-password, reset-password)
+  if (pathname.startsWith('/auth/')) {
     return NextResponse.next()
   }
 

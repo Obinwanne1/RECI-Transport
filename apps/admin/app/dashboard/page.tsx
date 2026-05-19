@@ -19,6 +19,7 @@ const MOCK_KPIS = {
     { id: 'mock-2', booking_ref: 'REC-0002', status: 'pending', total_price: 245, created_at: new Date().toISOString(), driver_first_name: 'Anna', driver_last_name: 'Schmidt', vehicle: { make: 'Volkswagen', model: 'Golf' } },
     { id: 'mock-3', booking_ref: 'REC-0003', status: 'active', total_price: 596, created_at: new Date().toISOString(), driver_first_name: 'Klaus', driver_last_name: 'Weber', vehicle: { make: 'Mercedes', model: 'Sprinter' } },
   ],
+  demand_rows: [],
 }
 
 async function getKpis() {
@@ -51,7 +52,6 @@ async function getKpis() {
       .limit(10),
   ])
 
-  // Demand signals for today
   const { data: demandSignals } = await supabase
     .from('pricing_signals')
     .select('demand_score, signal_type, vehicles_remaining, computed_at, vehicle_categories(name)')
@@ -81,13 +81,13 @@ async function getKpis() {
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
-  pending:        { bg: 'bg-amber-50',   text: 'text-amber-700',  dot: 'bg-amber-400' },
-  confirmed:      { bg: 'bg-green-50',   text: 'text-green-700',  dot: 'bg-green-500' },
-  active:         { bg: 'bg-blue-50',    text: 'text-blue-700',   dot: 'bg-blue-500' },
-  completed:      { bg: 'bg-gray-100',   text: 'text-gray-600',   dot: 'bg-gray-400' },
-  cancelled:      { bg: 'bg-red-50',     text: 'text-red-700',    dot: 'bg-red-400' },
-  no_show:        { bg: 'bg-purple-50',  text: 'text-purple-700', dot: 'bg-purple-400' },
-  payment_failed: { bg: 'bg-red-50',     text: 'text-red-700',    dot: 'bg-red-400' },
+  pending:        { bg: 'bg-amber-50 dark:bg-amber-900/20',   text: 'text-amber-700 dark:text-amber-400',  dot: 'bg-amber-400' },
+  confirmed:      { bg: 'bg-green-50 dark:bg-green-900/20',   text: 'text-green-700 dark:text-green-400',  dot: 'bg-green-500' },
+  active:         { bg: 'bg-blue-50 dark:bg-blue-900/20',     text: 'text-blue-700 dark:text-blue-400',    dot: 'bg-blue-500' },
+  completed:      { bg: 'bg-gray-100 dark:bg-gray-800',       text: 'text-gray-600 dark:text-gray-400',    dot: 'bg-gray-400' },
+  cancelled:      { bg: 'bg-red-50 dark:bg-red-900/20',       text: 'text-red-700 dark:text-red-400',      dot: 'bg-red-400' },
+  no_show:        { bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-700 dark:text-purple-400',dot: 'bg-purple-400' },
+  payment_failed: { bg: 'bg-red-50 dark:bg-red-900/20',       text: 'text-red-700 dark:text-red-400',      dot: 'bg-red-400' },
 }
 
 const KPI_CARDS = (kpis: Awaited<ReturnType<typeof getKpis>>) => [
@@ -126,69 +126,67 @@ export default async function DashboardPage() {
   const cards = KPI_CARDS(kpis)
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto">
 
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#1A1A1A]">Dashboard</h1>
-        <p className="text-sm text-[#6B7280] mt-1">
+      <div className="mb-7">
+        <h1 className="text-2xl font-bold text-[#1A1A1A] dark:text-gray-100 tracking-tight">Dashboard</h1>
+        <p className="text-sm text-[#6B7280] dark:text-gray-400 mt-1">
           {new Date().toLocaleDateString('en-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </div>
 
       {/* Alert */}
       {kpis.pending_payment > 0 && (
-        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 flex items-center gap-4">
-          <div className="w-9 h-9 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
-            <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-xl px-5 py-4 flex items-center gap-4">
+          <div className="w-8 h-8 bg-amber-100 dark:bg-amber-800/50 rounded-full flex items-center justify-center shrink-0">
+            <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-amber-800">
-              {kpis.pending_payment} booking{kpis.pending_payment !== 1 ? 's' : ''} awaiting payment or review
-            </p>
-          </div>
-          <Link href="/bookings?status=pending" className="text-xs font-semibold text-amber-700 hover:text-amber-900 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
+          <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 flex-1">
+            {kpis.pending_payment} booking{kpis.pending_payment !== 1 ? 's' : ''} awaiting payment or review
+          </p>
+          <Link href="/bookings?status=pending" className="text-xs font-semibold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 bg-amber-100 dark:bg-amber-800/50 hover:bg-amber-200 dark:hover:bg-amber-700/50 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
             Review →
           </Link>
         </div>
       )}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         {cards.map((card) => (
-          <div key={card.label} className="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
-            <div className="flex items-start justify-between mb-4">
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">{card.label}</p>
-              <div className={`${card.iconBg} w-9 h-9 rounded-lg flex items-center justify-center`}>
+          <div key={card.label} className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-xl p-5 shadow-sm">
+            <div className="flex items-start justify-between mb-3">
+              <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider leading-tight">{card.label}</p>
+              <div className={`${card.iconBg} w-8 h-8 rounded-lg flex items-center justify-center shrink-0`}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={card.icon} />
                 </svg>
               </div>
             </div>
-            <p className="text-3xl font-bold text-[#1A1A1A]">{card.format(card.value as number)}</p>
+            <p className="text-3xl font-bold text-[#1A1A1A] dark:text-gray-100 tracking-tight">{card.format(card.value as number)}</p>
           </div>
         ))}
       </div>
 
-      {/* Quick actions + Recent */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Recent + sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {/* Recent Bookings */}
-        <div className="lg:col-span-2 bg-white border border-[#E5E7EB] rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#F3F4F6] flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[#1A1A1A]">Recent Bookings</h2>
-            <Link href="/bookings" className="text-xs font-medium text-[#407E3C] hover:underline">View all →</Link>
+        <div className="lg:col-span-2 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-[#F3F4F6] dark:border-gray-800 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100">Recent Bookings</h2>
+            <Link href="/bookings" className="text-xs font-medium text-[#407E3C] hover:text-[#356834] transition-colors">View all →</Link>
           </div>
-          <div className="divide-y divide-[#F3F4F6]">
+          <div className="divide-y divide-[#F3F4F6] dark:divide-gray-800">
             {kpis.recent_bookings.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-[#6B7280] text-center">No bookings yet.</p>
+              <p className="px-5 py-10 text-sm text-[#6B7280] dark:text-gray-400 text-center">No bookings yet.</p>
             ) : kpis.recent_bookings.map((b: any) => {
               const v = Array.isArray(b.vehicle) ? b.vehicle[0] : b.vehicle
               const s = STATUS_STYLES[b.status] ?? STATUS_STYLES.completed
               return (
-                <Link key={b.id} href={`/bookings/${b.id}`} className="flex items-center gap-4 px-6 py-4 hover:bg-[#F9FAFB] transition-colors">
+                <Link key={b.id} href={`/bookings/${b.id}`} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F9FAFB] dark:hover:bg-gray-800/50 transition-colors">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="font-mono text-xs font-bold text-[#407E3C]">{b.booking_ref}</span>
@@ -197,22 +195,22 @@ export default async function DashboardPage() {
                         {b.status}
                       </span>
                     </div>
-                    <p className="text-sm text-[#1A1A1A] font-medium truncate">
+                    <p className="text-sm text-[#1A1A1A] dark:text-gray-200 font-medium truncate">
                       {b.driver_first_name} {b.driver_last_name}
-                      {v && <span className="text-[#6B7280] font-normal"> · {v.make} {v.model}</span>}
+                      {v && <span className="text-[#6B7280] dark:text-gray-400 font-normal"> · {v.make} {v.model}</span>}
                     </p>
                   </div>
-                  <p className="text-sm font-bold text-[#1A1A1A] shrink-0">€{Number(b.total_price).toFixed(0)}</p>
+                  <p className="text-sm font-bold text-[#1A1A1A] dark:text-gray-100 shrink-0">€{Number(b.total_price).toFixed(0)}</p>
                 </Link>
               )
             })}
           </div>
         </div>
 
-        {/* Quick Actions + Demand */}
+        {/* Sidebar */}
         <div className="space-y-4">
-          <div className="bg-white border border-[#E5E7EB] rounded-xl shadow-sm p-5">
-            <h2 className="text-sm font-semibold text-[#1A1A1A] mb-4">Quick Actions</h2>
+          <div className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-xl shadow-sm p-5">
+            <h2 className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100 mb-3">Quick Actions</h2>
             <div className="space-y-2">
               {[
                 { href: '/bookings', label: 'All Bookings', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', primary: true },
@@ -223,10 +221,10 @@ export default async function DashboardPage() {
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-3 w-full px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     primary
-                      ? 'bg-[#407E3C] hover:bg-[#356834] text-white'
-                      : 'bg-[#F9FAFB] hover:bg-[#F3F4F6] text-[#374151] border border-[#E5E7EB]'
+                      ? 'bg-[#407E3C] hover:bg-[#356834] text-white shadow-sm'
+                      : 'bg-[#F9FAFB] dark:bg-gray-800 hover:bg-[#F3F4F6] dark:hover:bg-gray-700 text-[#374151] dark:text-gray-300 border border-[#E5E7EB] dark:border-gray-700'
                   }`}
                 >
                   <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -238,9 +236,8 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* Status breakdown */}
-          <div className="bg-white border border-[#E5E7EB] rounded-xl shadow-sm p-5">
-            <h2 className="text-sm font-semibold text-[#1A1A1A] mb-4">Status Overview</h2>
+          <div className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-xl shadow-sm p-5">
+            <h2 className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100 mb-3">Status Overview</h2>
             <div className="space-y-2.5">
               {[
                 { label: 'Active', value: kpis.active_bookings, color: 'bg-blue-500' },
@@ -248,13 +245,14 @@ export default async function DashboardPage() {
                 { label: 'Fleet', value: kpis.fleet_total, color: 'bg-[#407E3C]' },
               ].map(({ label, value, color }) => (
                 <div key={label} className="flex items-center gap-3">
-                  <div className={`w-2.5 h-2.5 rounded-full ${color} shrink-0`} />
-                  <span className="text-sm text-[#6B7280] flex-1">{label}</span>
-                  <span className="text-sm font-bold text-[#1A1A1A]">{value}</span>
+                  <div className={`w-2 h-2 rounded-full ${color} shrink-0`} />
+                  <span className="text-sm text-[#6B7280] dark:text-gray-400 flex-1">{label}</span>
+                  <span className="text-sm font-bold text-[#1A1A1A] dark:text-gray-100">{value}</span>
                 </div>
               ))}
             </div>
           </div>
+
           <DemandCard rows={kpis.demand_rows} />
         </div>
       </div>

@@ -11,9 +11,17 @@
     --color-accent: #5a9e56;
     --color-text: #1A1A1A;
     --color-text-muted: #6B7280;
-    --color-bg: #FFFFFF;
-    --color-surface: #F9FAFB;
+    --color-bg: #F9FAFB;
+    --color-surface: #FFFFFF;
     --color-border: #E5E7EB;
+  }
+
+  .dark {
+    --color-text: #f3f4f6;
+    --color-text-muted: #9ca3af;
+    --color-bg: #030712;
+    --color-surface: #111827;
+    --color-border: #374151;
   }
 
   html {
@@ -21,4 +29,234 @@
     color: var(--color-text);
     background: var(--color-bg);
   }
+}
+
+/* ─── FullCalendar ─────────────────────────────────────────────────────────── */
+
+.fc {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+}
+
+/* Toolbar */
+.fc .fc-toolbar {
+  padding-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1A1A1A;
+  letter-spacing: -0.01em;
+}
+
+/* Buttons */
+.fc .fc-button {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  color: #374151;
+  border-radius: 8px !important;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  transition: all 0.15s ease;
+  text-transform: none;
+}
+
+.fc .fc-button:hover:not(:disabled) {
+  background: #F9FAFB;
+  border-color: #D1D5DB;
+  color: #1A1A1A;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.fc .fc-button:focus {
+  box-shadow: 0 0 0 3px rgba(64, 126, 60, 0.15) !important;
+  outline: none;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background: #407E3C !important;
+  border-color: #356834 !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(64,126,60,0.3) !important;
+}
+
+/* Button groups */
+.fc .fc-button-group .fc-button {
+  border-radius: 0 !important;
+}
+.fc .fc-button-group .fc-button:first-child {
+  border-radius: 8px 0 0 8px !important;
+}
+.fc .fc-button-group .fc-button:last-child {
+  border-radius: 0 8px 8px 0 !important;
+}
+
+/* Column headers */
+.fc .fc-col-header-cell {
+  background: #F9FAFB;
+  border-color: #E5E7EB !important;
+  padding: 6px 4px;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #9CA3AF;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none !important;
+  padding: 4px 6px;
+}
+
+/* Resource / datagrid area */
+.fc .fc-datagrid-header .fc-datagrid-cell-cushion {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9CA3AF;
+}
+
+.fc .fc-datagrid-cell-cushion {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #374151;
+  padding: 8px 10px;
+}
+
+.fc .fc-resource-timeline-divider {
+  width: 2px;
+  background: #E5E7EB;
+  border: none;
+}
+
+/* All table borders */
+.fc td,
+.fc th {
+  border-color: #E5E7EB !important;
+}
+
+/* Today highlight */
+.fc .fc-day-today {
+  background: rgba(64, 126, 60, 0.04) !important;
+}
+
+.fc .fc-timeline-slot-label-cushion {
+  color: #9CA3AF;
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+/* Events */
+.fc .fc-event {
+  border: none !important;
+  border-radius: 6px !important;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: opacity 0.15s, filter 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+}
+
+.fc .fc-event:hover {
+  opacity: 0.88;
+  filter: brightness(1.05);
+}
+
+.fc .fc-event-title {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Scrollbars */
+.fc .fc-scroller::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+}
+.fc .fc-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fc .fc-scroller::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 4px;
+}
+.fc .fc-scroller::-webkit-scrollbar-thumb:hover {
+  background: #D1D5DB;
+}
+
+/* ─── FullCalendar Dark Mode ───────────────────────────────────────────────── */
+
+.dark .fc .fc-toolbar-title {
+  color: #f3f4f6;
+}
+
+.dark .fc .fc-button {
+  background: #1f2937;
+  border-color: #374151;
+  color: #d1d5db;
+}
+
+.dark .fc .fc-button:hover:not(:disabled) {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .fc .fc-button-primary:not(:disabled).fc-button-active,
+.dark .fc .fc-button-primary:not(:disabled):active {
+  background: #407E3C !important;
+  border-color: #356834 !important;
+  color: #fff !important;
+}
+
+.dark .fc .fc-col-header-cell {
+  background: #111827;
+  border-color: #374151 !important;
+}
+
+.dark .fc .fc-col-header-cell-cushion {
+  color: #6b7280;
+}
+
+.dark .fc td,
+.dark .fc th {
+  border-color: #374151 !important;
+}
+
+.dark .fc .fc-day-today {
+  background: rgba(64, 126, 60, 0.09) !important;
+}
+
+.dark .fc .fc-timeline-slot-label-cushion {
+  color: #6b7280;
+}
+
+.dark .fc .fc-datagrid-cell-cushion {
+  color: #d1d5db;
+}
+
+.dark .fc .fc-datagrid-header .fc-datagrid-cell-cushion {
+  color: #6b7280;
+}
+
+.dark .fc .fc-resource-timeline-divider {
+  background: #374151;
+}
+
+.dark .fc .fc-scroller::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+.dark .fc .fc-scroller::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
 }
