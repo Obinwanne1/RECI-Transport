@@ -95,7 +95,12 @@ export default function CalendarPage() {
       const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString()
 
       const res = await fetch(`/api/admin/calendar?start=${start}&end=${end}`)
-      if (!res.ok) { setError('Failed to load calendar data'); setLoading(false); return }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        setError(body.error ?? 'Failed to load calendar data')
+        setLoading(false)
+        return
+      }
       const { resources, events } = await res.json()
 
       setStats(computeStats(events, resources))
