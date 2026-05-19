@@ -245,11 +245,11 @@
 }
 
 .dark .fc .fc-day-today {
-  background: rgba(64, 126, 60, 0.09) !important;
+  background: #162813 !important;
 }
 
 .dark .fc .fc-timeline-slot {
-  background: #111827;
+  background: #111827 !important;
 }
 
 .dark .fc .fc-timeline-slot-label-cushion {
