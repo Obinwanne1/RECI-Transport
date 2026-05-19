@@ -37,8 +37,8 @@ export default function DemandBanner({ categoryId, dateRange }: DemandBannerProp
     <div
       className={`flex items-center gap-3 px-4 py-3 rounded-card text-sm font-medium mb-4 ${
         isPeak
-          ? 'bg-red-50 border border-red-200 text-red-700'
-          : 'bg-orange-50 border border-orange-200 text-orange-700'
+          ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'
+          : 'bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-400'
       }`}
     >
       <span className="text-lg">{isPeak ? '🔥' : '⚡'}</span>

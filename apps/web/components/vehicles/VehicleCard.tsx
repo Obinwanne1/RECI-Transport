@@ -14,13 +14,13 @@ const FUEL_BADGES: Record<string, { label: string; cls: string }> = {
 export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   const { id, make, model, year, fuel_type, transmission, image_urls, daily_rate, category } = vehicle
   const image = image_urls?.[0] ?? null
-  const fuel = FUEL_BADGES[fuel_type] ?? { label: fuel_type, cls: 'bg-gray-50 text-gray-500 border-gray-100' }
+  const fuel = FUEL_BADGES[fuel_type] ?? { label: fuel_type, cls: 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 border-gray-100 dark:border-gray-600' }
   const [imgError, setImgError] = useState(false)
 
   return (
-    <div className="group bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col">
+    <div className="group bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col">
       {/* Image */}
-      <div className="aspect-[16/9] bg-[#F3F4F6] relative overflow-hidden">
+      <div className="aspect-[16/9] bg-[#F3F4F6] dark:bg-gray-800 relative overflow-hidden">
         {image && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={image} alt={`${make} ${model}`} onError={() => setImgError(true)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -43,8 +43,8 @@ export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
         <div className="mb-3">
-          <h3 className="font-bold text-[#1A1A1A] text-lg leading-tight">{make} {model}</h3>
-          <p className="text-sm text-[#9CA3AF] font-medium">{year}</p>
+          <h3 className="font-bold text-[#1A1A1A] dark:text-gray-100 text-lg leading-tight">{make} {model}</h3>
+          <p className="text-sm text-[#9CA3AF] dark:text-gray-500 font-medium">{year}</p>
         </div>
 
         {/* Specs badges */}
@@ -52,15 +52,15 @@ export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
           <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${fuel.cls}`}>
             {fuel.label}
           </span>
-          <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-gray-50 text-gray-500 border-gray-100 capitalize">
+          <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 border-gray-100 dark:border-gray-600 capitalize">
             {transmission}
           </span>
           {category && (
             <>
-              <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-gray-50 text-gray-500 border-gray-100">
+              <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 border-gray-100 dark:border-gray-600">
                 {category.passenger_capacity} seats
               </span>
-              <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-gray-50 text-gray-500 border-gray-100">
+              <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 border-gray-100 dark:border-gray-600">
                 {category.luggage_capacity} bags
               </span>
             </>
@@ -68,7 +68,7 @@ export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
         </div>
 
         {/* Price + CTA */}
-        <div className="mt-auto flex items-center justify-between pt-4 border-t border-[#F3F4F6]">
+        <div className="mt-auto flex items-center justify-between pt-4 border-t border-[#F3F4F6] dark:border-gray-700">
           <div>
             {daily_rate != null ? (
               <div className="leading-none">

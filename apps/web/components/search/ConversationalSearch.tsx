@@ -63,7 +63,7 @@ export default function ConversationalSearch({ onResult }: ConversationalSearchP
           placeholder='e.g. "I need a van for moving next Saturday, 3 days"'
           disabled={loading}
           maxLength={500}
-          className="flex-1 border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#407E3C] focus:border-transparent transition-shadow bg-[#F9FAFB]"
+          className="flex-1 border border-[#E5E7EB] dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] dark:text-gray-100 placeholder:text-[#9CA3AF] dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#407E3C] focus:border-transparent transition-shadow bg-[#F9FAFB] dark:bg-gray-800"
         />
         <button
           type="submit"

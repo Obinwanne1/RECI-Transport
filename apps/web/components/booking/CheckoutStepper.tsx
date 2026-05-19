@@ -14,7 +14,7 @@ interface CheckoutStepperProps {
 
 export default function CheckoutStepper({ current }: CheckoutStepperProps) {
   return (
-    <nav className="bg-white border-b border-[#E5E7EB]">
+    <nav className="bg-white dark:bg-gray-900 border-b border-[#E5E7EB] dark:border-gray-700">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <ol className="flex items-center gap-0">
           {STEPS.map(({ n, label }, i) => {
@@ -27,7 +27,7 @@ export default function CheckoutStepper({ current }: CheckoutStepperProps) {
                   <span
                     className={`
                       w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0
-                      ${done ? 'bg-primary text-white' : active ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-[#E5E7EB] text-[#6B7280]'}
+                      ${done ? 'bg-primary text-white' : active ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-[#E5E7EB] dark:bg-gray-700 text-[#6B7280] dark:text-gray-400'}
                     `}
                   >
                     {done ? (
@@ -40,7 +40,7 @@ export default function CheckoutStepper({ current }: CheckoutStepperProps) {
                   </span>
                   <span
                     className={`text-sm font-medium hidden sm:block ${
-                      active ? 'text-primary' : done ? 'text-[#1A1A1A]' : 'text-[#6B7280]'
+                      active ? 'text-primary' : done ? 'text-[#1A1A1A] dark:text-gray-100' : 'text-[#6B7280] dark:text-gray-400'
                     }`}
                   >
                     {label}
@@ -48,7 +48,7 @@ export default function CheckoutStepper({ current }: CheckoutStepperProps) {
                 </li>
                 {i < STEPS.length - 1 && (
                   <div
-                    className={`flex-1 h-0.5 mx-2 ${n < current ? 'bg-primary' : 'bg-[#E5E7EB]'}`}
+                    className={`flex-1 h-0.5 mx-2 ${n < current ? 'bg-primary' : 'bg-[#E5E7EB] dark:bg-gray-700'}`}
                   />
                 )}
               </React.Fragment>

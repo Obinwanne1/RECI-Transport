@@ -121,7 +121,7 @@ export default function LicenceUpload({ firstName, lastName, onVerified }: Licen
       {state.kind === 'idle' && (
         <label
           htmlFor="licence-upload-input"
-          className="inline-flex items-center gap-2 text-sm text-primary border border-primary/40 rounded-md px-3 py-1.5 cursor-pointer hover:bg-[#F0FDF4] transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-primary border border-primary/40 rounded-md px-3 py-1.5 cursor-pointer hover:bg-[#F0FDF4] dark:hover:bg-green-900/20 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -139,7 +139,7 @@ export default function LicenceUpload({ firstName, lastName, onVerified }: Licen
 
       {state.kind === 'verified' && (
         <div className="flex items-center gap-3">
-          <div className="inline-flex items-center gap-1.5 text-sm font-medium text-[#16A34A] bg-[#F0FDF4] border border-[#BBF7D0] rounded-md px-3 py-1.5">
+          <div className="inline-flex items-center gap-1.5 text-sm font-medium text-[#16A34A] bg-[#F0FDF4] dark:bg-green-900/20 border border-[#BBF7D0] dark:border-green-800 rounded-md px-3 py-1.5">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
@@ -156,7 +156,7 @@ export default function LicenceUpload({ firstName, lastName, onVerified }: Licen
 
       {state.kind === 'review' && (
         <div className="flex items-center gap-3">
-          <div className="inline-flex items-center gap-1.5 text-sm font-medium text-orange-700 bg-orange-50 border border-orange-200 rounded-md px-3 py-1.5">
+          <div className="inline-flex items-center gap-1.5 text-sm font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-md px-3 py-1.5">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>

@@ -106,21 +106,21 @@ export default function InspectPickupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
           <Link href={`/account/bookings/${bookingId}`} className="text-sm text-primary hover:underline">
             ← Back to booking
           </Link>
-          <h1 className="text-xl font-bold text-[#1A1A1A] mt-2">Pickup Inspection</h1>
-          <p className="text-sm text-[#6B7280] mt-1">
+          <h1 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100 mt-2">Pickup Inspection</h1>
+          <p className="text-sm text-[#6B7280] dark:text-gray-400 mt-1">
             Photograph all 4 angles before taking the vehicle. This protects you from existing damage claims.
           </p>
         </div>
 
         {sizeError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-[#DC2626]">
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-sm text-[#DC2626]">
             {sizeError}
           </div>
         )}
@@ -140,14 +140,14 @@ export default function InspectPickupPage() {
             </div>
 
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-[#6B7280]">
+              <p className="text-sm text-[#6B7280] dark:text-gray-400">
                 {ANGLES.filter((a) => previews[a]).length} / 4 photos captured
               </p>
               <div className="flex gap-1">
                 {ANGLES.map((a) => (
                   <span
                     key={a}
-                    className={`w-2 h-2 rounded-full ${previews[a] ? 'bg-[#407E3C]' : 'bg-[#E5E7EB]'}`}
+                    className={`w-2 h-2 rounded-full ${previews[a] ? 'bg-[#407E3C]' : 'bg-[#E5E7EB] dark:bg-gray-600'}`}
                   />
                 ))}
               </div>
@@ -159,16 +159,10 @@ export default function InspectPickupPage() {
               className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {state.kind === 'uploading' && (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Uploading photos…
-                </>
+                <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Uploading photos…</>
               )}
               {state.kind === 'analysing' && (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Comparing vehicle photos…
-                </>
+                <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Comparing vehicle photos…</>
               )}
               {state.kind === 'capturing' && 'Submit Pickup Inspection'}
             </button>
@@ -177,12 +171,9 @@ export default function InspectPickupPage() {
 
         {state.kind === 'done' && (
           <div className="card space-y-4">
-            <h2 className="text-base font-semibold text-[#1A1A1A]">Inspection Complete</h2>
+            <h2 className="text-base font-semibold text-[#1A1A1A] dark:text-gray-100">Inspection Complete</h2>
             <DamageReportView report={state.report} />
-            <Link
-              href={`/account/bookings/${bookingId}`}
-              className="btn-primary w-full text-center block mt-4"
-            >
+            <Link href={`/account/bookings/${bookingId}`} className="btn-primary w-full text-center block mt-4">
               Back to Booking
             </Link>
           </div>
@@ -190,7 +181,7 @@ export default function InspectPickupPage() {
 
         {state.kind === 'error' && (
           <div className="card space-y-3">
-            <p className="text-sm text-[#6B7280]">{state.message}</p>
+            <p className="text-sm text-[#6B7280] dark:text-gray-400">{state.message}</p>
             <button onClick={() => setState({ kind: 'capturing' })} className="btn-primary w-full">
               Try Again
             </button>

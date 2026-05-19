@@ -64,7 +64,7 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
       <Navbar />
       <div className="flex items-center justify-center py-32">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -73,7 +73,7 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
   )
 
   if (error || !vehicle) return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <p className="text-[#DC2626] font-medium">{error ?? 'Vehicle not found'}</p>
@@ -83,43 +83,43 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
   )
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
       <Navbar />
       <CheckoutStepper current={1} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-2xl font-bold text-[#1A1A1A] mb-6">Confirm your vehicle</h1>
+        <h1 className="text-2xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-6">Confirm your vehicle</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Vehicle detail */}
           <div className="lg:col-span-2 space-y-4">
             <div className="card">
-              <div className="aspect-[16/9] bg-[#F3F4F6] rounded-md mb-4 flex items-center justify-center overflow-hidden">
+              <div className="aspect-[16/9] bg-[#F3F4F6] dark:bg-gray-800 rounded-md mb-4 flex items-center justify-center overflow-hidden">
                 {vehicle.image_urls?.[0] ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={vehicle.image_urls[0]} alt={`${vehicle.make} ${vehicle.model}`} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-[#6B7280] text-sm">No image</span>
+                  <span className="text-[#6B7280] dark:text-gray-400 text-sm">No image</span>
                 )}
               </div>
               <div className="flex items-start justify-between">
                 <div>
                   {vehicle.category && <p className="text-xs font-medium text-primary uppercase tracking-wide">{vehicle.category.name}</p>}
-                  <h2 className="text-xl font-bold text-[#1A1A1A]">{vehicle.make} {vehicle.model} <span className="text-[#6B7280] font-normal text-base">({vehicle.year})</span></h2>
+                  <h2 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100">{vehicle.make} {vehicle.model} <span className="text-[#6B7280] dark:text-gray-400 font-normal text-base">({vehicle.year})</span></h2>
                 </div>
                 {vehicle.daily_rate && (
                   <div className="text-right">
                     <span className="text-2xl font-bold text-primary">€{vehicle.daily_rate}</span>
-                    <span className="text-sm text-[#6B7280]">/day</span>
+                    <span className="text-sm text-[#6B7280] dark:text-gray-400">/day</span>
                   </div>
                 )}
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
-                <span className="text-xs px-2 py-1 bg-gray-100 rounded-full capitalize">{vehicle.fuel_type}</span>
-                <span className="text-xs px-2 py-1 bg-gray-100 rounded-full capitalize">{vehicle.transmission}</span>
+                <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-full capitalize">{vehicle.fuel_type}</span>
+                <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-full capitalize">{vehicle.transmission}</span>
                 {vehicle.category && <>
-                  <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">{vehicle.category.passenger_capacity} seats</span>
-                  <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">{vehicle.category.luggage_capacity} bags</span>
+                  <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-full">{vehicle.category.passenger_capacity} seats</span>
+                  <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-full">{vehicle.category.luggage_capacity} bags</span>
                 </>}
               </div>
               {vehicle.features?.length > 0 && (
@@ -133,7 +133,7 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
 
             {/* Date picker */}
             <div className="card">
-              <h3 className="font-semibold text-[#1A1A1A] mb-4">Select your dates</h3>
+              <h3 className="font-semibold text-[#1A1A1A] dark:text-gray-100 mb-4">Select your dates</h3>
 
               {vehicle.category?.id && pickup && dropoff && (
                 <DemandBanner
@@ -144,11 +144,11 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Pick-up Date</label>
+                  <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Pick-up Date</label>
                   <input type="date" min={today} value={pickup} onChange={(e) => setPickup(e.target.value)} className="input-field" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Drop-off Date</label>
+                  <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Drop-off Date</label>
                   <input type="date" min={pickup || today} value={dropoff} onChange={(e) => setDropoff(e.target.value)} className="input-field" />
                 </div>
               </div>
@@ -161,21 +161,21 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
           {/* Price preview */}
           <div className="lg:col-span-1">
             <div className="card sticky top-24">
-              <h3 className="font-semibold text-[#1A1A1A] mb-4">Price Preview</h3>
+              <h3 className="font-semibold text-[#1A1A1A] dark:text-gray-100 mb-4">Price Preview</h3>
               {preview ? (
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[#6B7280]">€{vehicle.daily_rate} × {days} day{days !== 1 ? 's' : ''}</span>
-                    <span>€{preview.base_subtotal.toFixed(2)}</span>
+                    <span className="text-[#6B7280] dark:text-gray-400">€{vehicle.daily_rate} × {days} day{days !== 1 ? 's' : ''}</span>
+                    <span className="dark:text-gray-200">€{preview.base_subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between font-semibold pt-2 border-t border-[#E5E7EB]">
-                    <span>Subtotal</span>
+                  <div className="flex justify-between font-semibold pt-2 border-t border-[#E5E7EB] dark:border-gray-700">
+                    <span className="dark:text-gray-200">Subtotal</span>
                     <span className="text-primary">€{preview.total.toFixed(2)}</span>
                   </div>
-                  <p className="text-xs text-[#6B7280] mt-2">Extras added in next step</p>
+                  <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-2">Extras added in next step</p>
                 </div>
               ) : (
-                <p className="text-sm text-[#6B7280]">Select dates to see price</p>
+                <p className="text-sm text-[#6B7280] dark:text-gray-400">Select dates to see price</p>
               )}
 
               <button

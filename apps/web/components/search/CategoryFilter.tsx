@@ -30,7 +30,7 @@ export default function CategoryFilter() {
             flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all border
             ${active === slug
               ? 'bg-[#407E3C] text-white border-[#407E3C] shadow-sm'
-              : 'bg-white text-[#374151] border-[#E5E7EB] hover:border-[#407E3C] hover:text-[#407E3C]'
+              : 'bg-white dark:bg-gray-800 text-[#374151] dark:text-gray-300 border-[#E5E7EB] dark:border-gray-600 hover:border-[#407E3C] hover:text-[#407E3C] dark:hover:text-[#407E3C] dark:hover:border-[#407E3C]'
             }
           `}
         >

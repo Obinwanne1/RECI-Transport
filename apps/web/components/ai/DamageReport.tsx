@@ -36,7 +36,7 @@ export default function DamageReportView({ report }: DamageReportProps) {
 
       {/* Confidence */}
       <div>
-        <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1.5">
+        <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider mb-1.5">
           AI Confidence
         </p>
         <ConfidenceBar confidence={report.confidence} />
@@ -45,12 +45,12 @@ export default function DamageReportView({ report }: DamageReportProps) {
       {/* Locations */}
       {report.new_damage && report.locations.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
+          <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider mb-1">
             Affected Areas
           </p>
           <ul className="space-y-1">
             {report.locations.map((loc, i) => (
-              <li key={i} className="flex items-center gap-2 text-sm text-[#1A1A1A]">
+              <li key={i} className="flex items-center gap-2 text-sm text-[#1A1A1A] dark:text-gray-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626] shrink-0" />
                 {loc}
               </li>
@@ -64,12 +64,12 @@ export default function DamageReportView({ report }: DamageReportProps) {
         <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
           Assessment
         </p>
-        <p className="text-sm text-[#6B7280]">{report.reasoning}</p>
+        <p className="text-sm text-[#6B7280] dark:text-gray-400">{report.reasoning}</p>
       </div>
 
       {/* Dispute raised */}
       {report.dispute_raised && (
-        <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
+        <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
           <span className="text-base shrink-0">⚠</span>
           <p className="text-sm text-[#DC2626] font-medium">
             Dispute raised — our team will review within 24 hours and contact you.
@@ -79,9 +79,9 @@ export default function DamageReportView({ report }: DamageReportProps) {
 
       {/* Human review (no auto-dispute) */}
       {report.needs_human_review && !report.dispute_raised && report.new_damage && (
-        <div className="flex items-start gap-2 p-3 bg-orange-50 border border-orange-200 rounded-md">
+        <div className="flex items-start gap-2 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-md">
           <span className="text-base shrink-0">🔍</span>
-          <p className="text-sm text-orange-700">
+          <p className="text-sm text-orange-700 dark:text-orange-400">
             Flagged for staff review — confidence below threshold. No charge raised automatically.
           </p>
         </div>

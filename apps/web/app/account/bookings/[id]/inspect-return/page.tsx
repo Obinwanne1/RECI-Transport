@@ -60,7 +60,6 @@ export default function InspectReturnPage() {
   const [state, setState] = useState<State>({ kind: 'loading_baseline' })
   const [sizeError, setSizeError] = useState<string | null>(null)
 
-  // Fetch baseline (pickup) photo URLs
   useEffect(() => {
     fetch(`/api/inspections/${bookingId}?type=pickup`)
       .then((r) => r.json())
@@ -68,7 +67,6 @@ export default function InspectReturnPage() {
         setState({ kind: 'capturing', baselineUrls: data.photo_urls ?? [] })
       })
       .catch(() => {
-        // No baseline found — still allow return inspection
         setState({ kind: 'capturing', baselineUrls: [] })
       })
   }, [bookingId])
@@ -115,10 +113,7 @@ export default function InspectReturnPage() {
       setState({ kind: 'done', report })
     } catch (err) {
       console.error(err)
-      setState({
-        kind: 'error',
-        message: 'Inspection could not be completed. Photos have been saved — our team will review.',
-      })
+      setState({ kind: 'error', message: 'Inspection could not be completed. Photos have been saved — our team will review.' })
     }
   }
 
@@ -126,15 +121,15 @@ export default function InspectReturnPage() {
   const isProcessing = state.kind === 'uploading' || state.kind === 'analysing'
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
           <Link href={`/account/bookings/${bookingId}`} className="text-sm text-primary hover:underline">
             ← Back to booking
           </Link>
-          <h1 className="text-xl font-bold text-[#1A1A1A] mt-2">Return Inspection</h1>
-          <p className="text-sm text-[#6B7280] mt-1">
+          <h1 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100 mt-2">Return Inspection</h1>
+          <p className="text-sm text-[#6B7280] dark:text-gray-400 mt-1">
             Photograph all 4 angles when returning the vehicle. AI will compare against pickup photos.
           </p>
         </div>
@@ -142,12 +137,12 @@ export default function InspectReturnPage() {
         {state.kind === 'loading_baseline' && (
           <div className="flex items-center justify-center py-16 gap-3">
             <span className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-[#6B7280]">Loading pickup reference photos…</p>
+            <p className="text-sm text-[#6B7280] dark:text-gray-400">Loading pickup reference photos…</p>
           </div>
         )}
 
         {sizeError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-[#DC2626]">
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-sm text-[#DC2626]">
             {sizeError}
           </div>
         )}
@@ -167,15 +162,12 @@ export default function InspectReturnPage() {
             </div>
 
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-[#6B7280]">
+              <p className="text-sm text-[#6B7280] dark:text-gray-400">
                 {ANGLES.filter((a) => previews[a]).length} / 4 photos captured
               </p>
               <div className="flex gap-1">
                 {ANGLES.map((a) => (
-                  <span
-                    key={a}
-                    className={`w-2 h-2 rounded-full ${previews[a] ? 'bg-[#407E3C]' : 'bg-[#E5E7EB]'}`}
-                  />
+                  <span key={a} className={`w-2 h-2 rounded-full ${previews[a] ? 'bg-[#407E3C]' : 'bg-[#E5E7EB] dark:bg-gray-600'}`} />
                 ))}
               </div>
             </div>
@@ -185,18 +177,8 @@ export default function InspectReturnPage() {
               disabled={!allCaptured || !isCapturing}
               className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {state.kind === 'uploading' && (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Uploading photos…
-                </>
-              )}
-              {state.kind === 'analysing' && (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Comparing vehicle photos…
-                </>
-              )}
+              {state.kind === 'uploading' && (<><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Uploading photos…</>)}
+              {state.kind === 'analysing' && (<><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Comparing vehicle photos…</>)}
               {isCapturing && 'Submit Return Inspection'}
             </button>
           </>
@@ -204,12 +186,9 @@ export default function InspectReturnPage() {
 
         {state.kind === 'done' && (
           <div className="card space-y-4">
-            <h2 className="text-base font-semibold text-[#1A1A1A]">Return Inspection Complete</h2>
+            <h2 className="text-base font-semibold text-[#1A1A1A] dark:text-gray-100">Return Inspection Complete</h2>
             <DamageReportView report={state.report} />
-            <Link
-              href={`/account/bookings/${bookingId}`}
-              className="btn-primary w-full text-center block mt-4"
-            >
+            <Link href={`/account/bookings/${bookingId}`} className="btn-primary w-full text-center block mt-4">
               Back to Booking
             </Link>
           </div>
@@ -217,7 +196,7 @@ export default function InspectReturnPage() {
 
         {state.kind === 'error' && (
           <div className="card space-y-3">
-            <p className="text-sm text-[#6B7280]">{state.message}</p>
+            <p className="text-sm text-[#6B7280] dark:text-gray-400">{state.message}</p>
             <button onClick={() => setState({ kind: 'capturing', baselineUrls: [] })} className="btn-primary w-full">
               Try Again
             </button>

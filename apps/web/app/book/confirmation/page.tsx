@@ -79,12 +79,12 @@ function BookConfirmationContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F9FAFB]">
+      <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
         <Navbar />
         <CheckoutStepper current={5} />
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-[#6B7280] text-sm">Loading your booking…</p>
+          <p className="text-[#6B7280] dark:text-gray-400 text-sm">Loading your booking…</p>
         </div>
       </div>
     )
@@ -92,7 +92,7 @@ function BookConfirmationContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#F9FAFB]">
+      <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
         <Navbar />
         <CheckoutStepper current={5} />
         <div className="max-w-lg mx-auto px-4 py-16 text-center">
@@ -108,7 +108,7 @@ function BookConfirmationContent() {
   // Payment failed
   if (redirectStatus === 'failed' || (booking && booking.status === 'pending' && pollCount > 6)) {
     return (
-      <div className="min-h-screen bg-[#F9FAFB]">
+      <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
         <Navbar />
         <CheckoutStepper current={4} />
         <div className="max-w-lg mx-auto px-4 py-16 text-center">
@@ -117,8 +117,8 @@ function BookConfirmationContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h1 className="text-xl font-bold text-[#1A1A1A] mb-2">Payment Failed</h1>
-          <p className="text-[#6B7280] text-sm mb-6">
+          <h1 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-2">Payment Failed</h1>
+          <p className="text-[#6B7280] dark:text-gray-400 text-sm mb-6">
             Your card was not charged. Your booking is still reserved — please try again.
           </p>
           <button
@@ -135,13 +135,13 @@ function BookConfirmationContent() {
   // Payment processing (webhook not yet fired)
   if (booking && booking.status === 'pending' && redirectStatus === 'succeeded') {
     return (
-      <div className="min-h-screen bg-[#F9FAFB]">
+      <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
         <Navbar />
         <CheckoutStepper current={5} />
         <div className="max-w-lg mx-auto px-4 py-16 text-center">
           <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-[#1A1A1A] mb-2">Confirming your booking…</h1>
-          <p className="text-[#6B7280] text-sm">Payment received. We're confirming your reservation.</p>
+          <h1 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-2">Confirming your booking…</h1>
+          <p className="text-[#6B7280] dark:text-gray-400 text-sm">Payment received. We're confirming your reservation.</p>
         </div>
       </div>
     )
@@ -150,7 +150,7 @@ function BookConfirmationContent() {
   // Confirmed
   if (booking && booking.status === 'confirmed') {
     return (
-      <div className="min-h-screen bg-[#F9FAFB]">
+      <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
         <Navbar />
         <CheckoutStepper current={5} />
 
@@ -162,56 +162,56 @@ function BookConfirmationContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Booking Confirmed!</h1>
-            <p className="text-[#6B7280] text-sm">A confirmation email has been sent to {booking.driver_email}</p>
+            <h1 className="text-2xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-1">Booking Confirmed!</h1>
+            <p className="text-[#6B7280] dark:text-gray-400 text-sm">A confirmation email has been sent to {booking.driver_email}</p>
           </div>
 
           {/* Booking ref */}
-          <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg p-4 text-center mb-6">
+          <div className="bg-[#F0FDF4] dark:bg-green-900/20 border border-[#BBF7D0] dark:border-green-800 rounded-lg p-4 text-center mb-6">
             <p className="text-xs font-semibold text-[#407E3C] uppercase tracking-wider mb-1">Booking Reference</p>
-            <p className="text-3xl font-bold font-mono text-[#1A1A1A]">{booking.booking_ref}</p>
+            <p className="text-3xl font-bold font-mono text-[#1A1A1A] dark:text-gray-100">{booking.booking_ref}</p>
           </div>
 
           {/* Details card */}
           <div className="card space-y-5 mb-6">
             {/* Vehicle */}
-            <div className="pb-4 border-b border-[#E5E7EB]">
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Vehicle</p>
-              <p className="text-base font-semibold text-[#1A1A1A]">
+            <div className="pb-4 border-b border-[#E5E7EB] dark:border-gray-700">
+              <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider mb-1">Vehicle</p>
+              <p className="text-base font-semibold text-[#1A1A1A] dark:text-gray-100">
                 {booking.vehicle.year} {booking.vehicle.make} {booking.vehicle.model}
               </p>
               {booking.vehicle.category && (
-                <p className="text-sm text-[#6B7280]">{booking.vehicle.category.name}</p>
+                <p className="text-sm text-[#6B7280] dark:text-gray-400">{booking.vehicle.category.name}</p>
               )}
             </div>
 
             {/* Dates */}
-            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-[#E5E7EB]">
+            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-[#E5E7EB] dark:border-gray-700">
               <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Pick-up</p>
-                <p className="text-sm text-[#1A1A1A]">{formatDatetime(booking.pickup_datetime)}</p>
+                <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider mb-1">Pick-up</p>
+                <p className="text-sm text-[#1A1A1A] dark:text-gray-200">{formatDatetime(booking.pickup_datetime)}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Drop-off</p>
-                <p className="text-sm text-[#1A1A1A]">{formatDatetime(booking.dropoff_datetime)}</p>
+                <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider mb-1">Drop-off</p>
+                <p className="text-sm text-[#1A1A1A] dark:text-gray-200">{formatDatetime(booking.dropoff_datetime)}</p>
               </div>
             </div>
 
             {/* Driver */}
-            <div className="pb-4 border-b border-[#E5E7EB]">
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Driver</p>
-              <p className="text-sm text-[#1A1A1A]">{booking.driver_first_name} {booking.driver_last_name}</p>
+            <div className="pb-4 border-b border-[#E5E7EB] dark:border-gray-700">
+              <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider mb-1">Driver</p>
+              <p className="text-sm text-[#1A1A1A] dark:text-gray-200">{booking.driver_first_name} {booking.driver_last_name}</p>
             </div>
 
             {/* Extras */}
             {booking.extras.length > 0 && (
-              <div className="pb-4 border-b border-[#E5E7EB]">
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Extras</p>
+              <div className="pb-4 border-b border-[#E5E7EB] dark:border-gray-700">
+                <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider mb-2">Extras</p>
                 <ul className="space-y-1">
                   {booking.extras.map((e, i) => (
                     <li key={i} className="flex justify-between text-sm">
-                      <span className="text-[#6B7280]">{e.name}{e.quantity > 1 ? ` ×${e.quantity}` : ''}</span>
-                      <span className="text-[#1A1A1A]">€{e.price_snapshot.toFixed(2)}</span>
+                      <span className="text-[#6B7280] dark:text-gray-400">{e.name}{e.quantity > 1 ? ` ×${e.quantity}` : ''}</span>
+                      <span className="text-[#1A1A1A] dark:text-gray-200">€{e.price_snapshot.toFixed(2)}</span>
                     </li>
                   ))}
                 </ul>
@@ -220,26 +220,26 @@ function BookConfirmationContent() {
 
             {/* Total */}
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-[#1A1A1A]">Total Charged</span>
+              <span className="font-semibold text-[#1A1A1A] dark:text-gray-100">Total Charged</span>
               <span className="text-xl font-bold text-primary">€{Number(booking.total_price).toFixed(2)}</span>
             </div>
           </div>
 
           {/* What happens next */}
-          <div className="card bg-[#F9FAFB] border-l-4 border-l-[#407E3C] mb-8">
-            <p className="text-sm font-semibold text-[#1A1A1A] mb-3">What happens next</p>
-            <ul className="space-y-2 text-sm text-[#6B7280]">
+          <div className="card bg-[#F9FAFB] dark:bg-gray-800/50 border-l-4 border-l-[#407E3C] mb-8">
+            <p className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100 mb-3">What happens next</p>
+            <ul className="space-y-2 text-sm text-[#6B7280] dark:text-gray-400">
               <li className="flex gap-2">
                 <span className="text-[#407E3C] mt-0.5">•</span>
-                Your vehicle will be ready at <strong className="text-[#1A1A1A]">RECI HQ, Berlin</strong> at the pick-up time.
+                Your vehicle will be ready at <strong className="text-[#1A1A1A] dark:text-gray-200">RECI HQ, Berlin</strong> at the pick-up time.
               </li>
               <li className="flex gap-2">
                 <span className="text-[#407E3C] mt-0.5">•</span>
-                Bring your <strong className="text-[#1A1A1A]">driving licence</strong> and this confirmation email.
+                Bring your <strong className="text-[#1A1A1A] dark:text-gray-200">driving licence</strong> and this confirmation email.
               </li>
               <li className="flex gap-2">
                 <span className="text-[#407E3C] mt-0.5">•</span>
-                Questions? Call us at <strong className="text-[#1A1A1A]">+49 30 0000 0000</strong>
+                Questions? Call us at <strong className="text-[#1A1A1A] dark:text-gray-200">+49 30 0000 0000</strong>
               </li>
             </ul>
           </div>
@@ -262,7 +262,7 @@ function BookConfirmationContent() {
             </Link>
             <Link
               href="/account/bookings"
-              className="px-8 py-3 inline-block text-sm font-semibold border border-[#407E3C] text-[#407E3C] rounded-md hover:bg-[#F0FDF4] transition-colors"
+              className="px-8 py-3 inline-block text-sm font-semibold border border-[#407E3C] text-[#407E3C] rounded-md hover:bg-[#F0FDF4] dark:hover:bg-green-900/20 transition-colors"
             >
               View in My Bookings
             </Link>
@@ -274,7 +274,7 @@ function BookConfirmationContent() {
 
   // Fallback (unknown status)
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
       <Navbar />
       <div className="max-w-lg mx-auto px-4 py-16 text-center">
         <p className="text-[#6B7280] mb-4">Booking status unknown. Please contact support.</p>

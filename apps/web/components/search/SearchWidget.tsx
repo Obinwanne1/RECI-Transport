@@ -27,8 +27,8 @@ interface SearchWidgetProps {
   onSearch?: () => void
 }
 
-const inputCls = "w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#407E3C] focus:border-transparent transition-shadow bg-white"
-const labelCls = "block text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-1.5"
+const inputCls = "w-full border border-[#E5E7EB] dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] dark:text-gray-100 placeholder:text-[#9CA3AF] dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#407E3C] focus:border-transparent transition-shadow bg-white dark:bg-gray-800"
+const labelCls = "block text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wide mb-1.5"
 
 export default function SearchWidget({ initialValues, onSearch }: SearchWidgetProps) {
   const { search, setParams } = useVehicleSearch()

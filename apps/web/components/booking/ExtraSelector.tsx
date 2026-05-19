@@ -36,7 +36,7 @@ export default function ExtraSelector({ extras, days }: ExtraSelectorProps) {
       {/* Insurance — radio (exclusive) */}
       {insurance.length > 0 && (
         <div>
-          <h3 className="font-semibold text-[#1A1A1A] mb-3">Insurance</h3>
+          <h3 className="font-semibold text-[#1A1A1A] dark:text-gray-100 mb-3">Insurance</h3>
           <div className="space-y-3">
             {insurance.map((extra) => {
               const selected = isSelected(extra.id)
@@ -45,8 +45,8 @@ export default function ExtraSelector({ extras, days }: ExtraSelectorProps) {
                   key={extra.id}
                   className={`flex items-start gap-4 p-4 rounded-card border cursor-pointer transition-colors ${
                     selected
-                      ? 'border-primary bg-primary/5'
-                      : 'border-[#E5E7EB] hover:border-primary/50'
+                      ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                      : 'border-[#E5E7EB] dark:border-gray-600 hover:border-primary/50'
                   }`}
                 >
                   <input
@@ -58,7 +58,7 @@ export default function ExtraSelector({ extras, days }: ExtraSelectorProps) {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-[#1A1A1A]">{extra.name}</span>
+                      <span className="font-medium text-[#1A1A1A] dark:text-gray-100">{extra.name}</span>
                       <span className="text-sm font-semibold text-primary whitespace-nowrap">
                         {extra.price_per_day === 0
                           ? 'Included'
@@ -66,7 +66,7 @@ export default function ExtraSelector({ extras, days }: ExtraSelectorProps) {
                       </span>
                     </div>
                     {extra.description && (
-                      <p className="text-sm text-[#6B7280] mt-0.5">{extra.description}</p>
+                      <p className="text-sm text-[#6B7280] dark:text-gray-400 mt-0.5">{extra.description}</p>
                     )}
                   </div>
                 </label>
@@ -79,7 +79,7 @@ export default function ExtraSelector({ extras, days }: ExtraSelectorProps) {
       {/* Add-ons — checkboxes */}
       {addons.length > 0 && (
         <div>
-          <h3 className="font-semibold text-[#1A1A1A] mb-3">Add-ons</h3>
+          <h3 className="font-semibold text-[#1A1A1A] dark:text-gray-100 mb-3">Add-ons</h3>
           <div className="space-y-3">
             {addons.map((extra) => {
               const selected = isSelected(extra.id)
@@ -88,8 +88,8 @@ export default function ExtraSelector({ extras, days }: ExtraSelectorProps) {
                   key={extra.id}
                   className={`flex items-start gap-4 p-4 rounded-card border cursor-pointer transition-colors ${
                     selected
-                      ? 'border-primary bg-primary/5'
-                      : 'border-[#E5E7EB] hover:border-primary/50'
+                      ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                      : 'border-[#E5E7EB] dark:border-gray-600 hover:border-primary/50'
                   }`}
                 >
                   <input
@@ -100,14 +100,14 @@ export default function ExtraSelector({ extras, days }: ExtraSelectorProps) {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-[#1A1A1A]">{extra.name}</span>
+                      <span className="font-medium text-[#1A1A1A] dark:text-gray-100">{extra.name}</span>
                       <span className="text-sm font-semibold text-primary whitespace-nowrap">
                         €{linePrice(extra).toFixed(2)}
                         {extra.is_one_time_fee ? ' one-time' : '/day'}
                       </span>
                     </div>
                     {extra.description && (
-                      <p className="text-sm text-[#6B7280] mt-0.5">{extra.description}</p>
+                      <p className="text-sm text-[#6B7280] dark:text-gray-400 mt-0.5">{extra.description}</p>
                     )}
                   </div>
                 </label>

@@ -75,57 +75,56 @@ export default function CorporatePage() {
     )
   }
 
-  // Existing account
   if (account) {
     return (
       <div className="space-y-6">
-        <h1 className="text-xl font-bold text-[#1A1A1A]">Corporate Account</h1>
+        <h1 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100">Corporate Account</h1>
 
         <div className="card">
-          <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#E5E7EB]">
+          <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#E5E7EB] dark:border-gray-700">
             <div>
-              <p className="font-semibold text-[#1A1A1A] text-lg">{account.company_name}</p>
-              {account.vat_number && <p className="text-sm text-[#6B7280]">VAT: {account.vat_number}</p>}
+              <p className="font-semibold text-[#1A1A1A] dark:text-gray-100 text-lg">{account.company_name}</p>
+              {account.vat_number && <p className="text-sm text-[#6B7280] dark:text-gray-400">VAT: {account.vat_number}</p>}
             </div>
-            <span className={`px-2 py-1 rounded text-xs font-medium border ${account.is_active ? 'bg-[#F0FDF4] text-[#407E3C] border-[#BBF7D0]' : 'bg-red-50 text-[#DC2626] border-red-200'}`}>
+            <span className={`px-2 py-1 rounded text-xs font-medium border ${account.is_active ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#407E3C] border-[#BBF7D0] dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 text-[#DC2626] border-red-200 dark:border-red-800'}`}>
               {account.is_active ? 'Active' : 'Inactive'}
             </span>
           </div>
 
           <dl className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <dt className="text-[#6B7280] text-xs font-semibold uppercase tracking-wider mb-1">Discount</dt>
-              <dd className="font-medium text-[#1A1A1A]">{account.discount_pct}%</dd>
+              <dt className="text-[#6B7280] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Discount</dt>
+              <dd className="font-medium text-[#1A1A1A] dark:text-gray-100">{account.discount_pct}%</dd>
             </div>
             <div>
-              <dt className="text-[#6B7280] text-xs font-semibold uppercase tracking-wider mb-1">Credit limit</dt>
-              <dd className="font-medium text-[#1A1A1A]">€{Number(account.credit_limit).toFixed(2)}</dd>
+              <dt className="text-[#6B7280] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Credit limit</dt>
+              <dd className="font-medium text-[#1A1A1A] dark:text-gray-100">€{Number(account.credit_limit).toFixed(2)}</dd>
             </div>
             <div>
-              <dt className="text-[#6B7280] text-xs font-semibold uppercase tracking-wider mb-1">Payment terms</dt>
-              <dd className="font-medium text-[#1A1A1A]">{account.payment_terms_days} days</dd>
+              <dt className="text-[#6B7280] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Payment terms</dt>
+              <dd className="font-medium text-[#1A1A1A] dark:text-gray-100">{account.payment_terms_days} days</dd>
             </div>
             <div>
-              <dt className="text-[#6B7280] text-xs font-semibold uppercase tracking-wider mb-1">Billing email</dt>
-              <dd className="font-medium text-[#1A1A1A] truncate">{account.billing_email}</dd>
+              <dt className="text-[#6B7280] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Billing email</dt>
+              <dd className="font-medium text-[#1A1A1A] dark:text-gray-100 truncate">{account.billing_email}</dd>
             </div>
             {account.billing_address && (
               <div className="col-span-2">
-                <dt className="text-[#6B7280] text-xs font-semibold uppercase tracking-wider mb-1">Billing address</dt>
-                <dd className="font-medium text-[#1A1A1A]">{account.billing_address}</dd>
+                <dt className="text-[#6B7280] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Billing address</dt>
+                <dd className="font-medium text-[#1A1A1A] dark:text-gray-100">{account.billing_address}</dd>
               </div>
             )}
             {account.travel_policy && (
               <div className="col-span-2">
-                <dt className="text-[#6B7280] text-xs font-semibold uppercase tracking-wider mb-1">Travel policy</dt>
-                <dd className="text-[#1A1A1A] text-sm whitespace-pre-wrap bg-[#F9FAFB] rounded p-3 border border-[#E5E7EB]">
+                <dt className="text-[#6B7280] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Travel policy</dt>
+                <dd className="text-[#1A1A1A] dark:text-gray-200 text-sm whitespace-pre-wrap bg-[#F9FAFB] dark:bg-gray-800 rounded p-3 border border-[#E5E7EB] dark:border-gray-700">
                   {account.travel_policy}
                 </dd>
               </div>
             )}
           </dl>
 
-          <p className="mt-6 text-xs text-[#6B7280]">
+          <p className="mt-6 text-xs text-[#6B7280] dark:text-gray-400">
             To update account details, discount rates, or travel policy — contact your RECI account manager.
           </p>
         </div>
@@ -133,78 +132,76 @@ export default function CorporatePage() {
     )
   }
 
-  // Post-submit success
   if (success) {
     return (
       <div className="card text-center py-10">
-        <div className="w-14 h-14 bg-[#F0FDF4] border-2 border-[#407E3C] rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-14 h-14 bg-[#F0FDF4] dark:bg-green-900/30 border-2 border-[#407E3C] rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-7 h-7 text-[#407E3C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-lg font-bold text-[#1A1A1A] mb-2">Corporate account created</h2>
-        <p className="text-sm text-[#6B7280]">Your account is active. Reload to see your details.</p>
+        <h2 className="text-lg font-bold text-[#1A1A1A] dark:text-gray-100 mb-2">Corporate account created</h2>
+        <p className="text-sm text-[#6B7280] dark:text-gray-400">Your account is active. Reload to see your details.</p>
       </div>
     )
   }
 
-  // Apply form
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-[#1A1A1A]">Corporate Account</h1>
+      <h1 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100">Corporate Account</h1>
 
       <div className="card">
-        <h2 className="font-semibold text-[#1A1A1A] mb-1">Apply for a corporate account</h2>
-        <p className="text-sm text-[#6B7280] mb-6">
+        <h2 className="font-semibold text-[#1A1A1A] dark:text-gray-100 mb-1">Apply for a corporate account</h2>
+        <p className="text-sm text-[#6B7280] dark:text-gray-400 mb-6">
           Corporate accounts get custom pricing, invoiced billing, and AI policy enforcement on bookings.
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Company name</label>
+            <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Company name</label>
             <input className="input w-full" {...register('company_name')} />
             {errors.company_name && <p className="mt-1 text-xs text-[#DC2626]">{errors.company_name.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Registration number</label>
+              <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Registration number</label>
               <input className="input w-full" placeholder="Optional" {...register('company_registration')} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#1A1A1A] mb-1">VAT number</label>
+              <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">VAT number</label>
               <input className="input w-full" placeholder="Optional" {...register('vat_number')} />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Billing address</label>
+            <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Billing address</label>
             <input className="input w-full" {...register('billing_address')} />
             {errors.billing_address && <p className="mt-1 text-xs text-[#DC2626]">{errors.billing_address.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Billing email</label>
+            <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Billing email</label>
             <input className="input w-full" type="email" {...register('billing_email')} />
             {errors.billing_email && <p className="mt-1 text-xs text-[#DC2626]">{errors.billing_email.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
-              Travel policy <span className="text-[#6B7280] font-normal">(optional)</span>
+            <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">
+              Travel policy <span className="text-[#6B7280] dark:text-gray-400 font-normal">(optional)</span>
             </label>
             <textarea
               className="input w-full h-28 resize-none"
               placeholder="e.g. Economy or Compact vehicles only. No chauffeur. Bookings must be made 48h in advance. Maximum daily rate €80."
               {...register('travel_policy')}
             />
-            <p className="mt-1 text-xs text-[#6B7280]">
+            <p className="mt-1 text-xs text-[#6B7280] dark:text-gray-400">
               Plain text. The AI agent will enforce this on every booking from your account.
             </p>
           </div>
 
           {error && (
-            <p className="text-sm text-[#DC2626] bg-red-50 border border-red-200 rounded px-3 py-2">{error}</p>
+            <p className="text-sm text-[#DC2626] bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded px-3 py-2">{error}</p>
           )}
 
           <button

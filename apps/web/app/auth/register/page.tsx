@@ -69,13 +69,13 @@ export default function RegisterPage() {
   if (success) {
     return (
       <div className="card text-center">
-        <div className="w-14 h-14 bg-[#F0FDF4] border-2 border-[#407E3C] rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-14 h-14 bg-[#F0FDF4] dark:bg-green-900/30 border-2 border-[#407E3C] rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-7 h-7 text-[#407E3C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-[#1A1A1A] mb-2">Check your email</h2>
-        <p className="text-sm text-[#6B7280]">
+        <h2 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-2">Check your email</h2>
+        <p className="text-sm text-[#6B7280] dark:text-gray-400">
           We sent a confirmation link. Click it to activate your account then sign in.
         </p>
         <button
@@ -90,12 +90,12 @@ export default function RegisterPage() {
 
   return (
     <div className="card">
-      <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Create account</h1>
-      <p className="text-sm text-[#6B7280] mb-6">Join RECI Transport</p>
+      <h1 className="text-2xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-1">Create account</h1>
+      <p className="text-sm text-[#6B7280] dark:text-gray-400 mb-6">Join RECI Transport</p>
 
       <button
         onClick={handleGoogle}
-        className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-md py-2.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#F9FAFB] transition-colors mb-6"
+        className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] dark:border-gray-600 rounded-md py-2.5 text-sm font-medium text-[#1A1A1A] dark:text-gray-100 hover:bg-[#F9FAFB] dark:hover:bg-gray-800 transition-colors mb-6"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -108,47 +108,47 @@ export default function RegisterPage() {
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#E5E7EB]" />
+          <div className="w-full border-t border-[#E5E7EB] dark:border-gray-700" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-white px-2 text-[#6B7280]">or</span>
+          <span className="bg-white dark:bg-gray-900 px-2 text-[#6B7280] dark:text-gray-400">or</span>
         </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">First name</label>
+            <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">First name</label>
             <input className="input w-full" {...register('first_name')} />
             {errors.first_name && <p className="mt-1 text-xs text-[#DC2626]">{errors.first_name.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Last name</label>
+            <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Last name</label>
             <input className="input w-full" {...register('last_name')} />
             {errors.last_name && <p className="mt-1 text-xs text-[#DC2626]">{errors.last_name.message}</p>}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Email</label>
+          <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Email</label>
           <input type="email" autoComplete="email" className="input w-full" {...register('email')} />
           {errors.email && <p className="mt-1 text-xs text-[#DC2626]">{errors.email.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Password</label>
+          <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Password</label>
           <input type="password" autoComplete="new-password" className="input w-full" {...register('password')} />
           {errors.password && <p className="mt-1 text-xs text-[#DC2626]">{errors.password.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Confirm password</label>
+          <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Confirm password</label>
           <input type="password" autoComplete="new-password" className="input w-full" {...register('confirm_password')} />
           {errors.confirm_password && <p className="mt-1 text-xs text-[#DC2626]">{errors.confirm_password.message}</p>}
         </div>
 
         {serverError && (
-          <p className="text-sm text-[#DC2626] bg-red-50 border border-red-200 rounded px-3 py-2">
+          <p className="text-sm text-[#DC2626] bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded px-3 py-2">
             {serverError}
           </p>
         )}
@@ -162,7 +162,7 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-[#6B7280]">
+      <p className="mt-6 text-center text-sm text-[#6B7280] dark:text-gray-400">
         Already have an account?{' '}
         <Link href="/auth/login" className="text-primary font-medium hover:underline">
           Sign in

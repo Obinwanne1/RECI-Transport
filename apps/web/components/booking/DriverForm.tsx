@@ -30,14 +30,14 @@ export default function DriverForm({ defaultValues, onSubmit, loading }: DriverF
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-[#1A1A1A] mb-1">First Name</label>
+          <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">First Name</label>
           <input {...register('first_name')} className="input-field" placeholder="Anna" />
           {errors.first_name && (
             <p className="text-[#DC2626] text-xs mt-1">{errors.first_name.message}</p>
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Last Name</label>
+          <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Last Name</label>
           <input {...register('last_name')} className="input-field" placeholder="Müller" />
           {errors.last_name && (
             <p className="text-[#DC2626] text-xs mt-1">{errors.last_name.message}</p>
@@ -74,14 +74,14 @@ export default function DriverForm({ defaultValues, onSubmit, loading }: DriverF
       <div>
         <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
           Driving Licence Number{' '}
-          <span className="text-[#6B7280] font-normal">(optional)</span>
+          <span className="text-[#6B7280] dark:text-gray-400 font-normal">(optional)</span>
         </label>
         <input
           {...register('licence_number')}
           className="input-field"
           placeholder="B123456789"
         />
-        <p className="text-xs text-[#6B7280] mt-1">Required at vehicle pick-up.</p>
+        <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">Required at vehicle pick-up.</p>
         <LicenceUpload
           firstName={firstName}
           lastName={lastName}

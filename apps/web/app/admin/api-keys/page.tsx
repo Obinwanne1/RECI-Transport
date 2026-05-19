@@ -58,14 +58,14 @@ export default function ApiKeysPage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">White-label API Keys</h1>
-      <p className="text-sm text-[#6B7280] mb-8">
+      <h1 className="text-2xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-2">White-label API Keys</h1>
+      <p className="text-sm text-[#6B7280] dark:text-gray-400 mb-8">
         Issue API keys for external partners to access RECI&apos;s AI endpoints. Limit: 100 req/day per key.
       </p>
 
       {/* Generate new key */}
       <div className="card mb-8">
-        <h2 className="text-sm font-semibold text-[#1A1A1A] mb-4">Generate New Key</h2>
+        <h2 className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100 mb-4">Generate New Key</h2>
         <div className="flex gap-3">
           <input
             type="text"
@@ -90,30 +90,30 @@ export default function ApiKeysPage() {
 
       {/* Generated key — shown once */}
       {generatedKey && (
-        <div className="mb-8 p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-card">
+        <div className="mb-8 p-4 bg-[#F0FDF4] dark:bg-green-900/20 border border-[#BBF7D0] dark:border-green-800 rounded-card">
           <p className="text-sm font-semibold text-[#407E3C] mb-2">
             ✓ Key generated — copy it now. It will not be shown again.
           </p>
           <div className="flex items-center gap-3">
-            <code className="flex-1 bg-white border border-[#E5E7EB] rounded px-3 py-2 text-sm font-mono text-[#1A1A1A] break-all">
+            <code className="flex-1 bg-white dark:bg-gray-800 border border-[#E5E7EB] dark:border-gray-600 rounded px-3 py-2 text-sm font-mono text-[#1A1A1A] dark:text-gray-100 break-all">
               {generatedKey}
             </code>
             <button
               onClick={() => navigator.clipboard.writeText(generatedKey)}
-              className="shrink-0 px-3 py-2 text-sm border border-[#407E3C] text-[#407E3C] rounded-md hover:bg-[#F0FDF4] transition-colors"
+              className="shrink-0 px-3 py-2 text-sm border border-[#407E3C] text-[#407E3C] rounded-md hover:bg-[#F0FDF4] dark:hover:bg-green-900/20 transition-colors"
             >
               Copy
             </button>
           </div>
-          <p className="text-xs text-[#6B7280] mt-2">
-            Send as: <code className="bg-white border border-[#E5E7EB] rounded px-1 py-0.5">x-api-key: {generatedKey.slice(0, 20)}…</code>
+          <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-2">
+            Send as: <code className="bg-white dark:bg-gray-800 border border-[#E5E7EB] dark:border-gray-600 rounded px-1 py-0.5">x-api-key: {generatedKey.slice(0, 20)}…</code>
           </p>
         </div>
       )}
 
       {/* Keys table */}
       <div className="card">
-        <h2 className="text-sm font-semibold text-[#1A1A1A] mb-4">Active Keys</h2>
+        <h2 className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100 mb-4">Active Keys</h2>
         {loading ? (
           <div className="flex justify-center py-6">
             <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -124,22 +124,22 @@ export default function ApiKeysPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#E5E7EB]">
-                  <th className="text-left py-2 px-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Owner</th>
-                  <th className="text-left py-2 px-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Created</th>
-                  <th className="text-left py-2 px-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Req Today</th>
-                  <th className="text-left py-2 px-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Status</th>
+                <tr className="border-b border-[#E5E7EB] dark:border-gray-700">
+                  <th className="text-left py-2 px-3 text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider">Owner</th>
+                  <th className="text-left py-2 px-3 text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider">Created</th>
+                  <th className="text-left py-2 px-3 text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider">Req Today</th>
+                  <th className="text-left py-2 px-3 text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider">Status</th>
                   <th className="py-2 px-3" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F3F4F6]">
+              <tbody className="divide-y divide-[#F3F4F6] dark:divide-gray-700">
                 {keys.map((k) => (
                   <tr key={k.id} className={k.revoked_at ? 'opacity-50' : ''}>
-                    <td className="py-3 px-3 font-medium text-[#1A1A1A]">{k.owner_name}</td>
-                    <td className="py-3 px-3 text-[#6B7280]">
+                    <td className="py-3 px-3 font-medium text-[#1A1A1A] dark:text-gray-100">{k.owner_name}</td>
+                    <td className="py-3 px-3 text-[#6B7280] dark:text-gray-400">
                       {new Date(k.created_at).toLocaleDateString('en-DE')}
                     </td>
-                    <td className="py-3 px-3 text-[#6B7280]">
+                    <td className="py-3 px-3 text-[#6B7280] dark:text-gray-400">
                       {k.revoked_at ? '—' : `${k.requests_today} / 100`}
                     </td>
                     <td className="py-3 px-3">

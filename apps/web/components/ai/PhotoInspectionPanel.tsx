@@ -41,7 +41,7 @@ export default function PhotoInspectionPanel({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider text-center">
+      <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider text-center">
         {ANGLE_ICONS[angle]} {ANGLE_LABELS[angle]}
       </p>
 
@@ -60,7 +60,7 @@ export default function PhotoInspectionPanel({
         className={`relative aspect-[4/3] rounded-card overflow-hidden cursor-pointer border-2 transition-colors flex items-center justify-center ${
           preview
             ? 'border-[#407E3C]'
-            : 'border-dashed border-[#E5E7EB] hover:border-primary/50 bg-[#F9FAFB]'
+            : 'border-dashed border-[#E5E7EB] dark:border-gray-600 hover:border-primary/50 bg-[#F9FAFB] dark:bg-gray-800'
         } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
       >
         {preview ? (
