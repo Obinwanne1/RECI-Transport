@@ -252,6 +252,16 @@
   color: #6b7280;
 }
 
+.dark .fc .fc-datagrid-cell {
+  background: #111827;
+}
+
+.dark .fc .fc-scrollgrid,
+.dark .fc .fc-scrollgrid-section > td,
+.dark .fc .fc-datagrid-body {
+  background: #111827;
+}
+
 .dark .fc .fc-datagrid-cell-cushion {
   color: #d1d5db;
 }
