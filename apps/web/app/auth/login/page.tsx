@@ -106,7 +106,12 @@ function LoginPageContent() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Password</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200">Password</label>
+            <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <PasswordInput
             autoComplete="current-password"
             {...register('password')}

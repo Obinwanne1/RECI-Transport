@@ -38,7 +38,7 @@ export default function FleetPage() {
 
   async function loadVehicles() {
     setLoading(true)
-    const res = await fetch('/api/admin/vehicles')
+    const res = await fetch('/admin/api/admin/vehicles')
     const data = await res.json()
     setVehicles(Array.isArray(data) ? data : [])
     setLoading(false)
@@ -47,7 +47,7 @@ export default function FleetPage() {
   useEffect(() => { loadVehicles() }, [])
 
   async function toggleActive(id: string, current: boolean) {
-    await fetch(`/api/admin/vehicles/${id}`, {
+    await fetch(`/admin/api/admin/vehicles/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ is_active: !current }),

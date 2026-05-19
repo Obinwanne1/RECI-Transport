@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
 import { createBrowserSupabaseClient } from '@/lib/supabase/browser'
+import PasswordInput from '@/components/ui/PasswordInput'
 
 const LoginSchema = z.object({
   email: z.string().email('Valid email required'),
@@ -50,7 +51,7 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950 flex items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-3rem)] bg-[#F9FAFB] dark:bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -96,10 +97,8 @@ function LoginContent() {
                   Forgot password?
                 </Link>
               </div>
-              <input
-                type="password"
+              <PasswordInput
                 autoComplete="current-password"
-                className="w-full border border-[#E5E7EB] dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-[#1A1A1A] dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#407E3C] focus:border-transparent transition-colors"
                 {...register('password')}
               />
               {errors.password && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>}

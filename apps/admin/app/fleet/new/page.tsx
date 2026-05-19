@@ -31,7 +31,7 @@ export default function NewVehiclePage() {
   const [serverError, setServerError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/admin/categories-locations')
+    fetch('/admin/api/admin/categories-locations')
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         if (d) {
@@ -49,7 +49,7 @@ export default function NewVehiclePage() {
 
   async function onSubmit(data: FormData) {
     setServerError(null)
-    const res = await fetch('/api/admin/vehicles', {
+    const res = await fetch('/admin/api/admin/vehicles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

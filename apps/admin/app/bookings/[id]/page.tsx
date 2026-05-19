@@ -55,7 +55,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(`/api/admin/bookings/${params.id}`)
+    fetch(`/admin/api/admin/bookings/${params.id}`)
       .then((r) => r.json())
       .then((d) => {
         setBooking(d)
@@ -68,7 +68,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   async function handleUpdate() {
     setSaving(true)
     setSaveError(null)
-    const res = await fetch(`/api/admin/bookings/${params.id}`, {
+    const res = await fetch(`/admin/api/admin/bookings/${params.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus !== booking.status ? newStatus : undefined, notes }),

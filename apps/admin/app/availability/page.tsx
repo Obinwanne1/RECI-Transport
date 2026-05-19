@@ -45,8 +45,8 @@ export default function AvailabilityPage() {
   async function load() {
     setLoading(true)
     const [blocksRes, vehiclesRes] = await Promise.all([
-      fetch('/api/admin/availability-blocks').then((r) => r.json()),
-      fetch('/api/admin/vehicles').then((r) => r.json()),
+      fetch('/admin/api/admin/availability-blocks').then((r) => r.json()),
+      fetch('/admin/api/admin/vehicles').then((r) => r.json()),
     ])
     setBlocks(Array.isArray(blocksRes) ? blocksRes : [])
     setVehicles(Array.isArray(vehiclesRes) ? vehiclesRes.filter((v: any) => v.is_active) : [])
@@ -57,7 +57,7 @@ export default function AvailabilityPage() {
 
   async function addBlock() {
     setSaving(true); setError(null)
-    const res = await fetch('/api/admin/availability-blocks', {
+    const res = await fetch('/admin/api/admin/availability-blocks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
@@ -69,7 +69,7 @@ export default function AvailabilityPage() {
   }
 
   async function deleteBlock(id: string) {
-    await fetch(`/api/admin/availability-blocks/${id}`, { method: 'DELETE' })
+    await fetch(`/admin/api/admin/availability-blocks/${id}`, { method: 'DELETE' })
     setConfirmId(null); load()
   }
 

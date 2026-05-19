@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserSupabaseClient } from '@/lib/supabase/browser'
+import PasswordInput from '@/components/ui/PasswordInput'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -51,7 +52,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950 flex items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-3rem)] bg-[#F9FAFB] dark:bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -90,28 +91,24 @@ export default function ResetPasswordPage() {
                 <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1.5">
                   New password
                 </label>
-                <input
-                  type="password"
+                <PasswordInput
                   autoComplete="new-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min. 8 characters"
-                  className="w-full border border-[#E5E7EB] dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-[#1A1A1A] dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#407E3C] focus:border-transparent transition-colors"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1.5">
                   Confirm password
                 </label>
-                <input
-                  type="password"
+                <PasswordInput
                   autoComplete="new-password"
                   required
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   placeholder="Repeat password"
-                  className="w-full border border-[#E5E7EB] dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-[#1A1A1A] dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#407E3C] focus:border-transparent transition-colors"
                 />
               </div>
 

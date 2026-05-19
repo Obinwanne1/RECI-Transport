@@ -50,7 +50,7 @@ function BookingsContent() {
     if (search) params.set('search', search)
     params.set('page', String(page))
 
-    fetch(`/api/admin/bookings?${params}`)
+    fetch(`/admin/api/admin/bookings?${params}`)
       .then((r) => r.json())
       .then((d) => { setBookings(d.bookings ?? []); setTotal(d.total ?? 0) })
       .finally(() => setLoading(false))

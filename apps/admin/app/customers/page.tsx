@@ -35,7 +35,7 @@ function CustomersContent() {
     if (search) params.set('search', search)
     params.set('page', String(page))
 
-    fetch(`/api/admin/customers?${params}`)
+    fetch(`/admin/api/admin/customers?${params}`)
       .then((r) => r.json())
       .then((d) => { setCustomers(d.customers ?? []); setTotal(d.total ?? 0) })
       .finally(() => setLoading(false))

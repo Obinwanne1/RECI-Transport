@@ -8,7 +8,7 @@ function ThemeToggle() {
     <button
       onClick={toggle}
       aria-label="Toggle theme"
-      className="fixed top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 border border-[#E5E7EB] dark:border-gray-700 text-[#6B7280] dark:text-gray-300 hover:border-primary transition-colors shadow-sm"
+      className="fixed top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 border border-[#E5E7EB] dark:border-gray-700 text-[#6B7280] dark:text-gray-300 hover:border-[#407E3C] transition-colors shadow-sm"
     >
       {theme === 'dark' ? (
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

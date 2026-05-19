@@ -45,9 +45,9 @@ export default function PricingPage() {
   async function load() {
     setLoading(true)
     const [rulesRes, overridesRes, catRes] = await Promise.all([
-      fetch('/api/admin/pricing-rules').then((r) => r.json()),
-      fetch('/api/admin/pricing-overrides').then((r) => r.json()),
-      fetch('/api/admin/categories-locations').then((r) => r.json()),
+      fetch('/admin/api/admin/pricing-rules').then((r) => r.json()),
+      fetch('/admin/api/admin/pricing-overrides').then((r) => r.json()),
+      fetch('/admin/api/admin/categories-locations').then((r) => r.json()),
     ])
     setRules(Array.isArray(rulesRes) ? rulesRes : [])
     setOverrides(Array.isArray(overridesRes) ? overridesRes : [])
@@ -59,7 +59,7 @@ export default function PricingPage() {
 
   async function addRule() {
     setSaving(true); setError(null)
-    const res = await fetch('/api/admin/pricing-rules', {
+    const res = await fetch('/admin/api/admin/pricing-rules', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...newRule, base_rate_per_day: parseFloat(newRule.base_rate_per_day) }),
@@ -71,13 +71,13 @@ export default function PricingPage() {
   }
 
   async function deleteRule(id: string) {
-    await fetch(`/api/admin/pricing-rules/${id}`, { method: 'DELETE' })
+    await fetch(`/admin/api/admin/pricing-rules/${id}`, { method: 'DELETE' })
     setConfirmId(null); load()
   }
 
   async function addOverride() {
     setSaving(true); setError(null)
-    const res = await fetch('/api/admin/pricing-overrides', {
+    const res = await fetch('/admin/api/admin/pricing-overrides', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...newOverride, surcharge_pct: parseFloat(newOverride.surcharge_pct) }),
@@ -89,7 +89,7 @@ export default function PricingPage() {
   }
 
   async function deleteOverride(id: string) {
-    await fetch(`/api/admin/pricing-overrides/${id}`, { method: 'DELETE' })
+    await fetch(`/admin/api/admin/pricing-overrides/${id}`, { method: 'DELETE' })
     setConfirmId(null); load()
   }
 

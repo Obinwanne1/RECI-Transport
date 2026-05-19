@@ -39,8 +39,8 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/admin/vehicles/${params.id}`).then((r) => r.json()),
-      fetch('/api/admin/categories-locations').then((r) => r.json()),
+      fetch(`/admin/api/admin/vehicles/${params.id}`).then((r) => r.json()),
+      fetch('/admin/api/admin/categories-locations').then((r) => r.json()),
     ]).then(([vehicle, catLoc]) => {
       setCategories(catLoc.categories ?? [])
       setLocations(catLoc.locations ?? [])
@@ -62,7 +62,7 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
 
   async function onSubmit(data: FormData) {
     setServerError(null)
-    const res = await fetch(`/api/admin/vehicles/${params.id}`, {
+    const res = await fetch(`/admin/api/admin/vehicles/${params.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -74,7 +74,7 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
 
   async function handleDeactivate() {
     setDeactivating(true)
-    await fetch(`/api/admin/vehicles/${params.id}`, { method: 'DELETE' })
+    await fetch(`/admin/api/admin/vehicles/${params.id}`, { method: 'DELETE' })
     router.push('/fleet')
   }
 

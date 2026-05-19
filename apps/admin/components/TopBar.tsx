@@ -26,25 +26,10 @@ export default function TopBar() {
     <header className="sticky top-0 z-20 h-12 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-[#E5E7EB] dark:border-gray-700/60 flex items-center justify-end px-5">
       <button
         onClick={toggle}
-        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-[#F3F4F6] dark:hover:bg-gray-800 transition-colors group"
+        aria-label="Toggle theme"
+        className="w-9 h-9 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 border border-[#E5E7EB] dark:border-gray-700 text-[#6B7280] dark:text-gray-300 hover:border-[#407E3C] transition-colors shadow-sm"
       >
-        {/* Toggle pill */}
-        <span className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
-          isDark ? 'bg-[#407E3C]' : 'bg-gray-200'
-        }`}>
-          <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${
-            isDark ? 'translate-x-[18px]' : 'translate-x-0.5'
-          }`} />
-        </span>
-
-        {/* Icon + label */}
-        <span className={`flex items-center gap-1 text-xs font-medium transition-colors ${
-          isDark ? 'text-yellow-400' : 'text-[#6B7280] dark:text-gray-400'
-        }`}>
-          {isDark ? <SunIcon /> : <MoonIcon />}
-          <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
-        </span>
+        {isDark ? <SunIcon /> : <MoonIcon />}
       </button>
     </header>
   )
