@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
+import PasswordInput from '@/components/ui/PasswordInput'
 
 const LoginSchema = z.object({
   email: z.string().email('Valid email required'),
@@ -106,10 +107,8 @@ function LoginPageContent() {
 
         <div>
           <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">Password</label>
-          <input
-            type="password"
+          <PasswordInput
             autoComplete="current-password"
-            className="input w-full"
             {...register('password')}
           />
           {errors.password && <p className="mt-1 text-xs text-[#DC2626]">{errors.password.message}</p>}
