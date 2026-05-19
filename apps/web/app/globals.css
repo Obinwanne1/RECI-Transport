@@ -17,6 +17,28 @@
   body { min-height: 100vh; margin: 0; }
 }
 
+@layer components {
+  .card {
+    @apply bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-[#407E3C] text-white font-semibold text-sm px-4 py-2.5 hover:bg-[#356834] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#407E3C]/40;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg bg-white text-[#1A1A1A] font-semibold text-sm px-4 py-2.5 border border-[#E5E7EB] hover:bg-[#F9FAFB] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#407E3C]/30;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#407E3C]/30 focus:border-[#407E3C] transition;
+  }
+
+  .label {
+    @apply block text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-1.5;
+  }
+}
+
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

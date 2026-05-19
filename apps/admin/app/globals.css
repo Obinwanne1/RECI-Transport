@@ -285,3 +285,9 @@
 .dark .fc .fc-scroller::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
 }
+
+.dark .fc .fc-license-message,
+.dark .fc .fc-license-message a {
+  background: #111827 !important;
+  color: #6b7280 !important;
+}
