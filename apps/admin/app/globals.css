@@ -248,6 +248,10 @@
   background: rgba(64, 126, 60, 0.09) !important;
 }
 
+.dark .fc .fc-timeline-slot {
+  background: #111827;
+}
+
 .dark .fc .fc-timeline-slot-label-cushion {
   color: #9ca3af;
 }
