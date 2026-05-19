@@ -22,12 +22,23 @@
     --color-bg: #030712;
     --color-surface: #111827;
     --color-border: #374151;
+    color-scheme: dark;
   }
 
   html {
     font-family: 'Poppins', sans-serif;
     color: var(--color-text);
     background: var(--color-bg);
+  }
+
+  /* Fix: Chrome autofill overrides bg to white in dark mode, making white text invisible */
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
+    -webkit-text-fill-color: #f3f4f6 !important;
+    caret-color: #f3f4f6;
   }
 }
 
