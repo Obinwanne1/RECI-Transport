@@ -210,6 +210,7 @@ export interface UserProfile {
   role: UserRole
   corporate_account_id: string | null
   licence_verified: boolean
+  password_reset_required: boolean
   created_at: string
   updated_at: string
 }

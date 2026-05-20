@@ -1,12 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserSupabaseClient } from '@/lib/supabase/browser'
 import PasswordInput from '@/components/ui/PasswordInput'
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const required = searchParams.get('required') === 'true'
+
   const [ready, setReady] = useState(false)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -17,23 +20,30 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const supabase = createBrowserSupabaseClient()
 
-    // Supabase auto-exchanges the token from the URL and fires PASSWORD_RECOVERY
+    if (required) {
+      // Already logged in with temp password — no PASSWORD_RECOVERY event needed
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) setReady(true)
+      })
+      return
+    }
+
+    // Standard email-reset link flow
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setReady(true)
     })
 
-    // Also accept if a session already exists (e.g. PKCE code already exchanged)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true)
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [required])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (password !== confirm) { setError('Passwords do not match'); return }
-    if (password.length < 8)  { setError('Password must be at least 8 characters'); return }
+    if (password.length < 8) { setError('Password must be at least 8 characters'); return }
 
     setLoading(true)
     setError(null)
@@ -45,6 +55,14 @@ export default function ResetPasswordPage() {
       setError(err.message)
       setLoading(false)
       return
+    }
+
+    // Clear the forced-reset flag server-side
+    if (required) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await fetch(`/admin/api/admin/users/${user.id}/clear-reset`, { method: 'POST' })
+      }
     }
 
     setSuccess(true)
@@ -61,8 +79,14 @@ export default function ResetPasswordPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h1 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100">Set new password</h1>
-          <p className="text-sm text-[#6B7280] dark:text-gray-400 mt-1">Choose a strong password for your account</p>
+          <h1 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100">
+            {required ? 'Set your permanent password' : 'Set new password'}
+          </h1>
+          <p className="text-sm text-[#6B7280] dark:text-gray-400 mt-1">
+            {required
+              ? 'Your temporary password must be changed before continuing.'
+              : 'Choose a strong password for your account'}
+          </p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-xl p-6 shadow-sm">
@@ -80,10 +104,12 @@ export default function ResetPasswordPage() {
             <div className="text-center py-6 space-y-2">
               <div className="w-8 h-8 border-2 border-[#407E3C] border-t-transparent rounded-full animate-spin mx-auto" />
               <p className="text-sm text-[#6B7280] dark:text-gray-400">Verifying reset link…</p>
-              <p className="text-xs text-[#9CA3AF] dark:text-gray-500">
-                If this takes too long, the link may have expired.{' '}
-                <a href="/auth/forgot-password" className="text-[#407E3C] hover:underline">Request a new one</a>.
-              </p>
+              {!required && (
+                <p className="text-xs text-[#9CA3AF] dark:text-gray-500">
+                  If this takes too long, the link may have expired.{' '}
+                  <a href="/auth/forgot-password" className="text-[#407E3C] hover:underline">Request a new one</a>.
+                </p>
+              )}
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -130,5 +156,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }

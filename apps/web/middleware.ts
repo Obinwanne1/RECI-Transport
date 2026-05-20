@@ -95,6 +95,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
+  // Force password reset for admin-created accounts accessing frontend
+  if (user && path.startsWith('/account')) {
+    const adminClient = createAdminClient()
+    const { data: profile } = await adminClient
+      .from('user_profiles')
+      .select('password_reset_required')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.password_reset_required) {
+      const resetUrl = request.nextUrl.clone()
+      resetUrl.pathname = '/auth/reset-password'
+      resetUrl.searchParams.set('required', 'true')
+      return NextResponse.redirect(resetUrl)
+    }
+  }
+
   // Redirect logged-in users away from auth pages
   if (user && (path === '/auth/login' || path === '/auth/register')) {
     const accountUrl = request.nextUrl.clone()

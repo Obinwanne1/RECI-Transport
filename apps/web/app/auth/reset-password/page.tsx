@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -23,6 +23,9 @@ type FormData = z.infer<typeof Schema>
 
 function ResetPasswordContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const required = searchParams.get('required') === 'true'
+
   const [done, setDone] = useState(false)
   const [loading, setLoading] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -46,6 +49,11 @@ function ResetPasswordContent() {
       return
     }
 
+    // Clear forced-reset flag for admin-created accounts
+    if (required) {
+      await fetch('/api/account/clear-reset', { method: 'POST' })
+    }
+
     setDone(true)
   }
 
@@ -59,13 +67,15 @@ function ResetPasswordContent() {
         </div>
         <h2 className="text-xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-2">Password updated</h2>
         <p className="text-sm text-[#6B7280] dark:text-gray-400">
-          Your password has been changed. Sign in with your new credentials.
+          {required
+            ? 'Your password has been set. You can now use the platform.'
+            : 'Your password has been changed. Sign in with your new credentials.'}
         </p>
         <button
-          onClick={() => router.push('/auth/login')}
+          onClick={() => router.push(required ? '/account/bookings' : '/auth/login')}
           className="mt-6 btn-primary px-6 py-2 text-sm"
         >
-          Go to sign in
+          {required ? 'Continue' : 'Go to sign in'}
         </button>
       </div>
     )
@@ -73,9 +83,13 @@ function ResetPasswordContent() {
 
   return (
     <div className="card">
-      <h1 className="text-2xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-1">Set new password</h1>
+      <h1 className="text-2xl font-bold text-[#1A1A1A] dark:text-gray-100 mb-1">
+        {required ? 'Set your permanent password' : 'Set new password'}
+      </h1>
       <p className="text-sm text-[#6B7280] dark:text-gray-400 mb-6">
-        Choose a strong password for your account.
+        {required
+          ? 'Your temporary password must be changed before you can continue.'
+          : 'Choose a strong password for your account.'}
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -106,11 +120,13 @@ function ResetPasswordContent() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-[#6B7280] dark:text-gray-400">
-        <Link href="/auth/login" className="text-primary font-medium hover:underline">
-          Back to sign in
-        </Link>
-      </p>
+      {!required && (
+        <p className="mt-6 text-center text-sm text-[#6B7280] dark:text-gray-400">
+          <Link href="/auth/login" className="text-primary font-medium hover:underline">
+            Back to sign in
+          </Link>
+        </p>
+      )}
     </div>
   )
 }

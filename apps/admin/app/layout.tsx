@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import AdminNav from '@/components/AdminNav'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import TopBar from '@/components/TopBar'
@@ -16,11 +17,21 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   let userEmail = ''
+  let userRole = ''
   if (SUPABASE_CONFIGURED) {
     try {
       const supabase = createServerSupabaseClient()
       const { data: { user } } = await supabase.auth.getUser()
       userEmail = user?.email ?? ''
+      if (user) {
+        const admin = createAdminClient()
+        const { data: profile } = await admin
+          .from('user_profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        userRole = profile?.role ?? ''
+      }
     } catch {
       // Not authenticated — middleware will redirect
     }
@@ -49,7 +60,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </>
           ) : (
             <div className="flex min-h-screen">
-              <AdminNav userEmail={userEmail || 'dev@localhost'} />
+              <AdminNav userEmail={userEmail || 'dev@localhost'} userRole={userRole} />
               <main className="flex-1 overflow-auto min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
                 <TopBar />
                 {children}

@@ -42,6 +42,9 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const loginUrl = new URL('/auth/login', request.url)
     return NextResponse.redirect(loginUrl)
   }
@@ -50,18 +53,31 @@ export async function middleware(request: NextRequest) {
   const admin = createAdminClient()
   const { data: profile } = await admin
     .from('user_profiles')
-    .select('role')
+    .select('role, password_reset_required')
     .eq('id', user.id)
     .single()
 
   if (!profile || !['admin', 'staff'].includes(profile.role)) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     const loginUrl = new URL('/auth/login?error=unauthorized', request.url)
     return NextResponse.redirect(loginUrl)
+  }
+
+  // Force password reset for admin-created accounts on first login
+  if (profile.password_reset_required && !pathname.startsWith('/auth/reset-password')) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Password reset required' }, { status: 403 })
+    }
+    const resetUrl = new URL('/auth/reset-password', request.url)
+    resetUrl.searchParams.set('required', 'true')
+    return NextResponse.redirect(resetUrl)
   }
 
   return response
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

@@ -35,7 +35,14 @@ const NAV_ITEMS = [
   },
 ]
 
-export default function AdminNav({ userEmail }: { userEmail: string }) {
+const ADMIN_ONLY_ITEMS = [
+  {
+    href: '/dashboard/users', label: 'Users',
+    icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+  },
+]
+
+export default function AdminNav({ userEmail, userRole }: { userEmail: string; userRole?: string }) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -89,6 +96,30 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
             </Link>
           )
         })}
+        {userRole === 'admin' && (
+          <>
+            <p className="text-white/25 text-[9px] font-bold uppercase tracking-widest px-3 pt-3 mb-2.5">Admin</p>
+            {ADMIN_ONLY_ITEMS.map((item) => {
+              const active = pathname === item.href || pathname.startsWith(item.href + '/')
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    active
+                      ? 'bg-[#407E3C] text-white shadow-sm'
+                      : 'text-white/55 hover:bg-white/8 hover:text-white'
+                  }`}
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                  </svg>
+                  {item.label}
+                </Link>
+              )
+            })}
+          </>
+        )}
       </nav>
 
       {/* User */}
