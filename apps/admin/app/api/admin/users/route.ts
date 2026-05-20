@@ -74,22 +74,44 @@ export async function POST(request: NextRequest) {
 
   const supabase = createAdminClient()
 
-  // Step 1: create auth user (email_confirm=true skips verification email)
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email: parsed.data.email,
-    password: tempPassword,
-    email_confirm: true,
-    user_metadata: {
-      first_name: parsed.data.first_name,
-      last_name: parsed.data.last_name,
-    },
-  })
+  // Check if auth user already exists for this email
+  const { data: { users: existingUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 })
+  const existingAuthUser = existingUsers.find((u) => u.email === parsed.data.email)
 
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 400 })
+  let userId: string
+
+  if (existingAuthUser) {
+    // User already exists — update their password and set reset flag
+    userId = existingAuthUser.id
+    const { error: updateError } = await supabase.auth.admin.updateUserById(userId, {
+      password: tempPassword,
+      email_confirm: true,
+      user_metadata: {
+        first_name: parsed.data.first_name,
+        last_name: parsed.data.last_name,
+      },
+    })
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 400 })
+    }
+  } else {
+    // New user — create auth entry (email_confirm=true skips verification email)
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: parsed.data.email,
+      password: tempPassword,
+      email_confirm: true,
+      user_metadata: {
+        first_name: parsed.data.first_name,
+        last_name: parsed.data.last_name,
+      },
+    })
+    if (authError) {
+      return NextResponse.json({ error: authError.message }, { status: 400 })
+    }
+    userId = authData.user.id
   }
 
-  // Step 2: update profile — handle_new_user() trigger created it with role='customer'
+  // Update profile — role + names + force reset flag
   const { error: profileError } = await supabase
     .from('user_profiles')
     .update({
@@ -98,16 +120,18 @@ export async function POST(request: NextRequest) {
       last_name: parsed.data.last_name,
       password_reset_required: true,
     })
-    .eq('id', authData.user.id)
+    .eq('id', userId)
 
   if (profileError) {
-    // Compensating action: remove auth user to avoid orphan with wrong role
-    await supabase.auth.admin.deleteUser(authData.user.id)
+    // Compensating action for new users only — existing users keep their original state
+    if (!existingAuthUser) {
+      await supabase.auth.admin.deleteUser(userId)
+    }
     return NextResponse.json({ error: profileError.message }, { status: 500 })
   }
 
   return NextResponse.json(
-    { id: authData.user.id, email: parsed.data.email, temp_password: tempPassword },
+    { id: userId, email: parsed.data.email, temp_password: tempPassword },
     { status: 201 }
   )
 }
