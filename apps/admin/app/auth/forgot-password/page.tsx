@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { createBrowserSupabaseClient } from '@/lib/supabase/browser'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -15,14 +14,15 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     setError(null)
 
-    const supabase = createBrowserSupabaseClient()
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${siteUrl}/auth/reset-password`,
+    const redirectTo = `${window.location.origin}/auth/reset-password`
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, redirectTo }),
     })
 
-    if (err) {
-      setError(err.message)
+    if (!res.ok) {
+      setError('Something went wrong. Please try again.')
       setLoading(false)
       return
     }

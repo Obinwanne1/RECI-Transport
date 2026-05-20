@@ -46,6 +46,28 @@ function LoginContent() {
       return
     }
 
+    // Verify admin/staff role using the just-established session (same client, no cookie timing issue)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      await supabase.auth.signOut()
+      setServerError('Sign in failed. Please try again.')
+      setLoading(false)
+      return
+    }
+
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile || !['admin', 'staff'].includes(profile.role)) {
+      await supabase.auth.signOut()
+      setServerError('Access denied. Admin or staff role required.')
+      setLoading(false)
+      return
+    }
+
     router.push('/dashboard')
     router.refresh()
   }
