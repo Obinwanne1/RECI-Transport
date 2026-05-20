@@ -29,18 +29,39 @@ export async function POST(request: NextRequest) {
     computed_at: string
   }> = []
 
-  for (const category of categories) {
-    // Count fleet for this category
-    const { data: fleet } = await supabase
-      .from('vehicles')
-      .select('id')
-      .eq('category_id', category.id)
-      .eq('is_active', true)
+  // Batch-fetch all active vehicles in one query
+  const { data: allVehicles } = await supabase
+    .from('vehicles')
+    .select('id, category_id')
+    .eq('is_active', true)
 
-    const fleetSize = fleet?.length ?? 0
+  // Group vehicle IDs by category
+  const fleetByCategory = new Map<string, string[]>()
+  for (const v of allVehicles ?? []) {
+    const arr = fleetByCategory.get(v.category_id) ?? []
+    arr.push(v.id)
+    fleetByCategory.set(v.category_id, arr)
+  }
+
+  // Batch-fetch all relevant bookings for the full 60-day window
+  const windowEnd = new Date(today)
+  windowEnd.setDate(today.getDate() + 60)
+  const allVehicleIds = (allVehicles ?? []).map((v) => v.id)
+
+  const { data: allBookings } = await supabase
+    .from('bookings')
+    .select('vehicle_id, pickup_datetime, dropoff_datetime')
+    .not('status', 'in', '("cancelled","no_show")')
+    .lt('pickup_datetime', windowEnd.toISOString())
+    .gt('dropoff_datetime', today.toISOString())
+    .in('vehicle_id', allVehicleIds.length > 0 ? allVehicleIds : ['00000000-0000-0000-0000-000000000000'])
+
+  for (const category of categories) {
+    const vehicleIds = fleetByCategory.get(category.id) ?? []
+    const fleetSize = vehicleIds.length
     if (fleetSize === 0) continue
 
-    const vehicleIds = fleet!.map((v) => v.id)
+    const vehicleIdSet = new Set(vehicleIds)
 
     for (let dayOffset = 0; dayOffset < 60; dayOffset++) {
       const date = new Date(today)
@@ -48,14 +69,13 @@ export async function POST(request: NextRequest) {
       const dateStr = date.toISOString().split('T')[0]
       const nextDateStr = new Date(date.getTime() + 86_400_000).toISOString().split('T')[0]
 
-      // Count bookings overlapping this date
-      const { count: bookingCount } = await supabase
-        .from('bookings')
-        .select('id', { count: 'exact', head: true })
-        .not('status', 'in', '("cancelled","no_show")')
-        .lt('pickup_datetime', nextDateStr)
-        .gt('dropoff_datetime', dateStr)
-        .in('vehicle_id', vehicleIds)
+      // Count bookings overlapping this date using in-memory data
+      const bookingCount = (allBookings ?? []).filter(
+        (b) =>
+          vehicleIdSet.has(b.vehicle_id) &&
+          b.pickup_datetime < nextDateStr &&
+          b.dropoff_datetime > dateStr
+      ).length
 
       const booked = bookingCount ?? 0
       const demandScore = fleetSize > 0 ? booked / fleetSize : 0

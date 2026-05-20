@@ -98,12 +98,15 @@ Booking to evaluate:
 ${bookingContext}`
 
   try {
-    const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 256,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }],
-    })
+    const response = await client.messages.create(
+      {
+        model: 'claude-sonnet-4-6',
+        max_tokens: 256,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
+      },
+      { signal: AbortSignal.timeout(30_000) }
+    )
 
     const text = response.content
       .filter((b) => b.type === 'text')

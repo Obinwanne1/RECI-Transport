@@ -37,17 +37,27 @@ export async function POST(request: NextRequest) {
   if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
 
   // Decode base64 data URL
-  const matches = data_url.match(/^data:(image\/\w+);base64,(.+)$/)
+  const matches = data_url.match(/^data:(image\/[\w+]+);base64,(.+)$/)
   if (!matches) return NextResponse.json({ error: 'Invalid data URL format' }, { status: 400 })
 
-  const [, , base64Data] = matches
+  const [, mimeType, base64Data] = matches
+  const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp']
+  if (!ALLOWED_MIME.includes(mimeType)) {
+    return NextResponse.json({ error: 'Invalid image type. Use JPEG, PNG, or WebP.' }, { status: 400 })
+  }
+
+  if (base64Data.length > 10_000_000) {
+    return NextResponse.json({ error: 'Image too large. Maximum ~7.5MB.' }, { status: 413 })
+  }
+
   const buffer = Buffer.from(base64Data, 'base64')
-  const path = `${booking_id}/${inspection_type}/${angle}.jpg`
+  const ext = mimeType.split('/')[1].replace('jpeg', 'jpg')
+  const path = `${booking_id}/${inspection_type}/${angle}.${ext}`
 
   const { error: uploadError } = await supabase.storage
     .from('vehicle-inspections')
     .upload(path, buffer, {
-      contentType: 'image/jpeg',
+      contentType: mimeType,
       upsert: true,
     })
 

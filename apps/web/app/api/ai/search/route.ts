@@ -75,12 +75,15 @@ export async function POST(request: NextRequest) {
 
   let rawText: string
   try {
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 512,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: query }],
-    })
+    const message = await client.messages.create(
+      {
+        model: 'claude-sonnet-4-6',
+        max_tokens: 512,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: query }],
+      },
+      { signal: AbortSignal.timeout(15_000) }
+    )
     const block = message.content[0]
     if (block.type !== 'text') {
       throw new Error('Unexpected response type from Claude')

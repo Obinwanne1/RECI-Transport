@@ -49,6 +49,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Damage inspection unavailable' }, { status: 503 })
   }
 
+  const { user } = await getUserFromRequest(request)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? 'unknown'
   if (!checkRateLimit(ip)) {
     return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a moment.' }, { status: 429 })
@@ -68,16 +71,19 @@ export async function POST(request: NextRequest) {
 
   const { booking_id, inspection_type, photo_urls, baseline_photo_urls } = input.data
 
-  // Verify booking exists
+  // Verify booking exists and belongs to user
   const supabase = createAdminClient()
   const { data: booking, error: bookingError } = await supabase
     .from('bookings')
-    .select('id, status')
+    .select('id, status, user_id')
     .eq('id', booking_id)
     .single()
 
   if (bookingError || !booking) {
     return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+  }
+  if (booking.user_id !== user.id) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   // Build vision message content
@@ -131,12 +137,15 @@ export async function POST(request: NextRequest) {
   let rawText: string
 
   try {
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: messageContent }],
-    })
+    const message = await client.messages.create(
+      {
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: messageContent }],
+      },
+      { signal: AbortSignal.timeout(30_000) }
+    )
 
     const block = message.content[0]
     if (block.type !== 'text') throw new Error('Unexpected response type')

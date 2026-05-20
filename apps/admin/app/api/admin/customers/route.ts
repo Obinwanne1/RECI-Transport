@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
     .range(from, to)
 
   if (search) {
-    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`)
+    const safe = search.replace(/[,()]/g, '')
+    query = query.or(`first_name.ilike.%${safe}%,last_name.ilike.%${safe}%,email.ilike.%${safe}%`)
   }
 
   const { data, error, count } = await query

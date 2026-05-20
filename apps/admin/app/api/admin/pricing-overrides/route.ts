@@ -19,6 +19,7 @@ export async function GET() {
     .from('pricing_overrides')
     .select('*, category:vehicle_categories(name)')
     .order('start_date', { ascending: false })
+    .limit(500)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }

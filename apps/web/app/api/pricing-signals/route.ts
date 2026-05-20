@@ -11,6 +11,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ signal: 'normal', surcharge_pct: 0, message: null })
   }
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!UUID_RE.test(category_id)) {
+    return NextResponse.json({ signal: 'normal', surcharge_pct: 0, message: null })
+  }
+
   const supabase = await createClient()
 
   // Count active bookings in window for this category

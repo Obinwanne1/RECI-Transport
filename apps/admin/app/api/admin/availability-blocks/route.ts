@@ -17,6 +17,7 @@ export async function GET() {
     .from('availability_blocks')
     .select('*, vehicle:vehicles(make, model, year, registration_plate)')
     .order('start_date', { ascending: false })
+    .limit(500)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }

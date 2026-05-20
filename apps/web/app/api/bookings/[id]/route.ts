@@ -3,9 +3,12 @@ import { createAdminClient } from '@/lib/supabase/admin-server'
 import { getUserFromRequest } from '@/lib/supabase/server'
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const { user } = await getUserFromRequest(request)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const supabase = createAdminClient()
 
   const { data: booking, error } = await supabase
@@ -20,6 +23,7 @@ export async function GET(
     `
     )
     .eq('id', params.id)
+    .eq('user_id', user.id)
     .single()
 
   if (error || !booking) {

@@ -38,7 +38,8 @@ export async function GET(request: NextRequest) {
   }
 
   if (search) {
-    query = query.or(`booking_ref.ilike.%${search}%,driver_email.ilike.%${search}%`)
+    const safe = search.replace(/[,()]/g, '')
+    query = query.or(`booking_ref.ilike.%${safe}%,driver_email.ilike.%${safe}%`)
   }
 
   const { data, error, count } = await query

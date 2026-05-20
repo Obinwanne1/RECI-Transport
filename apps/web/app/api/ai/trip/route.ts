@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { TripCopilotRequestSchema, TripCopilotResponseSchema } from '@/lib/schemas'
 import { logAICall } from '@/lib/ai-logger'
+import { getUserFromRequest } from '@/lib/supabase/server'
 
 const RATE_LIMIT_WINDOW_MS = 60_000
 const RATE_LIMIT_MAX = 10
@@ -47,6 +48,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Trip planning unavailable' }, { status: 503 })
   }
 
+  const { user } = await getUserFromRequest(request)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? 'unknown'
   if (!checkRateLimit(ip)) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
@@ -78,12 +82,15 @@ Please provide a route summary from Berlin, fuel cost estimate, 3 recommended st
   let rawText: string
 
   try {
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMessage }],
-    })
+    const message = await client.messages.create(
+      {
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userMessage }],
+      },
+      { signal: AbortSignal.timeout(30_000) }
+    )
 
     const block = message.content[0]
     if (block.type !== 'text') throw new Error('Unexpected response type')

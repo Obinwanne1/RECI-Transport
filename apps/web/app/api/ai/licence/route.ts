@@ -91,30 +91,33 @@ export async function POST(request: NextRequest) {
   let rawText: string
 
   try {
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 512,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: media_type as 'image/jpeg' | 'image/png' | 'image/webp',
-                data: image_base64,
+    const message = await client.messages.create(
+      {
+        model: 'claude-sonnet-4-6',
+        max_tokens: 512,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: media_type as 'image/jpeg' | 'image/png' | 'image/webp',
+                  data: image_base64,
+                },
               },
-            },
-            {
-              type: 'text',
-              text: `Extract driving licence information from this image.${userContext}`,
-            },
-          ],
-        },
-      ],
-    })
+              {
+                type: 'text',
+                text: `Extract driving licence information from this image.${userContext}`,
+              },
+            ],
+          },
+        ],
+      },
+      { signal: AbortSignal.timeout(30_000) }
+    )
 
     const block = message.content[0]
     if (block.type !== 'text') throw new Error('Unexpected response type')

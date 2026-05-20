@@ -17,6 +17,7 @@ export async function GET() {
     .from('pricing_rules')
     .select('*, category:vehicle_categories(name, tier)')
     .order('effective_from', { ascending: false })
+    .limit(500)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }

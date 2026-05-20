@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
+    .limit(200)
 
   if (error) {
     console.error('[account/bookings] query error:', error)
