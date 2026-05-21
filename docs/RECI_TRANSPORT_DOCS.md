@@ -29,10 +29,11 @@
 - [2.8 Pricing Management](#28-pricing-management)
 - [2.9 Availability and Date Blocking](#29-availability-and-date-blocking)
 - [2.10 Predictive Maintenance (AI-Powered)](#210-predictive-maintenance-ai-powered)
-- [2.11 User and Staff Management](#211-user-and-staff-management)
-- [2.12 Roles and Permissions Reference](#212-roles-and-permissions-reference)
-- [2.13 Booking Status Reference](#213-booking-status-reference)
-- [2.14 Daily Operations Checklist](#214-daily-operations-checklist)
+- [2.11 Account Settings — Changing Your Password](#211-account-settings--changing-your-password)
+- [2.12 User and Staff Management](#212-user-and-staff-management)
+- [2.13 Roles and Permissions Reference](#213-roles-and-permissions-reference)
+- [2.14 Booking Status Reference](#214-booking-status-reference)
+- [2.15 Daily Operations Checklist](#215-daily-operations-checklist)
 
 **Part 3 — For Technical Staff**
 - [3.1 Who This Section Is For](#31-who-this-section-is-for)
@@ -682,7 +683,27 @@ When a vehicle has been serviced:
 
 ---
 
-## 2.11 User and Staff Management
+## 2.11 Account Settings — Changing Your Password
+
+Go to **Settings** in the left navigation (available to all logged-in admin and staff users).
+
+### How to Change Your Password
+
+1. Click **Settings** in the left sidebar.
+2. Enter your new password in the **New Password** field (minimum 8 characters).
+3. Re-enter it in the **Confirm New Password** field.
+4. Click **Update Password**.
+5. A green confirmation banner appears when the change is saved.
+
+> **Tip:** Use the eye icon next to each field to show or hide the password as you type.
+
+> **First login:** If you were given a temporary password by your administrator, change it immediately using this page. Do not share your password with anyone.
+
+**Example:** Admin logs in with `Admin@2025!` → navigates to Settings → enters a new personal password → clicks Update Password → confirmation shown. Next login uses the new password.
+
+---
+
+## 2.12 User and Staff Management
 
 Go to **Users** in the left navigation. This section is visible only to users with the **admin** role.
 
@@ -697,7 +718,7 @@ Here you can:
 
 ---
 
-## 2.12 Roles and Permissions Reference
+## 2.13 Roles and Permissions Reference
 
 | Role | What They Can Access |
 |---|---|
@@ -710,7 +731,7 @@ The correct role must be set for the admin portal to work. If a staff member can
 
 ---
 
-## 2.13 Booking Status Reference
+## 2.14 Booking Status Reference
 
 | Status | Meaning | When to Set It |
 |---|---|---|
@@ -723,7 +744,7 @@ The correct role must be set for the admin portal to work. If a staff member can
 
 ---
 
-## 2.14 Daily Operations Checklist
+## 2.15 Daily Operations Checklist
 
 Use this checklist to start each day:
 

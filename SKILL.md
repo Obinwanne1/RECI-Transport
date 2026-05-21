@@ -1737,6 +1737,7 @@ apps/admin/
 │   ├── pricing/page.tsx
 │   ├── availability/page.tsx
 │   ├── maintenance/page.tsx              ← Predictive maintenance dashboard
+│   ├── settings/page.tsx                ← Change password (all authenticated users)
 │   └── api/
 │       └── admin/
 │           ├── vehicles/
@@ -1756,12 +1757,39 @@ apps/admin/
 ```typescript
 // components/AdminNav.tsx
 // Sidebar with navigation links and sign out button
-// Links: /dashboard, /bookings, /fleet, /calendar, /customers, /pricing, /maintenance
+// Links: /dashboard, /bookings, /fleet, /calendar, /customers, /pricing, /availability, /maintenance, /settings
+// Admin-only section: /dashboard/users
 // Background: #1A2E18, active link: #407E3C, text: white
 // Sign out: supabase.auth.signOut() then router.push('/auth/login')
 ```
 
-### 11.4 Dashboard KPIs
+### 11.4 Settings Page
+
+**`/settings/page.tsx`** — client component, available to all authenticated admin/staff users.
+
+**Change Password form:**
+- Fields: `new_password` (min 8 chars), `confirm_password` (must match)
+- Show/hide toggle on both fields
+- Calls `supabase.auth.updateUser({ password: newPassword })` on submit
+- Success banner on completion, error message on failure
+- Validation via `react-hook-form` + `zod` with `.refine()` for password match
+
+```typescript
+const PasswordSchema = z.object({
+  new_password: z.string().min(8, 'Minimum 8 characters'),
+  confirm_password: z.string().min(1, 'Required'),
+}).refine((d) => d.new_password === d.confirm_password, {
+  message: 'Passwords do not match',
+  path: ['confirm_password'],
+})
+
+// On submit:
+const { error } = await supabase.auth.updateUser({ password: data.new_password })
+```
+
+---
+
+### 11.5 Dashboard KPIs
 
 **`/dashboard/page.tsx`** — server component, fetch via service role:
 - Total bookings this month
