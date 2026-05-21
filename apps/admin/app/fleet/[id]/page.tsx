@@ -18,6 +18,8 @@ const Schema = z.object({
   color: z.string().min(1, 'Required'),
   seats: z.coerce.number().int().min(1).max(20).optional(),
   mileage: z.coerce.number().int().min(0).optional(),
+  last_service_mileage: z.coerce.number().int().min(0).optional(),
+  last_service_date: z.string().optional(),
   guaranteed_model: z.boolean().optional(),
 })
 type FormData = z.infer<typeof Schema>
@@ -56,6 +58,8 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
         color: vehicle.color,
         seats: vehicle.seats ?? undefined,
         mileage: vehicle.mileage ?? undefined,
+        last_service_mileage: vehicle.last_service_mileage ?? undefined,
+        last_service_date: vehicle.last_service_date ?? undefined,
         guaranteed_model: vehicle.guaranteed_model ?? false,
       })
       setLoading(false)
@@ -144,6 +148,18 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
             <select className={inputCls} {...register('location_id')}>
               {locations.map((l: any) => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
+          </div>
+        </div>
+
+        {/* Service history */}
+        <div className="border-t border-[#F3F4F6] dark:border-gray-800 pt-5 grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Last Service (km)</label>
+            <input type="number" className={inputCls} placeholder="e.g. 45000" {...register('last_service_mileage')} />
+          </div>
+          <div>
+            <label className={labelCls}>Last Service Date</label>
+            <input type="date" className={inputCls} {...register('last_service_date')} />
           </div>
         </div>
 

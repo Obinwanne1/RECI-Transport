@@ -16,6 +16,8 @@ const PatchVehicleSchema = z.object({
   color: z.string().optional(),
   seats: z.number().int().optional(),
   mileage: z.number().int().optional(),
+  last_service_mileage: z.number().int().min(0).optional(),
+  last_service_date: z.string().optional(),
   image_url: z.string().url().optional(),
   is_active: z.boolean().optional(),
   guaranteed_model: z.boolean().optional(),

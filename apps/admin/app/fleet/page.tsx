@@ -4,6 +4,23 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+const MAINT_THRESHOLDS = { warning: 8000, alert: 12000, critical: 18000 }
+
+function getMaintenanceSeverity(mileage: number, lastServiceMileage: number | null): 'warning' | 'alert' | 'critical' | null {
+  if (mileage == null) return null
+  const km = mileage - (lastServiceMileage ?? 0)
+  if (km >= MAINT_THRESHOLDS.critical) return 'critical'
+  if (km >= MAINT_THRESHOLDS.alert)    return 'alert'
+  if (km >= MAINT_THRESHOLDS.warning)  return 'warning'
+  return null
+}
+
+const MAINT_STYLE: Record<string, string> = {
+  critical: 'bg-red-50 text-red-700 border-red-200',
+  alert:    'bg-orange-50 text-orange-700 border-orange-200',
+  warning:  'bg-yellow-50 text-yellow-700 border-yellow-200',
+}
+
 function FleetSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -110,7 +127,7 @@ export default function FleetPage() {
                   </span>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 mb-4">
+                <div className="flex flex-wrap gap-1.5 mb-3">
                   {cat?.name && (
                     <span className="bg-[#F3F4F6] dark:bg-gray-800 text-[#374151] dark:text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-md">{cat.name}</span>
                   )}
@@ -124,6 +141,19 @@ export default function FleetPage() {
                     <span className="bg-[#F3F4F6] dark:bg-gray-800 text-[#374151] dark:text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-md">📍 {loc.name}</span>
                   )}
                 </div>
+
+                {/* Maintenance badge */}
+                {(() => {
+                  const sev = getMaintenanceSeverity(v.mileage, v.last_service_mileage)
+                  if (!sev) return null
+                  const km = (v.mileage ?? 0) - (v.last_service_mileage ?? 0)
+                  return (
+                    <Link href="/maintenance" className={`flex items-center gap-1.5 mb-3 px-2 py-1 rounded-md border text-[10px] font-bold uppercase tracking-wide w-fit ${MAINT_STYLE[sev]}`}>
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" /></svg>
+                      {sev} — {km.toLocaleString()} km overdue
+                    </Link>
+                  )
+                })()}
 
                 {isConfirming ? (
                   <div className="flex items-center gap-2">
