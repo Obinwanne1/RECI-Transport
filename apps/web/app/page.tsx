@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import Navbar from '@/components/layout/Navbar'
-import ConversationalSearch from '@/components/search/ConversationalSearch'
+import AgentChat from '@/components/search/AgentChat'
 import SearchWidget from '@/components/search/SearchWidget'
 import CategoryFilter from '@/components/search/CategoryFilter'
 import VehicleGrid from '@/components/vehicles/VehicleGrid'
 import { useVehicleSearch } from '@/hooks/useVehicleSearch'
-import type { SearchParams } from '@/lib/schemas'
+
+type AiPrefill = { pickup_date?: string | null; dropoff_date?: string | null; category_slug?: string | null }
 
 export default function HomePage() {
   const { search } = useVehicleSearch()
-  const [aiPrefill, setAiPrefill] = useState<SearchParams | undefined>()
+  const [aiPrefill, setAiPrefill] = useState<AiPrefill | undefined>()
 
   useEffect(() => {
     search()
@@ -54,9 +55,13 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10 mb-10">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-[#E5E7EB] dark:border-gray-700 overflow-hidden">
           <div className="px-6 pt-5 pb-3 border-b border-[#F3F4F6] dark:border-gray-800">
-            <ConversationalSearch onResult={(params) => {
+            <AgentChat onSearchParams={(params) => {
               setAiPrefill(params)
-              search(params)
+              search({
+                pickup_date: params.pickup_date ?? undefined,
+                dropoff_date: params.dropoff_date ?? undefined,
+                category_slug: params.category_slug ?? undefined,
+              })
             }} />
           </div>
           <div className="px-6 py-5">
