@@ -17,6 +17,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
   const navItems = [
     { href: '/account/bookings', label: 'My Bookings' },
     { href: '/account/profile', label: 'Profile' },
+    { href: '/account/rewards', label: 'Rewards' },
     { href: '/account/corporate', label: 'Corporate Account' },
   ]
 

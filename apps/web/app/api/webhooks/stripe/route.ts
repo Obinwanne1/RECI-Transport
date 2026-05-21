@@ -68,15 +68,28 @@ export async function POST(request: NextRequest) {
     // Send confirmation email — failure silently logged inside sendBookingConfirmation
     await sendBookingConfirmation(bookingId)
 
-    // If corporate booking, send invoice to billing_email
+    // Fetch booking for corporate invoice + loyalty points
     const { data: confirmedBooking } = await supabase
       .from('bookings')
-      .select('corporate_account_id')
+      .select('corporate_account_id, user_id, total_price, points_redeemed')
       .eq('id', bookingId)
       .single()
 
     if (confirmedBooking?.corporate_account_id) {
       await sendCorporateInvoice(bookingId)
+    }
+
+    // Award loyalty points: 1 pt per €1 of final total paid (floor)
+    if (confirmedBooking?.user_id) {
+      const totalPaid = Number(confirmedBooking.total_price)
+      const pointsEarned = Math.floor(totalPaid)
+      if (pointsEarned > 0) {
+        await supabase.rpc('award_loyalty_points', {
+          p_user_id: confirmedBooking.user_id,
+          p_points: pointsEarned,
+          p_booking_id: bookingId,
+        })
+      }
     }
   }
 

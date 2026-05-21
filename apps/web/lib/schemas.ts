@@ -91,6 +91,7 @@ export const CreateBookingSchema = z.object({
       price_snapshot: z.number(),
     })
   ),
+  points_redeemed: z.number().int().min(0).optional().default(0),
 })
 
 export const PricingSignalSchema = z.object({

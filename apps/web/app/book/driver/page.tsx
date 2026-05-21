@@ -18,6 +18,7 @@ export default function BookDriverPage() {
     selectedExtras,
     pickupLocationId,
     dropoffLocationId,
+    pointsRedeemed,
     setDriverDetails,
     setBookingResult,
     driverDetails,
@@ -56,6 +57,7 @@ export default function BookDriverPage() {
             quantity: e.quantity,
             price_snapshot: e.price_snapshot,
           })),
+          points_redeemed: pointsRedeemed > 0 ? pointsRedeemed : undefined,
         }),
       })
 

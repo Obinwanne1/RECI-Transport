@@ -44,6 +44,9 @@ interface BookingState {
   // Pricing
   pricing: PricingBreakdown | null
 
+  // Loyalty
+  pointsRedeemed: number
+
   // Step
   step: 1 | 2 | 3 | 4 | 5
 
@@ -51,6 +54,7 @@ interface BookingState {
   setVehicle: (vehicle: Vehicle) => void
   setDates: (pickup: string, dropoff: string) => void
   setDropoffLocationId: (id: string) => void
+  setPointsRedeemed: (points: number) => void
   setPricing: (pricing: PricingBreakdown) => void
   toggleExtra: (extra: SelectedExtra) => void
   clearExtraGroup: (group: string) => void
@@ -70,6 +74,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   dropoffDate: null,
   pickupLocationId: BERLIN_HQ_ID,
   dropoffLocationId: BERLIN_HQ_ID,
+  pointsRedeemed: 0,
   selectedExtras: [],
   driverDetails: null,
   bookingId: null,
@@ -82,6 +87,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   setDates: (pickup, dropoff) => set({ pickupDate: pickup, dropoffDate: dropoff }),
 
   setDropoffLocationId: (id) => set({ dropoffLocationId: id }),
+
+  setPointsRedeemed: (points) => set({ pointsRedeemed: points }),
 
   setPricing: (pricing) => set({ pricing }),
 
@@ -132,6 +139,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       bookingId: null,
       bookingRef: null,
       pricing: null,
+      pointsRedeemed: 0,
       step: 1,
     }),
 }))

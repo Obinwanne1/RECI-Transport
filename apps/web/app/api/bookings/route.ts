@@ -157,6 +157,28 @@ export async function POST(request: NextRequest) {
     corporate_discount_pct: corporateDiscountPct,
   })
 
+  // Points redemption — only for authenticated users
+  const POINTS_TO_EUR = 100
+  const MAX_REDEEM_PCT = 0.20
+  let pointsRedeemed = 0
+  let pointsDiscountEur = 0
+
+  if (user && data.points_redeemed && data.points_redeemed > 0) {
+    // Fetch user's current balance
+    const { data: loyaltyAccount } = await supabase
+      .from('loyalty_accounts')
+      .select('points_balance')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const balance = loyaltyAccount?.points_balance ?? 0
+    const maxAllowed = Math.floor((pricing.total * MAX_REDEEM_PCT) * POINTS_TO_EUR)
+    pointsRedeemed = Math.min(data.points_redeemed, balance, maxAllowed)
+    pointsDiscountEur = pointsRedeemed / POINTS_TO_EUR
+  }
+
+  const finalTotal = Math.max(0, pricing.total - pointsDiscountEur)
+
   // Insert booking
   const { data: booking, error: bookingError } = await supabase
     .from('bookings')
@@ -173,7 +195,8 @@ export async function POST(request: NextRequest) {
       driver_licence_number: data.driver_licence_number ?? null,
       base_price: pricing.base_subtotal,
       extras_price: pricing.extras_subtotal,
-      total_price: pricing.total,
+      total_price: finalTotal,
+      points_redeemed: pointsRedeemed,
       status: 'pending',
       user_id: user?.id ?? null,
       corporate_account_id: corporateAccountId,
@@ -198,6 +221,15 @@ export async function POST(request: NextRequest) {
     if (extrasError) {
       console.error('booking_extras insert error:', extrasError)
     }
+  }
+
+  // Deduct redeemed points atomically — non-blocking
+  if (user && pointsRedeemed > 0) {
+    void supabase.rpc('deduct_loyalty_points', {
+      p_user_id: user.id,
+      p_points: pointsRedeemed,
+      p_booking_id: booking.id,
+    })
   }
 
   // Corporate AI policy check — non-blocking, runs after booking is created
