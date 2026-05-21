@@ -6,25 +6,26 @@ A production-complete implementation guide for the RECI Transport car rental por
 
 ## Table of Contents
 
-1. [System Overview](#1-system-overview)
-2. [Prerequisites](#2-prerequisites)
-3. [Monorepo Bootstrap](#3-monorepo-bootstrap)
-4. [Package Configuration](#4-package-configuration)
-5. [Supabase Setup](#5-supabase-setup)
-6. [Database Migrations](#6-database-migrations)
-7. [External Services](#7-external-services)
-8. [Environment Variables](#8-environment-variables)
-9. [Shared Packages](#9-shared-packages)
-10. [Web App — apps/web](#10-web-app--appsweb)
-11. [Admin App — apps/admin](#11-admin-app--appsadmin)
-12. [Stripe Webhook Integration](#12-stripe-webhook-integration)
-13. [AI Features](#13-ai-features)
-14. [Loyalty System](#14-loyalty-system)
-15. [Predictive Maintenance](#15-predictive-maintenance)
-16. [Brand Tokens](#16-brand-tokens)
-17. [Local Development](#17-local-development)
-18. [Production Deployment](#18-production-deployment)
-19. [Rebuild Checklist](#19-rebuild-checklist)
+1. System Overview
+2. Prerequisites
+3. Monorepo Bootstrap
+4. Package Configuration
+5. Supabase Setup
+6. Database Migrations
+7. External Services
+8. Environment Variables
+9. Shared Packages
+10. Web App — apps/web
+11. Admin App — apps/admin
+12. Stripe Webhook Integration
+13. AI Features
+14. Loyalty System
+15. Predictive Maintenance
+16. Brand Tokens
+17. Local Development
+18. Production Deployment
+19. Rebuild Checklist
+20. Planned Features (Coming Soon)
 
 ---
 
