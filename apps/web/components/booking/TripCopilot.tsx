@@ -155,6 +155,38 @@ export default function TripCopilot({
           </div>
         )}
 
+        {/* CO₂ / Sustainability */}
+        {data.eco_rating && (
+          <div className={`flex items-start gap-3 p-3 rounded-md border ${
+            data.eco_rating === 'green'
+              ? 'bg-[#F0FDF4] border-[#BBF7D0] dark:bg-green-900/20 dark:border-green-800'
+              : data.eco_rating === 'moderate'
+              ? 'bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800'
+              : 'bg-orange-50 border-orange-100 dark:bg-orange-900/20 dark:border-orange-800'
+          }`}>
+            <span className="text-base mt-0.5">
+              {data.eco_rating === 'green' ? '🌿' : data.eco_rating === 'moderate' ? '🍃' : '🌫️'}
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className={`text-xs font-semibold uppercase tracking-wide ${
+                  data.eco_rating === 'green' ? 'text-[#407E3C]' : data.eco_rating === 'moderate' ? 'text-amber-700 dark:text-amber-400' : 'text-orange-700 dark:text-orange-400'
+                }`}>
+                  {data.eco_rating === 'green' ? 'Low Emissions' : data.eco_rating === 'moderate' ? 'Moderate Emissions' : 'Higher Emissions'}
+                </span>
+                {data.co2_kg_estimate != null && (
+                  <span className="text-xs text-[#9CA3AF]">~{data.co2_kg_estimate.toFixed(0)} kg CO₂</span>
+                )}
+              </div>
+              {data.eco_tip && (
+                <p className={`text-xs ${
+                  data.eco_rating === 'green' ? 'text-[#407E3C]' : data.eco_rating === 'moderate' ? 'text-amber-700 dark:text-amber-400' : 'text-orange-700 dark:text-orange-400'
+                }`}>{data.eco_tip}</p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Top stops */}
         {data.top_stops.length > 0 && (
           <div>

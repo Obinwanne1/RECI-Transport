@@ -9,12 +9,20 @@ import OrderSummary from '@/components/booking/OrderSummary'
 import { useBookingStore } from '@/hooks/useBookingStore'
 import { calculatePrice } from '@reci/utils'
 import type { Extra } from '@/lib/schemas'
+import type { ExtraRecommendation } from '@/app/api/ai/extras-recommend/route'
 
 export default function BookExtrasPage() {
   const router = useRouter()
   const { vehicle, pickupDate, dropoffDate, selectedExtras, setPricing } = useBookingStore()
   const [extras, setExtras] = useState<Extra[]>([])
   const [loading, setLoading] = useState(true)
+  const [recommendations, setRecommendations] = useState<ExtraRecommendation[]>([])
+
+  const days = (() => {
+    if (!pickupDate || !dropoffDate) return 0
+    try { return Math.max(1, Math.ceil((new Date(dropoffDate).getTime() - new Date(pickupDate).getTime()) / 86400000)) }
+    catch { return 0 }
+  })()
 
   // Guard: must have vehicle + dates
   useEffect(() => {
@@ -24,8 +32,36 @@ export default function BookExtrasPage() {
     }
     fetch('/api/extras')
       .then((r) => r.json())
-      .then((data: Extra[]) => { setExtras(data); setLoading(false) })
+      .then((data: Extra[]) => {
+        setExtras(data)
+        setLoading(false)
+        // Fire AI recommendation request once extras load
+        if (data.length > 0 && vehicle) {
+          fetch('/api/ai/extras-recommend', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              vehicle_category: (vehicle.category as { slug?: string } | undefined)?.slug ?? 'economy',
+              fuel_type: vehicle.fuel_type,
+              days,
+              passenger_count: (vehicle.category as { passenger_capacity?: number } | undefined)?.passenger_capacity,
+              extras: data.map((e) => ({
+                id: e.id,
+                name: e.name,
+                description: e.description ?? null,
+                exclusive_group: e.exclusive_group,
+              })),
+            }),
+          })
+            .then((r) => r.json())
+            .then((res: { recommendations?: ExtraRecommendation[] }) => {
+              if (Array.isArray(res.recommendations)) setRecommendations(res.recommendations)
+            })
+            .catch(() => {}) // Soft fail — extras page works without AI
+        }
+      })
       .catch(() => setLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicle, pickupDate, dropoffDate, router])
 
   // Recalculate pricing whenever extras change
@@ -44,12 +80,6 @@ export default function BookExtrasPage() {
     setPricing(pricing)
   }, [selectedExtras, vehicle, pickupDate, dropoffDate, setPricing])
 
-  const days = (() => {
-    if (!pickupDate || !dropoffDate) return 0
-    try { return Math.max(1, Math.ceil((new Date(dropoffDate).getTime() - new Date(pickupDate).getTime()) / 86400000)) }
-    catch { return 0 }
-  })()
-
   return (
     <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
       <Navbar />
@@ -66,7 +96,7 @@ export default function BookExtrasPage() {
               </div>
             ) : (
               <div className="card">
-                <ExtraSelector extras={extras} days={days} />
+                <ExtraSelector extras={extras} days={days} recommendations={recommendations} />
               </div>
             )}
 

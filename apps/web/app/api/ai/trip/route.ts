@@ -33,7 +33,10 @@ Return ONLY valid JSON with this exact shape:
     { "name": "stop name", "description": "..." }
   ],
   "parking_tips": "practical parking advice for the destination or Berlin return",
-  "fuel_note": "relevant fuel/charging note or null"
+  "fuel_note": "relevant fuel/charging note or null",
+  "co2_kg_estimate": number or null,
+  "eco_rating": "green" | "moderate" | "high" | null,
+  "eco_tip": "one short sustainability tip or null"
 }
 
 Rules:
@@ -41,6 +44,9 @@ Rules:
 - For electric vehicles: set estimated_fuel_cost_eur to null, fuel_note should mention charging stations
 - top_stops: always exactly 3, relevant to Germany/Berlin area day trips
 - parking_tips: specific and practical (e.g. "Parkhaus Am Sandtorkai, Hamburg — €2/hr, close to waterfront")
+- co2_kg_estimate: estimate CO₂ in kg for the full trip. Use: petrol ~0.21kg/km, diesel ~0.17kg/km, hybrid ~0.12kg/km, electric ~0.05kg/km (German grid). Base on estimated distance. null if no destination given.
+- eco_rating: "green" if electric/hybrid or <10kg CO₂; "moderate" if 10–30kg; "high" if >30kg. null if co2 unknown.
+- eco_tip: practical tip relevant to their vehicle/trip (e.g. "Use highway A9 cruise control to maximise range", "Charge at REWE/ALDI stations — often free"). null for petrol with no eco angle.
 - Do NOT include markdown, code fences, or any text outside the JSON`
 
 export async function POST(request: NextRequest) {

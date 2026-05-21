@@ -185,6 +185,9 @@ export const TripCopilotResponseSchema = z.object({
   ),
   parking_tips: z.string(),
   fuel_note: z.string().nullable(),
+  co2_kg_estimate: z.number().nullable().optional(),
+  eco_rating: z.enum(['green', 'moderate', 'high']).nullable().optional(),
+  eco_tip: z.string().nullable().optional(),
 })
 
 // AI Damage Detection

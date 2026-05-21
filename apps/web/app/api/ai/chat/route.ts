@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { logAICall } from '@/lib/ai-logger'
+import { searchFaq } from '@/lib/faq-content'
 
 const RATE_LIMIT_WINDOW_MS = 60_000
 const RATE_LIMIT_MAX = 30
@@ -185,6 +186,21 @@ async function toolGetCategories() {
   return data ?? MOCK_CATEGORIES
 }
 
+function toolSearchFaq(input: { query: string }) {
+  const results = searchFaq(input.query, 4)
+  if (results.length === 0) {
+    return { found: false, message: 'No matching FAQ entries. Answer from general knowledge or advise contacting support.' }
+  }
+  return {
+    found: true,
+    results: results.map((r) => ({
+      category: r.category,
+      question: r.question,
+      answer: r.answer,
+    })),
+  }
+}
+
 const TOOLS: Anthropic.Tool[] = [
   {
     name: 'search_vehicles',
@@ -224,22 +240,37 @@ const TOOLS: Anthropic.Tool[] = [
       required: [],
     },
   },
+  {
+    name: 'search_faq',
+    description:
+      'Search RECI Transport policy and FAQ knowledge base. Call this for ANY question about: cancellation, payment, deposit, insurance, CDW, driver age, licence requirements, fuel policy, mileage limits, opening hours, pickup/return rules, corporate accounts, damage, late returns. Do NOT guess policy details — always retrieve them.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        query: {
+          type: 'string',
+          description: 'The user question or key topic to search for (e.g. "cancellation policy", "deposit", "minimum age").',
+        },
+      },
+      required: ['query'],
+    },
+  },
 ]
 
 const SYSTEM_PROMPT = `You are an intelligent rental assistant for RECI Transport, a car rental company based in Berlin.
 
-You have real-time access to the vehicle fleet via tools. Use them.
+You have real-time access to fleet inventory AND policy/FAQ knowledge via tools. Use them — never guess.
 
 Rules:
-- ALWAYS call search_vehicles before answering availability or pricing questions — never guess or make up inventory
-- Call get_categories when asked about vehicle types or to help user decide
-- After getting results, summarise the top 3 options clearly: vehicle name, fuel type, price/day, standout feature
-- If 0 results: tell the user honestly, suggest removing a filter or different dates
+- ALWAYS call search_vehicles before answering availability or pricing questions
+- ALWAYS call search_faq before answering policy, insurance, cancellation, licence, fuel, age, or hours questions
+- Call get_categories when asked about vehicle types
+- After vehicle results, summarise top 3: **Make Model** — €X/day · Fuel · X seats
+- If 0 vehicles: say so honestly, suggest removing a filter or trying different dates
 - Match the user's language: German query → German reply
-- Be concise. Do not repeat the question back. Do not list more than 5 vehicles unless asked.
+- Be concise. No preamble. No restating the question.
 - Relative dates: resolve against today (${new Date().toISOString().split('T')[0]})
-- When presenting vehicles, format each as: **Make Model** — €X/day · Fuel · X seats
-- After showing results, offer to help narrow down or go to booking
+- After showing results, offer to help narrow down or proceed to booking
 
 Today: ${new Date().toISOString().split('T')[0]}
 Location: Berlin HQ (all vehicles)`
@@ -357,6 +388,9 @@ export async function POST(request: NextRequest) {
           } else if (block.name === 'get_categories') {
             const cats = await toolGetCategories()
             toolOutput = JSON.stringify(cats)
+          } else if (block.name === 'search_faq') {
+            const faqResult = toolSearchFaq(block.input as { query: string })
+            toolOutput = JSON.stringify(faqResult)
           } else {
             toolOutput = JSON.stringify({ error: 'Unknown tool' })
           }
