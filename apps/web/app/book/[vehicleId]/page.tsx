@@ -12,15 +12,24 @@ import type { Vehicle } from '@/lib/schemas'
 export default function BookStep1Page({ params }: { params: { vehicleId: string } }) {
   const { vehicleId } = params
   const router = useRouter()
-  const { setVehicle, setDates, setPricing, pickupDate, dropoffDate, vehicle: storedVehicle } = useBookingStore()
+  const { setVehicle, setDates, setDropoffLocationId, setPricing, pickupDate, dropoffDate, pickupLocationId, dropoffLocationId, vehicle: storedVehicle } = useBookingStore()
 
   const [vehicle, setVehicleLocal] = useState<Vehicle | null>(storedVehicle)
   const [loading, setLoading] = useState(!storedVehicle)
   const [error, setError] = useState<string | null>(null)
   const [pickup, setPickup] = useState(pickupDate ?? '')
   const [dropoff, setDropoff] = useState(dropoffDate ?? '')
+  const [locations, setLocations] = useState<Array<{ id: string; name: string; city: string }>>([])
+  const [returnLocationId, setReturnLocationId] = useState(dropoffLocationId)
 
   const today = new Date().toISOString().split('T')[0]
+
+  useEffect(() => {
+    fetch('/api/locations')
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setLocations(data))
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (storedVehicle?.id === vehicleId) return
@@ -55,10 +64,13 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
       })
     : null
 
+  const isOneWay = returnLocationId !== pickupLocationId
+
   const handleContinue = () => {
     if (!vehicle || !pickup || !dropoff || dropoff <= pickup) return
     setVehicle(vehicle)
     setDates(pickup, dropoff)
+    setDropoffLocationId(returnLocationId)
     if (preview) setPricing(preview)
     router.push('/book/extras')
   }
@@ -154,6 +166,34 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
               </div>
               {pickup && dropoff && dropoff <= pickup && (
                 <p className="text-[#DC2626] text-xs mt-2">Drop-off must be after pick-up</p>
+              )}
+
+              {/* Return location */}
+              {locations.length > 1 && (
+                <div className="mt-4 pt-4 border-t border-[#F3F4F6] dark:border-gray-700">
+                  <label className="block text-sm font-medium text-[#1A1A1A] dark:text-gray-200 mb-1">
+                    Return Location
+                    {isOneWay && (
+                      <span className="ml-2 text-xs font-normal text-[#407E3C] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-0.5 rounded-full">
+                        One-way rental
+                      </span>
+                    )}
+                  </label>
+                  <select
+                    value={returnLocationId}
+                    onChange={(e) => setReturnLocationId(e.target.value)}
+                    className="input-field"
+                  >
+                    {locations.map((l) => (
+                      <option key={l.id} value={l.id}>{l.name} — {l.city}</option>
+                    ))}
+                  </select>
+                  {isOneWay && (
+                    <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1.5">
+                      One-way fee applies · Our team will confirm the surcharge by email.
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </div>

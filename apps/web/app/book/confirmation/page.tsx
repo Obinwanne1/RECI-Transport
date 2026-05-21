@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import CheckoutStepper from '@/components/booking/CheckoutStepper'
 import TripCopilot from '@/components/booking/TripCopilot'
+import DigitalCheckIn from '@/components/booking/DigitalCheckIn'
 import { useBookingStore } from '@/hooks/useBookingStore'
 import type { BookingConfirmation } from '@/lib/schemas'
 
@@ -171,6 +172,12 @@ function BookConfirmationContent() {
             <p className="text-xs font-semibold text-[#407E3C] uppercase tracking-wider mb-1">Booking Reference</p>
             <p className="text-3xl font-bold font-mono text-[#1A1A1A] dark:text-gray-100">{booking.booking_ref}</p>
           </div>
+
+          {/* Digital check-in */}
+          <DigitalCheckIn
+            bookingRef={booking.booking_ref}
+            driverName={`${booking.driver_first_name} ${booking.driver_last_name}`}
+          />
 
           {/* Details card */}
           <div className="card space-y-5 mb-6">

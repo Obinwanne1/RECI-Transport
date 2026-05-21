@@ -18,6 +18,7 @@ const Schema = z.object({
   color: z.string().min(1, 'Required'),
   seats: z.coerce.number().int().min(1).max(20).optional(),
   mileage: z.coerce.number().int().min(0).optional(),
+  guaranteed_model: z.boolean().optional(),
 })
 type FormData = z.infer<typeof Schema>
 
@@ -55,6 +56,7 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
         color: vehicle.color,
         seats: vehicle.seats ?? undefined,
         mileage: vehicle.mileage ?? undefined,
+        guaranteed_model: vehicle.guaranteed_model ?? false,
       })
       setLoading(false)
     })
@@ -143,6 +145,17 @@ export default function EditVehiclePage({ params }: { params: { id: string } }) 
               {locations.map((l: any) => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </div>
+        </div>
+
+        {/* Exact model guarantee toggle */}
+        <div className="border-t border-[#F3F4F6] dark:border-gray-800 pt-5">
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" {...register('guaranteed_model')} className="mt-0.5 w-4 h-4 accent-[#407E3C] cursor-pointer" />
+            <div>
+              <p className="text-sm font-medium text-[#1A1A1A] dark:text-gray-200 group-hover:text-[#407E3C] transition-colors">Exact Model Guaranteed</p>
+              <p className="text-xs text-[#9CA3AF] dark:text-gray-500 mt-0.5">Customer is guaranteed this exact vehicle, not &ldquo;or similar&rdquo;. Show badge on listing.</p>
+            </div>
+          </label>
         </div>
 
         {serverError && (

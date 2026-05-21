@@ -27,6 +27,7 @@ export const VehicleSchema = z.object({
   features: z.array(z.string()),
   created_at: z.string(),
   updated_at: z.string(),
+  guaranteed_model: z.boolean().optional(),
   // Joined
   category: VehicleCategorySchema.optional(),
   daily_rate: z.number().optional(),

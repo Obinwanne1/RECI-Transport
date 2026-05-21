@@ -18,6 +18,7 @@ const PatchVehicleSchema = z.object({
   mileage: z.number().int().optional(),
   image_url: z.string().url().optional(),
   is_active: z.boolean().optional(),
+  guaranteed_model: z.boolean().optional(),
 })
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {

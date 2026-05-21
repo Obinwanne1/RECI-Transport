@@ -50,6 +50,7 @@ interface BookingState {
   // Actions
   setVehicle: (vehicle: Vehicle) => void
   setDates: (pickup: string, dropoff: string) => void
+  setDropoffLocationId: (id: string) => void
   setPricing: (pricing: PricingBreakdown) => void
   toggleExtra: (extra: SelectedExtra) => void
   clearExtraGroup: (group: string) => void
@@ -79,6 +80,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   setVehicle: (vehicle) => set({ vehicle, vehicleId: vehicle.id }),
 
   setDates: (pickup, dropoff) => set({ pickupDate: pickup, dropoffDate: dropoff }),
+
+  setDropoffLocationId: (id) => set({ dropoffLocationId: id }),
 
   setPricing: (pricing) => set({ pricing }),
 

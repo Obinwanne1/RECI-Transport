@@ -38,6 +38,12 @@ export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
             {category.name}
           </span>
         )}
+        {/* Exact model guarantee badge */}
+        {vehicle.guaranteed_model && (
+          <span className="absolute top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-[#407E3C] text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full border border-[#407E3C]/30">
+            ✓ Exact Model
+          </span>
+        )}
       </div>
 
       {/* Content */}
