@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin-server'
 
+export const revalidate = 86400 // locations change rarely — cache 24h
+
 export async function GET() {
   const supabase = createAdminClient()
   const { data, error } = await supabase

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import anthropic from '@/lib/anthropic'
 import { createClient } from '@/lib/supabase/server'
 import { logAICall } from '@/lib/ai-logger'
 import { searchFaq } from '@/lib/faq-content'
@@ -319,8 +320,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Message too long' }, { status: 400 })
   }
 
-  const client = new Anthropic()
-
   // Build Anthropic messages array (map our simple format to SDK format)
   let anthropicMessages: Anthropic.MessageParam[] = messages.map((m) => ({
     role: m.role,
@@ -335,7 +334,7 @@ export async function POST(request: NextRequest) {
   for (let iteration = 0; iteration < 5; iteration++) {
     let response: Anthropic.Message
     try {
-      response = await client.messages.create(
+      response = await anthropic.messages.create(
         {
           model: 'claude-sonnet-4-6',
           max_tokens: 1024,

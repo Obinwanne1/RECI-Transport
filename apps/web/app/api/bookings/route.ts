@@ -44,14 +44,42 @@ export async function POST(request: NextRequest) {
   // Get session user (optional — guest checkout supported)
   const { supabase, user } = await getUserFromRequest(request)
 
-  // Re-check availability (TOCTOU guard)
-  const { data: conflictingBookings } = await supabase
-    .from('bookings')
-    .select('id')
-    .eq('vehicle_id', data.vehicle_id)
-    .not('status', 'in', '("cancelled")')
-    .lt('pickup_datetime', data.dropoff_datetime)
-    .gt('dropoff_datetime', data.pickup_datetime)
+  // Re-check availability (TOCTOU guard) + fetch vehicle + profile in parallel
+  const today = new Date().toISOString().split('T')[0]
+
+  const [
+    { data: conflictingBookings },
+    { data: blockConflicts },
+    { data: vehicle },
+    { data: profile },
+  ] = await Promise.all([
+    supabase
+      .from('bookings')
+      .select('id')
+      .eq('vehicle_id', data.vehicle_id)
+      .not('status', 'in', '("cancelled")')
+      .lt('pickup_datetime', data.dropoff_datetime)
+      .gt('dropoff_datetime', data.pickup_datetime),
+    supabase
+      .from('availability_blocks')
+      .select('id')
+      .eq('vehicle_id', data.vehicle_id)
+      .lt('start_date', data.dropoff_datetime)
+      .gt('end_date', data.pickup_datetime),
+    supabase
+      .from('vehicles')
+      .select('id, category_id, pricing:pricing_rules(base_rate_per_day)')
+      .eq('id', data.vehicle_id)
+      .eq('is_active', true)
+      .single(),
+    user
+      ? supabase
+          .from('user_profiles')
+          .select('corporate_account_id')
+          .eq('id', user.id)
+          .single()
+      : Promise.resolve({ data: null }),
+  ])
 
   if (conflictingBookings && conflictingBookings.length > 0) {
     return NextResponse.json(
@@ -60,27 +88,12 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { data: blockConflicts } = await supabase
-    .from('availability_blocks')
-    .select('id')
-    .eq('vehicle_id', data.vehicle_id)
-    .lt('start_date', data.dropoff_datetime)
-    .gt('end_date', data.pickup_datetime)
-
   if (blockConflicts && blockConflicts.length > 0) {
     return NextResponse.json(
       { error: 'Vehicle is blocked for these dates' },
       { status: 409 }
     )
   }
-
-  // Fetch vehicle + pricing rule
-  const { data: vehicle } = await supabase
-    .from('vehicles')
-    .select('id, category_id, pricing:pricing_rules(base_rate_per_day)')
-    .eq('id', data.vehicle_id)
-    .eq('is_active', true)
-    .single()
 
   if (!vehicle) {
     return NextResponse.json({ error: 'Vehicle not found' }, { status: 404 })
@@ -96,40 +109,32 @@ export async function POST(request: NextRequest) {
   let corporateAccountId: string | null = null
   let corporateDiscountPct = 0
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('corporate_account_id')
-      .eq('id', user.id)
-      .single()
+  if (profile?.corporate_account_id) {
+    corporateAccountId = profile.corporate_account_id
 
-    if (profile?.corporate_account_id) {
-      corporateAccountId = profile.corporate_account_id
-
-      // Check for a specific corporate rate for this category
-      const { data: corpRate } = await supabase
+    // Fetch specific rate + fallback discount in parallel
+    const [{ data: corpRate }, { data: corpAccount }] = await Promise.all([
+      supabase
         .from('corporate_pricing')
         .select('rate_per_day')
         .eq('corporate_account_id', corporateAccountId)
         .eq('category_id', vehicle.category_id)
-        .lte('effective_from', new Date().toISOString().split('T')[0])
-        .or('effective_to.is.null,effective_to.gte.' + new Date().toISOString().split('T')[0])
+        .lte('effective_from', today)
+        .or(`effective_to.is.null,effective_to.gte.${today}`)
         .order('effective_from', { ascending: false })
         .limit(1)
-        .maybeSingle()
+        .maybeSingle(),
+      supabase
+        .from('corporate_accounts')
+        .select('discount_pct')
+        .eq('id', corporateAccountId)
+        .single(),
+    ])
 
-      if (corpRate) {
-        base_rate_per_day = corpRate.rate_per_day
-      } else {
-        // Fall back to percentage discount from corporate_accounts
-        const { data: corpAccount } = await supabase
-          .from('corporate_accounts')
-          .select('discount_pct')
-          .eq('id', corporateAccountId)
-          .single()
-
-        corporateDiscountPct = corpAccount?.discount_pct ?? 0
-      }
+    if (corpRate) {
+      base_rate_per_day = corpRate.rate_per_day
+    } else {
+      corporateDiscountPct = corpAccount?.discount_pct ?? 0
     }
   }
 

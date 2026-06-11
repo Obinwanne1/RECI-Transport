@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import anthropic from '@/lib/anthropic'
 import { getUserFromRequest } from '@/lib/supabase/server'
 
 const RATE_LIMIT_WINDOW_MS = 60_000
@@ -94,11 +94,10 @@ Passengers: ${passenger_count ?? 'unknown'}
 Available extras (return recommendations using exact extra_id values):
 ${extras.map((e) => `- id="${e.id}" name="${e.name}" group="${e.exclusive_group ?? 'addon'}" description="${e.description ?? ''}"`).join('\n')}`
 
-  const client = new Anthropic()
   let rawText: string
 
   try {
-    const message = await client.messages.create(
+    const message = await anthropic.messages.create(
       {
         model: 'claude-haiku-4-5-20251001', // Fast + cheap — this runs on every extras page load
         max_tokens: 512,

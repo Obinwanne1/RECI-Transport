@@ -12,11 +12,16 @@ export default function ConversationalSearch({ onResult }: ConversationalSearchP
   const [loading, setLoading] = useState(false)
   const [feedback, setFeedback] = useState<{ text: string; type: 'success' | 'warn' | 'error' } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const trimmed = query.trim()
     if (!trimmed || loading) return
+
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+
     setLoading(true)
     setFeedback(null)
     try {
@@ -24,6 +29,7 @@ export default function ConversationalSearch({ onResult }: ConversationalSearchP
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: trimmed }),
+        signal: abortRef.current.signal,
       })
       if (res.status === 503) {
         setFeedback({ text: 'AI search unavailable — use the form below.', type: 'error' })
@@ -41,7 +47,8 @@ export default function ConversationalSearch({ onResult }: ConversationalSearchP
       }
       setQuery('')
       onResult(data.params, data.message)
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return
       setFeedback({ text: "Couldn't reach AI — try the form below.", type: 'error' })
     } finally {
       setLoading(false)

@@ -1214,8 +1214,9 @@ CREATE TRIGGER trg_maintenance_updated_at
 1. Create account at [console.anthropic.com](https://console.anthropic.com).
 2. Go to **API Keys** and generate a key.
 3. Models to use:
-   - `claude-haiku-4-5-20251001` — maintenance batch (low cost, batch processing)
-   - `claude-sonnet-4-5` or `claude-haiku-4-5-20251001` — chat, damage detection, licence OCR
+   - `claude-haiku-4-5-20251001` — maintenance batch and extras recommendations (low cost, batch/on-load)
+   - `claude-sonnet-4-6` — chat assistant, trip planning, search (tool-use capable)
+   - `claude-sonnet-4-6` — damage detection, licence OCR (vision required; haiku does not support vision)
 
 ### 7.3 Resend
 
@@ -1491,7 +1492,7 @@ export const useBookingStore = create<BookingStore>()(
 - On mount, POST to `/api/payments` to create a Stripe PaymentIntent. Store `clientSecret`.
 - Render `<Elements>` with the clientSecret, then `<PaymentElement />`.
 - On payment success (Stripe redirects or `confirmPayment` resolves), push to `/book/confirmation`.
-- The booking record is created in the Stripe webhook handler, not here.
+- The booking record was already created by POST `/api/bookings`. On payment success, push to `/book/confirmation` — the webhook awards loyalty points, it does not create the booking.
 
 **Step 5 — `/book/confirmation/page.tsx`:**
 - Read booking ref from URL search param or Zustand store.
@@ -1583,8 +1584,8 @@ const client = new Anthropic()
 
 // Body: { messages: [{role, content}], context: { availableVehicles, dates, location } }
 // System prompt: "You are RECI Transport's AI assistant helping customers find the right rental car in Berlin..."
-// Use claude-haiku-4-5-20251001 for cost efficiency
-// Return streamed or single response
+// Use claude-sonnet-4-6 (tool-use required for search_vehicles, get_categories, etc.)
+// Return single JSON response: { reply: string, vehicles?: Vehicle[], search_params?: object }
 ```
 
 **`/api/ai/damage/route.ts` — POST:**

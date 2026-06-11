@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { useBookingStore } from '@/hooks/useBookingStore'
 import { calcDays } from '@reci/utils'
 
@@ -13,19 +13,16 @@ interface LoyaltyAccount {
   tier: { name: string; color_hex: string } | null
 }
 
-export default function OrderSummary() {
+function OrderSummary() {
   const { vehicle, pickupDate, dropoffDate, selectedExtras, pricing, pointsRedeemed, setPointsRedeemed } = useBookingStore()
 
   const [loyalty, setLoyalty] = useState<LoyaltyAccount | null>(null)
   const [usePoints, setUsePoints] = useState(false)
 
-  const days =
-    pickupDate && dropoffDate
-      ? (() => {
-          try { return calcDays(pickupDate, dropoffDate) }
-          catch { return 0 }
-        })()
-      : 0
+  const days = useMemo(() => {
+    if (!pickupDate || !dropoffDate) return 0
+    try { return calcDays(pickupDate, dropoffDate) } catch { return 0 }
+  }, [pickupDate, dropoffDate])
 
   // Fetch loyalty balance (logged-in users only, soft-fail)
   useEffect(() => {
@@ -37,15 +34,13 @@ export default function OrderSummary() {
 
   const baseTotal = pricing?.total ?? 0
 
-  // Calculate max redeemable points
-  const maxRedeemPoints = loyalty
-    ? Math.min(
-        loyalty.points_balance,
-        Math.floor((baseTotal * MAX_REDEEM_PCT) * POINTS_TO_EUR)
-      )
-    : 0
-  const pointsDiscount = usePoints ? maxRedeemPoints / POINTS_TO_EUR : 0
-  const finalTotal = Math.max(0, baseTotal - pointsDiscount)
+  const { maxRedeemPoints, pointsDiscount, finalTotal } = useMemo(() => {
+    const max = loyalty
+      ? Math.min(loyalty.points_balance, Math.floor(baseTotal * MAX_REDEEM_PCT * POINTS_TO_EUR))
+      : 0
+    const discount = usePoints ? max / POINTS_TO_EUR : 0
+    return { maxRedeemPoints: max, pointsDiscount: discount, finalTotal: Math.max(0, baseTotal - discount) }
+  }, [loyalty, baseTotal, usePoints])
 
   // Sync to store
   useEffect(() => {
@@ -177,3 +172,5 @@ export default function OrderSummary() {
     </div>
   )
 }
+
+export default memo(OrderSummary)

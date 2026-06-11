@@ -1,8 +1,6 @@
-import Anthropic from '@anthropic-ai/sdk'
+import anthropic from '@/lib/anthropic'
 import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin-server'
-
-const client = new Anthropic()
 
 const AgentResultSchema = z.object({
   approved: z.boolean(),
@@ -98,7 +96,7 @@ Booking to evaluate:
 ${bookingContext}`
 
   try {
-    const response = await client.messages.create(
+    const response = await anthropic.messages.create(
       {
         model: 'claude-sonnet-4-6',
         max_tokens: 256,

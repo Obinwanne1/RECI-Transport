@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { memo, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Vehicle } from '@/lib/schemas'
 
@@ -11,7 +12,7 @@ const FUEL_BADGES: Record<string, { label: string; cls: string }> = {
   hybrid:   { label: 'Hybrid',   cls: 'bg-teal-50 text-teal-600 border-teal-100' },
 }
 
-export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
+function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   const { id, make, model, year, fuel_type, transmission, image_urls, daily_rate, category } = vehicle
   const image = image_urls?.[0] ?? null
   const fuel = FUEL_BADGES[fuel_type] ?? { label: fuel_type, cls: 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 border-gray-100 dark:border-gray-600' }
@@ -22,8 +23,14 @@ export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
       {/* Image */}
       <div className="aspect-[16/9] bg-[#F3F4F6] dark:bg-gray-800 relative overflow-hidden">
         {image && !imgError ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt={`${make} ${model}`} onError={() => setImgError(true)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          <Image
+            src={image}
+            alt={`${make} ${model}`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={() => setImgError(true)}
+          />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-[#D1D5DB]">
             <svg className="w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
@@ -96,3 +103,5 @@ export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
     </div>
   )
 }
+
+export default memo(VehicleCard)

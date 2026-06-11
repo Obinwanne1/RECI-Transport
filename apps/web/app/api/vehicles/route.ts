@@ -44,21 +44,23 @@ export async function GET(request: NextRequest) {
 
     if (profile?.corporate_account_id) {
       corporateAccountId = profile.corporate_account_id
+      const today = new Date().toISOString().split('T')[0]
 
-      const { data: corpAccount } = await supabase
-        .from('corporate_accounts')
-        .select('discount_pct')
-        .eq('id', corporateAccountId)
-        .single()
+      const [{ data: corpAccount }, { data: corpRates }] = await Promise.all([
+        supabase
+          .from('corporate_accounts')
+          .select('discount_pct')
+          .eq('id', corporateAccountId)
+          .single(),
+        supabase
+          .from('corporate_pricing')
+          .select('category_id, rate_per_day')
+          .eq('corporate_account_id', corporateAccountId)
+          .lte('effective_from', today)
+          .or(`effective_to.is.null,effective_to.gte.${today}`),
+      ])
+
       corporateDiscountPct = corpAccount?.discount_pct ?? 0
-
-      const { data: corpRates } = await supabase
-        .from('corporate_pricing')
-        .select('category_id, rate_per_day')
-        .eq('corporate_account_id', corporateAccountId)
-        .lte('effective_from', new Date().toISOString().split('T')[0])
-        .or('effective_to.is.null,effective_to.gte.' + new Date().toISOString().split('T')[0])
-
       corporatePricingMap = new Map(
         (corpRates ?? []).map((r) => [r.category_id, r.rate_per_day])
       )

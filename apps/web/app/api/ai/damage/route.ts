@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import type Anthropic from '@anthropic-ai/sdk'
+import anthropic from '@/lib/anthropic'
 import { DamageDetectionRequestSchema, DamageReportSchema } from '@/lib/schemas'
 import { createAdminClient } from '@/lib/supabase/admin-server'
 import { getUserFromRequest } from '@/lib/supabase/server'
@@ -133,11 +134,10 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  const client = new Anthropic()
   let rawText: string
 
   try {
-    const message = await client.messages.create(
+    const message = await anthropic.messages.create(
       {
         model: 'claude-sonnet-4-6',
         max_tokens: 1024,

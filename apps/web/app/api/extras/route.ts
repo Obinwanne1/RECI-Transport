@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+export const revalidate = 3600 // extras change infrequently — cache 1h
+
 export async function GET() {
   const supabase = await createClient()
 

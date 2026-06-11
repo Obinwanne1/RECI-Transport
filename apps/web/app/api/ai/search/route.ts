@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import anthropic from '@/lib/anthropic'
 import { ConversationalSearchResponseSchema } from '@/lib/schemas'
 
 const RATE_LIMIT_WINDOW_MS = 60_000
@@ -71,11 +71,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Query too long' }, { status: 400 })
   }
 
-  const client = new Anthropic()
-
   let rawText: string
   try {
-    const message = await client.messages.create(
+    const message = await anthropic.messages.create(
       {
         model: 'claude-sonnet-4-6',
         max_tokens: 512,

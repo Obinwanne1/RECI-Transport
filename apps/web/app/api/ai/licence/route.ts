@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import anthropic from '@/lib/anthropic'
 import { LicenceOCRResponseSchema } from '@/lib/schemas'
 import { createAdminClient } from '@/lib/supabase/admin-server'
 import { getUserFromRequest } from '@/lib/supabase/server'
@@ -87,11 +87,10 @@ export async function POST(request: NextRequest) {
     ? `\n\nBooking driver name to match against: "${booking_first_name} ${booking_last_name}"`
     : '\n\nNo booking name provided — set name_match to false.'
 
-  const client = new Anthropic()
   let rawText: string
 
   try {
-    const message = await client.messages.create(
+    const message = await anthropic.messages.create(
       {
         model: 'claude-sonnet-4-6',
         max_tokens: 512,

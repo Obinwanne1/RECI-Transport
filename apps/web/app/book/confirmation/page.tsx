@@ -63,10 +63,11 @@ function BookConfirmationContent() {
     fetchBooking()
   }, [bookingId, redirectStatus, router, pollCount])
 
-  // Polling: retry if still pending after Stripe redirect
+  // Exponential backoff polling: 1s, 2s, 4s, 8s, 16s, 32s (max 6 attempts)
   useEffect(() => {
     if (pollCount > 0 && pollCount <= 6 && booking?.status === 'pending') {
-      const t = setTimeout(() => setPollCount((c) => c + 1), 5000)
+      const delay = Math.min(1000 * Math.pow(2, pollCount - 1), 32000)
+      const t = setTimeout(() => setPollCount((c) => c + 1), delay)
       return () => clearTimeout(t)
     }
   }, [pollCount, booking?.status])

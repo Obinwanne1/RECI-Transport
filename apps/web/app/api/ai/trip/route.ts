@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import anthropic from '@/lib/anthropic'
 import { TripCopilotRequestSchema, TripCopilotResponseSchema } from '@/lib/schemas'
 import { logAICall } from '@/lib/ai-logger'
 import { getUserFromRequest } from '@/lib/supabase/server'
@@ -84,11 +84,10 @@ Fuel type: ${fuel_type}
 
 Please provide a route summary from Berlin, fuel cost estimate, 3 recommended stops, parking tips, and any relevant fuel notes.`
 
-  const client = new Anthropic()
   let rawText: string
 
   try {
-    const message = await client.messages.create(
+    const message = await anthropic.messages.create(
       {
         model: 'claude-sonnet-4-6',
         max_tokens: 1024,
