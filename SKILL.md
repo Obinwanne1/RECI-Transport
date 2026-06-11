@@ -307,6 +307,12 @@ export default nextConfig
 ```js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.supabase.co' },
+      { protocol: 'https', hostname: '**.wikimedia.org' },
+    ],
+  },
   async rewrites() {
     const adminUrl = process.env.ADMIN_URL || 'http://localhost:3001'
     return [
@@ -322,6 +328,8 @@ export default nextConfig
 ```
 
 Add `ADMIN_URL=https://your-admin.vercel.app` to web's env in production.
+
+**Note:** Seed vehicle data uses `https://upload.wikimedia.org/...` image URLs. Both `**.supabase.co` (user-uploaded images) and `**.wikimedia.org` must be in `remotePatterns`. Use `unoptimized` prop on `next/image` for external images that hit rate-limit thresholds (e.g. Wikimedia 429s when Next.js optimizer proxies many requests).
 
 ### 4.5 packages/config
 
@@ -398,7 +406,7 @@ export type TransmissionType = 'manual' | 'automatic'
 
 export type DamageSeverity = 'minor' | 'moderate' | 'severe'
 
-export type PaymentMethod = 'card' | 'bank_transfer' | 'corporate'
+export type PaymentMethod = 'stripe' | 'bank_transfer' | 'cash' | 'corporate_invoice'
 
 export type PaymentStatus = 'pending' | 'succeeded' | 'failed' | 'refunded'
 
@@ -1353,17 +1361,26 @@ apps/web/
 ├── app/
 │   ├── layout.tsx
 │   ├── globals.css
+│   ├── loading.tsx                       ← Root skeleton (animated pulse grid)
+│   ├── error.tsx                         ← Root error boundary ('use client')
 │   ├── page.tsx                          ← Home
 │   ├── auth/
 │   │   ├── login/page.tsx
 │   │   └── callback/route.ts
+│   ├── vehicles/
+│   │   └── [id]/
+│   │       ├── page.tsx                  ← Vehicle detail (server component)
+│   │       └── loading.tsx               ← Detail skeleton
 │   ├── book/
+│   │   ├── loading.tsx                   ← Booking flow skeleton
 │   │   ├── [vehicleId]/page.tsx          ← Step 1
 │   │   ├── extras/page.tsx               ← Step 2
 │   │   ├── driver/page.tsx               ← Step 3
 │   │   ├── payment/page.tsx              ← Step 4
 │   │   └── confirmation/page.tsx         ← Step 5
 │   ├── account/
+│   │   ├── loading.tsx                   ← Account skeleton
+│   │   ├── error.tsx                     ← Account error boundary
 │   │   ├── layout.tsx
 │   │   ├── profile/page.tsx
 │   │   ├── bookings/page.tsx
@@ -1396,6 +1413,7 @@ apps/web/
 │   ├── useBookingStore.ts
 │   └── useVehicleSearch.ts
 └── lib/
+    ├── anthropic.ts                      ← Singleton — import this, never new Anthropic() per-request
     └── supabase/
         └── server.ts
 ```
@@ -1468,10 +1486,28 @@ export const useBookingStore = create<BookingStore>()(
 )
 ```
 
-### 10.3 Booking Flow Pages
+### 10.3 Vehicle Detail Page
+
+**`/vehicles/[id]/page.tsx`** — server component, fetches via `GET /api/vehicles/${id}`.
+
+- Hero image: `next/image` with `fill` + `unoptimized` + `priority`
+- Thumbnail strip for additional images (`image_urls[1+]`)
+- Specs badges: fuel type, transmission, seats, bags, mileage
+- Features chip list (`bg-[#407E3C]/10 text-[#407E3C]`)
+- Price card: `€X/day` + "Book Now" CTA → `/book/[id]`
+- "Back to search" link → `/`
+- Guaranteed model badge (`✓ Exact Model`) when `guaranteed_model = true`
+
+**VehicleCard behaviour:**
+- Whole card is clickable (`onClick → router.push('/vehicles/${id}')`) — `cursor-pointer relative` on wrapper
+- "Book Now" button: `relative z-10` + `e.stopPropagation()` to prevent double-navigation
+- `next/image` uses `unoptimized` to bypass the Next.js optimizer proxy (prevents Wikimedia 429 rate-limiting)
+- Wrapped in `React.memo`
+
+### 10.4 Booking Flow Pages
 
 **Step 1 — `/book/[vehicleId]/page.tsx`:**
-- Fetch vehicle details from Supabase (client-side or server component).
+- Fetch vehicle details from Supabase using a server component (`createClient` from `@/lib/supabase/server`).
 - Render a date range picker and location selectors.
 - On submit, call `useBookingStore.setVehicle`, `setDates`, `setLocations`, then `router.push('/book/extras')`.
 - Show vehicle images, specs, and base price per day.
@@ -1530,7 +1566,8 @@ export async function POST(req: Request) {
 // Enforce loyalty cap server-side: pointsRedeemed <= computeMaxRedeemablePoints(total, balance)
 // Insert booking into Supabase using service role client
 // Insert booking_extras rows
-// Call deduct_loyalty_points RPC (non-blocking: void supabase.rpc(...))
+// Call deduct_loyalty_points RPC (non-blocking fire-and-forget: void supabase.rpc(...))
+// The RPC handles atomicity server-side; booking row is committed first so no rollback risk
 // Send confirmation email via Resend
 // Return { bookingRef }
 ```
@@ -1561,9 +1598,11 @@ const CreateBookingSchema = z.object({
 **`/api/vehicles/route.ts` — GET:**
 
 ```typescript
-// Accept query params: categoryId, pickupDate, returnDate, locationId, tier, transmission
-// Fetch vehicles from Supabase, exclude those with overlapping confirmed bookings
-// Return vehicle list with category data joined
+// Accept query params: category_slug, pickup_date, dropoff_date, location_id
+// Fetch vehicles from Supabase with category + pricing_rules joined
+// Exclude vehicles with overlapping confirmed bookings or availability_blocks (TOCTOU-safe)
+// Apply corporate pricing if authenticated user has a corporate_account_id
+// Return vehicle list with computed daily_rate
 ```
 
 **`/api/loyalty/route.ts` — GET:**
@@ -1575,12 +1614,20 @@ const CreateBookingSchema = z.object({
 // Return { account, tiers, transactions }
 ```
 
-**`/api/ai/chat/route.ts` — POST:**
+**Anthropic singleton — `lib/anthropic.ts`:**
 
 ```typescript
 import Anthropic from '@anthropic-ai/sdk'
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+export default anthropic
+```
 
-const client = new Anthropic()
+Import `anthropic` from `@/lib/anthropic` in every AI route and `corporate-agent.ts`. Never instantiate `new Anthropic()` inside a request handler — it creates a new HTTP client per call.
+
+**`/api/ai/chat/route.ts` — POST:**
+
+```typescript
+import anthropic from '@/lib/anthropic'
 
 // Body: { messages: [{role, content}], context: { availableVehicles, dates, location } }
 // System prompt: "You are RECI Transport's AI assistant helping customers find the right rental car in Berlin..."
@@ -1624,6 +1671,7 @@ export async function POST(req: Request) {
     return new Response('Webhook signature failed', { status: 400 })
   }
 
+  // Idempotency: check booking is still 'pending' before processing to handle duplicate webhook deliveries
   if (event.type === 'payment_intent.succeeded') {
     const pi = event.data.object as Stripe.PaymentIntent
     const { userId, bookingId, totalPaid } = pi.metadata
@@ -1901,15 +1949,22 @@ metadata: {
 **System prompt for `/api/ai/chat/route.ts`:**
 
 ```
-You are RECI Transport's AI assistant helping customers find the right rental car in Berlin.
-You have access to the following available vehicles and pricing: {context.availableVehicles}
-Dates requested: {context.dates}
-Pickup location: {context.location}
+You are an intelligent rental assistant for RECI Transport, a car rental company based in Berlin.
 
-Help the customer choose a vehicle. Ask clarifying questions if needed.
-When you have enough information, respond with a JSON block: {"recommendedVehicleId": "<id>"}
-Keep responses concise and friendly.
+You have real-time access to fleet inventory AND policy/FAQ knowledge via tools. Use them — never guess.
+
+Rules:
+- ALWAYS call search_vehicles before answering availability or pricing questions
+- ALWAYS call search_faq before answering policy, insurance, cancellation, licence, fuel, age, or hours questions
+- Call get_categories when asked about vehicle types
+- After vehicle results, summarise top 3: **Make Model** — €X/day · Fuel · X seats
+- If 0 vehicles: say so honestly, suggest removing a filter or trying different dates
+- Match the user's language: German query → German reply
+- Be concise. No preamble. No restating the question.
+- After showing results, offer to help narrow down or proceed to booking
 ```
+
+The route returns `{ reply: string, vehicles?: Vehicle[], search_params?: object }` — plain natural language reply, no JSON blocks in the assistant message.
 
 ### 13.2 Damage Detection
 
@@ -2230,6 +2285,8 @@ Work through these in order. Do not proceed past a step until it is verified wor
 - [ ] `useBookingStore` Zustand store persists across page navigation
 - [ ] `GET /api/vehicles` returns vehicles filtered by availability
 - [ ] Home page renders vehicle grid
+- [ ] Clicking vehicle card navigates to `/vehicles/[id]` detail page
+- [ ] `/vehicles/[id]` detail page loads with image, specs, features, Book Now CTA
 - [ ] `/book/[vehicleId]` loads vehicle detail and date picker
 - [ ] `/book/extras` loads extras and updates Zustand store
 - [ ] `/book/driver` loads driver form with loyalty fetch
@@ -2412,6 +2469,23 @@ The following features have database schema, table structures, or scaffold code 
 - Pricing engine reads overrides at booking time and stacks onto base rate
 
 ---
+
+### 20.11 Performance Notes (Already Implemented)
+
+The following performance improvements are already live in the codebase:
+
+| Concern | Implementation |
+|---|---|
+| Anthropic SDK overhead | Singleton in `lib/anthropic.ts` — imported by all AI routes |
+| API response caching | `export const revalidate = 86400` on `/api/locations`, `3600` on `/api/extras` |
+| Image optimisation | `next/image` with `fill` + `sizes` in VehicleCard; `unoptimized` to avoid Wikimedia 429 |
+| Re-render prevention | `React.memo` on VehicleCard and OrderSummary; `useMemo` for price calculations |
+| In-flight request cancel | `AbortController` in ConversationalSearch — cancels previous request on re-submit |
+| Confirmation polling | Exponential backoff: 1s→2s→4s→8s→16s→32s (replaces flat 5s×6) |
+| Loading states | `loading.tsx` at root, `/account`, `/book`, `/vehicles/[id]` |
+| Error boundaries | `error.tsx` at root and `/account` — catches render errors, shows Try again + Go home |
+| Viewport meta | `export const viewport` in root layout |
+| Font stack | System font fallback chain in `globals.css` |
 
 ### 20.10 Real-Time Availability Calendar (Customer-Facing)
 
