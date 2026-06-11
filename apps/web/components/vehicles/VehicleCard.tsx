@@ -3,6 +3,7 @@
 import { memo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { Vehicle } from '@/lib/schemas'
 
 const FUEL_BADGES: Record<string, { label: string; cls: string }> = {
@@ -17,9 +18,13 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   const image = image_urls?.[0] ?? null
   const fuel = FUEL_BADGES[fuel_type] ?? { label: fuel_type, cls: 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 border-gray-100 dark:border-gray-600' }
   const [imgError, setImgError] = useState(false)
+  const router = useRouter()
 
   return (
-    <div className="group bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col">
+    <div
+      className="group bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col cursor-pointer relative"
+      onClick={() => router.push(`/vehicles/${id}`)}
+    >
       {/* Image */}
       <div className="aspect-[16/9] bg-[#F3F4F6] dark:bg-gray-800 relative overflow-hidden">
         {image && !imgError ? (
@@ -27,6 +32,7 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
             src={image}
             alt={`${make} ${model}`}
             fill
+            unoptimized
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             onError={() => setImgError(true)}
@@ -94,7 +100,8 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
           </div>
           <Link
             href={`/book/${id}`}
-            className="bg-[#407E3C] hover:bg-[#356834] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+            className="relative z-10 bg-[#407E3C] hover:bg-[#356834] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+            onClick={(e) => e.stopPropagation()}
           >
             Book Now
           </Link>
