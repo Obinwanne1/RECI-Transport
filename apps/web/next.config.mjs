@@ -17,10 +17,11 @@ const nextConfig = {
     ],
   },
   async rewrites() {
+    const adminUrl = process.env.ADMIN_URL || 'http://localhost:3001'
     return [
       {
         source: '/admin/:path*',
-        destination: 'http://localhost:3001/admin/:path*',
+        destination: `${adminUrl}/admin/:path*`,
       },
     ]
   },
