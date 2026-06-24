@@ -47,7 +47,12 @@ export default function VehicleGrid() {
   if (hasSearched && results.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="text-5xl mb-4">🚗</div>
+        <div className="flex justify-center mb-4">
+          <svg className="w-14 h-14 text-[#D1D5DB]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
+            <path d="M5 17H3v-4l2.5-5h11L19 13v4h-2M9 17h6M6 9h12"/>
+          </svg>
+        </div>
         <p className="font-medium text-[#1A1A1A] dark:text-gray-100">No vehicles available for your dates</p>
         <p className="text-sm text-[#6B7280] dark:text-gray-400 mt-1">Try different dates or remove the type filter</p>
       </div>

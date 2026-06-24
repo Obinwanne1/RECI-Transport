@@ -86,7 +86,11 @@ export default function SearchWidget({ initialValues, onSearch }: SearchWidgetPr
         {/* Location */}
         <div>
           <label className={labelCls}>
-            <span className="mr-1">📍</span>Pick-up Location
+            <svg className="inline w-3.5 h-3.5 mr-1 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z" />
+            </svg>
+            Pick-up Location
           </label>
           <select {...register('pickup_location_id')} className={inputCls}>
             {locations.length === 0 && (
@@ -104,7 +108,10 @@ export default function SearchWidget({ initialValues, onSearch }: SearchWidgetPr
         {/* Pick-up */}
         <div>
           <label className={labelCls}>
-            <span className="mr-1">📅</span>Pick-up Date
+            <svg className="inline w-3.5 h-3.5 mr-1 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+            Pick-up Date
           </label>
           <input type="date" min={today} {...register('pickup_date')} className={inputCls} />
           {errors.pickup_date && <p className="text-[#DC2626] text-xs mt-1">{errors.pickup_date.message}</p>}
@@ -113,7 +120,10 @@ export default function SearchWidget({ initialValues, onSearch }: SearchWidgetPr
         {/* Drop-off */}
         <div>
           <label className={labelCls}>
-            <span className="mr-1">📅</span>Drop-off Date
+            <svg className="inline w-3.5 h-3.5 mr-1 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+            Drop-off Date
           </label>
           <input type="date" min={today} {...register('dropoff_date')} className={inputCls} />
           {errors.dropoff_date && <p className="text-[#DC2626] text-xs mt-1">{errors.dropoff_date.message}</p>}
@@ -123,7 +133,11 @@ export default function SearchWidget({ initialValues, onSearch }: SearchWidgetPr
         <div className="flex gap-2 items-end">
           <div className="flex-1">
             <label className={labelCls}>
-              <span className="mr-1">🚗</span>Vehicle Type
+              <svg className="inline w-3.5 h-3.5 mr-1 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
+                <path d="M5 17H3v-4l2.5-5h11L19 13v4h-2M9 17h6M6 9h12"/>
+              </svg>
+              Vehicle Type
             </label>
             <select {...register('category_slug')} className={inputCls}>
               <option value="">Any type</option>

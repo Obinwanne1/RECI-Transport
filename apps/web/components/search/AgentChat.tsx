@@ -22,7 +22,7 @@ function VehicleCard({ vehicle, searchParams }: { vehicle: VehicleResult; search
   const router = useRouter()
   const { setDates } = useBookingStore()
 
-  const fuelIcon = { petrol: '⛽', diesel: '🛢️', electric: '⚡', hybrid: '🌿' }[vehicle.fuel_type] ?? '⛽'
+  const fuelLabel = ({ petrol: 'Petrol', diesel: 'Diesel', electric: 'Electric', hybrid: 'Hybrid' } as Record<string, string>)[vehicle.fuel_type] ?? vehicle.fuel_type
   const transIcon = vehicle.transmission === 'automatic' ? 'Auto' : 'Manual'
 
   const handleBook = () => {
@@ -43,7 +43,7 @@ function VehicleCard({ vehicle, searchParams }: { vehicle: VehicleResult; search
           {vehicle.make} {vehicle.model} <span className="font-normal text-[#6B7280]">· {vehicle.year}</span>
         </p>
         <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-0.5">
-          {fuelIcon} {vehicle.fuel_type} · {transIcon} · {vehicle.category.passenger_capacity} seats
+          {fuelLabel} · {transIcon} · {vehicle.category.passenger_capacity} seats
         </p>
         {vehicle.features.length > 0 && (
           <p className="text-xs text-[#9CA3AF] dark:text-gray-500 mt-0.5 truncate">
@@ -157,7 +157,12 @@ export default function AgentChat({ onSearchParams }: AgentChatProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-[#407E3C] uppercase tracking-widest">✦ AI Assistant</span>
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-[#407E3C] uppercase tracking-widest">
+            <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+            </svg>
+            AI Assistant
+          </span>
           <span className="text-xs text-[#9CA3AF]">— ask anything about our fleet</span>
         </div>
         {messages.length > 0 && (
@@ -246,7 +251,12 @@ export default function AgentChat({ onSearchParams }: AgentChatProps) {
               Thinking…
             </>
           ) : (
-            <>✦ Ask</>
+            <>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+              </svg>
+              Ask
+            </>
           )}
         </button>
       </form>
