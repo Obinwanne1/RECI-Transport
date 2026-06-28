@@ -62,8 +62,9 @@ All AI routes (`/api/ai/*`) and `lib/corporate-agent.ts` import from `@/lib/anth
 
 ### next/image for External URLs
 - All allowed hostnames must be in `next.config.mjs` `images.remotePatterns`
-- Currently allowed: `**.supabase.co`, `**.wikimedia.org`
-- Use `unoptimized` prop for external images that may rate-limit (e.g. Wikimedia returns 429 when Next.js optimizer proxies many requests)
+- Currently allowed: `**.supabase.co`, `images.unsplash.com`
+- Wikimedia was removed — Vercel domains are blocked by Wikimedia's Referer policy (returns redirect/403). All vehicle images now use Unsplash CDN URLs.
+- Use `unoptimized` prop on all external images — Next.js optimizer proxy triggers Unsplash/Wikimedia rate limits
 - Missing hostname = hard render error that triggers the root error boundary
 
 ### Admin Auth (Two-Layer Check)
@@ -72,6 +73,21 @@ Admin portal requires BOTH:
 2. `app_metadata.role = 'admin' | 'staff'` in Supabase Auth (JWT claim)
 
 One alone is insufficient. User must sign out and back in after metadata change.
+
+### Admin Middleware Redirects (basePath Critical Rule)
+`apps/admin` uses `basePath: '/admin'`. Never construct redirect URLs with `new URL('/auth/login', request.url)` — this loses the basePath and creates a 404 loop.
+
+**Always use `request.nextUrl.clone()`:**
+```typescript
+// WRONG — strips basePath, causes redirect loop
+const loginUrl = new URL('/auth/login', request.url)
+
+// CORRECT — basePath-aware
+const loginUrl = request.nextUrl.clone()
+loginUrl.pathname = '/auth/login'
+return NextResponse.redirect(loginUrl)
+```
+This applies to ALL redirects in `apps/admin/middleware.ts`.
 
 ### Admin Navigation
 - Internal links in admin app use relative paths (e.g. `/dashboard`, not `/admin/dashboard`). Next.js prepends basePath.
@@ -182,7 +198,9 @@ All AI calls are server-side only. All fail gracefully — never block the page 
 | Port already in use | Stale process | `netstat -ano | findstr :<PORT>` → `taskkill /F /PID <PID>` |
 | "Users" tab missing in admin sidebar | `userRole` not `'admin'` | Check `user_profiles.role` and `app_metadata.role` both set to `admin` |
 | Env changes not picked up | Server loaded old env | Kill and restart dev server |
-| Wikimedia images 429 | Next.js optimizer proxying external images | Add `unoptimized` prop to `next/image` |
+| Wikimedia images 429 / blocked on Vercel | Next.js optimizer proxy + Wikimedia Referer block | Replace with Unsplash CDN URLs; add `images.unsplash.com` to `remotePatterns`; use `unoptimized` prop |
+| Admin portal 404 / redirect loop (`/auth/login`) | `new URL('/auth/login', request.url)` loses `basePath` | Use `request.nextUrl.clone()` + `.pathname =` in all middleware redirects |
+| Vercel API 500 with "ByteString char 65279" | PowerShell piped env vars prepend UTF-16 BOM (`U+FEFF`) | Re-add env vars via Bash: `echo -n "value" \| vercel env add VAR production` — never use PowerShell pipe for this |
 
 ---
 
@@ -194,6 +212,27 @@ Two separate Vercel projects (web and admin). See `SKILL.md` section 18 for full
 - Stripe webhook must point to production domain, not localhost
 - `RESEND_FROM_EMAIL` must use a Resend-verified domain
 - Supabase Auth redirect URLs must include production domain
+
+### Live Production URLs
+
+| App | URL |
+|---|---|
+| Customer portal | `https://web-lilac-nine-19.vercel.app` |
+| Admin portal | `https://admin-umber-seven.vercel.app/admin` |
+| Demo admin login | `demo@reci-transport.com` / `RecIDemo2026!` |
+| Supabase project | `https://ewrknfmpdifdgxlmqbzi.supabase.co` |
+
+### Vercel Env Var Warning — PowerShell BOM Bug
+**NEVER** set Vercel env vars by piping strings in PowerShell:
+```powershell
+# BROKEN — prepends UTF-16 BOM (U+FEFF char 65279) to the value
+"sk-ant-..." | vercel env add ANTHROPIC_API_KEY production
+```
+**Always use Bash `echo -n`:**
+```bash
+echo -n "sk-ant-..." | vercel env add ANTHROPIC_API_KEY production
+```
+The BOM causes `TypeError: Cannot convert argument to a ByteString because the character at index 0 has a value of 65279` in every Supabase/Anthropic HTTP call on Vercel.
 
 Full rebuild spec: `SKILL.md`
 Full system documentation: `docs/RECI_TRANSPORT_DOCS.pdf`

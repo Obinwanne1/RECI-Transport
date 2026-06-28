@@ -310,7 +310,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**.supabase.co' },
-      { protocol: 'https', hostname: '**.wikimedia.org' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
   async rewrites() {
@@ -329,7 +329,7 @@ export default nextConfig
 
 Add `ADMIN_URL=https://your-admin.vercel.app` to web's env in production.
 
-**Note:** Seed vehicle data uses `https://upload.wikimedia.org/...` image URLs. Both `**.supabase.co` (user-uploaded images) and `**.wikimedia.org` must be in `remotePatterns`. Use `unoptimized` prop on `next/image` for external images that hit rate-limit thresholds (e.g. Wikimedia 429s when Next.js optimizer proxies many requests).
+**Note:** All demo vehicle images use Unsplash CDN (`images.unsplash.com`). Do NOT use Wikimedia URLs — Vercel's outbound Referer header is blocked by Wikimedia, causing 403s/redirects for all image loads from production. Use `unoptimized` prop on all `next/image` components pointing to external URLs to bypass the Next.js optimizer proxy (which triggers rate limits).
 
 ### 4.5 packages/config
 
@@ -1765,6 +1765,19 @@ export async function GET(request: Request) {
 - Auth: create the same `lib/supabase/server.ts` and middleware as in the web app.
 - Admin routes must verify that the session user has `role = 'admin'` or `role = 'staff'` before returning data.
 
+**Middleware redirect rule — basePath critical:** `apps/admin` sets `basePath: '/admin'`. Using `new URL('/auth/login', request.url)` in middleware constructs a redirect URL WITHOUT the basePath prefix, causing a 404 → infinite redirect loop. Always use `request.nextUrl.clone()`:
+
+```typescript
+// WRONG — loses /admin basePath
+const url = new URL('/auth/login', request.url)
+return NextResponse.redirect(url)
+
+// CORRECT — preserves basePath
+const url = request.nextUrl.clone()
+url.pathname = '/auth/login'
+return NextResponse.redirect(url)
+```
+
 ### 11.2 Directory Structure
 
 ```
@@ -2193,11 +2206,33 @@ taskkill /F /PID <PID>
 
 ## 18. Production Deployment
 
+### 18.0 Vercel Env Var Warning — PowerShell BOM Bug
+
+**NEVER** set Vercel env vars by piping strings in PowerShell. PowerShell uses UTF-16 LE encoding and prepends a BOM (`U+FEFF`, char 65279) to the value. This causes:
+
+```
+TypeError: Cannot convert argument to a ByteString because the character at index 0 has a value of 65279 which is greater than 255
+```
+
+in every Supabase and Anthropic HTTP call on Vercel, resulting in 500 errors on all API routes.
+
+```powershell
+# BROKEN — adds BOM prefix
+"sk-ant-api03-..." | vercel env add ANTHROPIC_API_KEY production
+```
+
+```bash
+# CORRECT — use Bash echo -n (no BOM, no trailing newline)
+echo -n "sk-ant-api03-..." | vercel env add ANTHROPIC_API_KEY production
+```
+
+Always use the Bash tool (not PowerShell) for all `vercel env add` operations.
+
 ### 18.1 Web App (Vercel)
 
 1. Import repository to Vercel. Set **Root Directory** to `apps/web`.
 2. Framework preset: Next.js.
-3. Add all web `.env.local` variables in Vercel **Environment Variables**.
+3. Add all web `.env.local` variables in Vercel **Environment Variables** — use Bash `echo -n` (see 18.0).
 4. Set `ADMIN_URL` to the production admin app Vercel URL (e.g. `https://reci-admin.vercel.app`).
 5. Deploy.
 6. Add Stripe webhook endpoint pointing to `https://yourdomain.vercel.app/api/webhooks/stripe`.
