@@ -45,7 +45,8 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const loginUrl = new URL('/auth/login', request.url)
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/auth/login'
     return NextResponse.redirect(loginUrl)
   }
 
@@ -61,7 +62,9 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
-    const loginUrl = new URL('/auth/login?error=unauthorized', request.url)
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/auth/login'
+    loginUrl.searchParams.set('error', 'unauthorized')
     return NextResponse.redirect(loginUrl)
   }
 
@@ -70,7 +73,8 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Password reset required' }, { status: 403 })
     }
-    const resetUrl = new URL('/auth/reset-password', request.url)
+    const resetUrl = request.nextUrl.clone()
+    resetUrl.pathname = '/auth/reset-password'
     resetUrl.searchParams.set('required', 'true')
     return NextResponse.redirect(resetUrl)
   }
