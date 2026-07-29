@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import AdminNav from '@/components/AdminNav'
+import AdminShell from '@/components/AdminShell'
 import { ThemeProvider } from '@/components/ThemeProvider'
-import ToastProvider from '@/components/ToastProvider'
 import TopBar from '@/components/TopBar'
 import './globals.css'
 
@@ -44,6 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <html lang="en" suppressHydrationWarning>
       {/* Anti-FOUC: set dark class before React hydrates */}
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <script dangerouslySetInnerHTML={{ __html: `
           try {
             var t = localStorage.getItem('reci-theme') ||
@@ -54,22 +54,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </head>
       <body className="bg-[#F9FAFB] dark:bg-gray-950 font-sans transition-colors duration-150">
         <ThemeProvider>
-          <ToastProvider>
           {isAuthPage ? (
             <>
               <TopBar />
               {children}
             </>
           ) : (
-            <div className="flex min-h-screen">
-              <AdminNav userEmail={userEmail || 'dev@localhost'} userRole={userRole} />
-              <main className="flex-1 overflow-auto min-h-screen bg-[#F9FAFB] dark:bg-gray-950">
-                <TopBar />
-                {children}
-              </main>
-            </div>
+            <AdminShell userEmail={userEmail || 'dev@localhost'} userRole={userRole}>
+              {children}
+            </AdminShell>
           )}
-          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

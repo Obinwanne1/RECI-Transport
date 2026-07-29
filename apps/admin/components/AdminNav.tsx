@@ -56,7 +56,7 @@ const ADMIN_ONLY_ITEMS = [
   },
 ]
 
-export default function AdminNav({ userEmail, userRole }: { userEmail: string; userRole?: string }) {
+export default function AdminNav({ userEmail, userRole, onClose }: { userEmail: string; userRole?: string; onClose?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const [pendingReviews, setPendingReviews] = useState(0)
@@ -92,6 +92,13 @@ export default function AdminNav({ userEmail, userRole }: { userEmail: string; u
     <aside className="w-60 shrink-0 bg-[#1A2E18] min-h-screen flex flex-col">
       {/* Brand */}
       <div className="h-12 flex items-center px-5 border-b border-white/10">
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden mr-3 text-white/50 hover:text-white transition-colors" aria-label="Close menu">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 bg-[#407E3C] rounded-lg flex items-center justify-center shadow-sm shrink-0">
             <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">

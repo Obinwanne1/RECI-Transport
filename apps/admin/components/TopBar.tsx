@@ -18,12 +18,25 @@ function MoonIcon() {
   )
 }
 
-export default function TopBar() {
+export default function TopBar({ onMenuOpen }: { onMenuOpen?: () => void }) {
   const { theme, toggle } = useTheme()
   const isDark = theme === 'dark'
 
   return (
-    <header className="sticky top-0 z-20 h-12 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-[#E5E7EB] dark:border-gray-700/60 flex items-center justify-end px-5">
+    <header className="sticky top-0 z-20 h-12 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-[#E5E7EB] dark:border-gray-700/60 flex items-center px-4 gap-2">
+      {/* Hamburger — mobile only */}
+      {onMenuOpen && (
+        <button
+          onClick={onMenuOpen}
+          aria-label="Open menu"
+          className="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] dark:text-gray-400 hover:bg-[#F3F4F6] dark:hover:bg-gray-800 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      )}
+      <span className="flex-1" />
       <button
         onClick={toggle}
         aria-label="Toggle theme"
