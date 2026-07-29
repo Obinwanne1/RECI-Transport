@@ -1,24 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { assertAdminOnly } from '@/lib/auth'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
-
-async function assertCallerIsAdmin(): Promise<boolean> {
-  const supabase = createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return false
-
-  const admin = createAdminClient()
-  const { data: profile } = await admin
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  return profile?.role === 'admin'
-}
 
 const PatchUserSchema = z.object({
   role: z.enum(['staff', 'admin']).optional(),
@@ -30,9 +15,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  if (!(await assertCallerIsAdmin())) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const session = await assertAdminOnly()
+  if (!session.authorized) return session.response
 
   let body: unknown
   try { body = await request.json() } catch {
@@ -76,9 +60,8 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  if (!(await assertCallerIsAdmin())) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const session = await assertAdminOnly()
+  if (!session.authorized) return session.response
 
   const supabase = createAdminClient()
 

@@ -9,7 +9,9 @@ import CheckoutStepper from '@/components/booking/CheckoutStepper'
 import OrderSummary from '@/components/booking/OrderSummary'
 import { useBookingStore } from '@/hooks/useBookingStore'
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+if (!stripeKey) throw new Error('Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY')
+const stripePromise = loadStripe(stripeKey)
 
 // ─── Inner form (must be inside <Elements>) ───────────────────────────────────
 

@@ -47,31 +47,69 @@ function FleetSkeleton() {
   )
 }
 
+interface VehicleRow {
+  id: string
+  make: string
+  model: string
+  year: number
+  registration_plate: string
+  color?: string
+  transmission?: string
+  is_active: boolean
+  mileage?: number
+  last_service_mileage?: number | null
+  category: { name: string; tier?: string } | Array<{ name: string; tier?: string }> | null
+  location: { name: string } | Array<{ name: string }> | null
+}
+
+const PER_PAGE = 20
+
 export default function FleetPage() {
   const router = useRouter()
-  const [vehicles, setVehicles] = useState<any[]>([])
+  const [vehicles, setVehicles] = useState<VehicleRow[]>([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
 
-  async function loadVehicles() {
+  async function loadVehicles(p = page) {
     setLoading(true)
-    const res = await fetch('/admin/api/admin/vehicles')
-    const data = await res.json()
-    setVehicles(Array.isArray(data) ? data : [])
-    setLoading(false)
+    setError(null)
+    try {
+      const res = await fetch(`/admin/api/admin/vehicles?page=${p}&perPage=${PER_PAGE}`)
+      if (!res.ok) throw new Error('Failed to load vehicles')
+      const data = await res.json()
+      setVehicles(Array.isArray(data.vehicles) ? data.vehicles : [])
+      setTotal(data.total ?? 0)
+    } catch {
+      setError('Failed to load vehicles. Please refresh.')
+      setVehicles([])
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { loadVehicles() }, [])
+  useEffect(() => { loadVehicles(page) }, [page])
 
   async function toggleActive(id: string, current: boolean) {
-    await fetch(`/admin/api/admin/vehicles/${id}`, {
+    setActionError(null)
+    const res = await fetch(`/admin/api/admin/vehicles/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ is_active: !current }),
     })
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}))
+      setActionError(d.error ?? 'Action failed. Please try again.')
+      return
+    }
     setConfirmId(null)
-    loadVehicles()
+    loadVehicles(page)
   }
+
+  const totalPages = Math.ceil(total / PER_PAGE)
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -96,7 +134,22 @@ export default function FleetPage() {
         </Link>
       </div>
 
-      {loading ? <FleetSkeleton /> : (
+      {actionError && (
+        <div className="mb-4 flex items-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm px-4 py-3 rounded-xl">
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" /></svg>
+          {actionError}
+          <button onClick={() => setActionError(null)} className="ml-auto text-red-500 hover:text-red-700">✕</button>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-[#6B7280] dark:text-gray-400 text-sm mb-3">{error}</p>
+          <button onClick={() => loadVehicles(page)} className="text-sm font-semibold text-[#407E3C] hover:underline">Try again</button>
+        </div>
+      )}
+
+      {!error && loading ? <FleetSkeleton /> : !error && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {vehicles.map((v) => {
             const cat = Array.isArray(v.category) ? v.category[0] : v.category
@@ -182,6 +235,33 @@ export default function FleetPage() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {!error && !loading && totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-[#E5E7EB] dark:border-gray-700">
+          <p className="text-sm text-[#6B7280] dark:text-gray-400">
+            {((page - 1) * PER_PAGE) + 1}–{Math.min(page * PER_PAGE, total)} of {total} vehicles
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-[#E5E7EB] dark:border-gray-700 text-[#374151] dark:text-gray-300 hover:bg-[#F9FAFB] dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Previous
+            </button>
+            <span className="flex items-center px-3 text-sm text-[#6B7280] dark:text-gray-400">
+              {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-[#E5E7EB] dark:border-gray-700 text-[#374151] dark:text-gray-300 hover:bg-[#F9FAFB] dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>

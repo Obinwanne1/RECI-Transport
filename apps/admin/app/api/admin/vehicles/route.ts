@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { assertAdminSession } from '@/lib/auth'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -19,19 +20,31 @@ const CreateVehicleSchema = z.object({
   image_url: z.string().url().optional(),
 })
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
+  const { searchParams } = request.nextUrl
+  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
+  const perPage = Math.min(50, parseInt(searchParams.get('perPage') ?? '20', 10))
+  const from = (page - 1) * perPage
+  const to = from + perPage - 1
+
   const supabase = createAdminClient()
-  const { data, error } = await supabase
+  const { data, error, count } = await supabase
     .from('vehicles')
-    .select('*, category:vehicle_categories(name, tier), location:locations(name)')
+    .select('*, category:vehicle_categories(name, tier), location:locations(name)', { count: 'exact' })
     .order('created_at', { ascending: false })
-    .limit(500)
+    .range(from, to)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  return NextResponse.json({ vehicles: data, total: count ?? 0, page, per_page: perPage })
 }
 
 export async function POST(request: NextRequest) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   let body: unknown
   try { body = await request.json() } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })

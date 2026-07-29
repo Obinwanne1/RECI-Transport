@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { assertAdminSession } from '@/lib/auth'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export async function GET() {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   const supabase = createAdminClient()
   const today = new Date()
   const todayStr = today.toISOString().split('T')[0]

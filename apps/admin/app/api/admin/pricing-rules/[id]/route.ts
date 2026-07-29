@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { assertAdminSession } from '@/lib/auth'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -11,6 +12,9 @@ const PatchSchema = z.object({
 })
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   let body: unknown
   try { body = await request.json() } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
@@ -26,6 +30,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('pricing_rules').delete().eq('id', params.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import AdminNav from '@/components/AdminNav'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import ToastProvider from '@/components/ToastProvider'
 import TopBar from '@/components/TopBar'
 import './globals.css'
 
@@ -53,6 +54,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </head>
       <body className="bg-[#F9FAFB] dark:bg-gray-950 font-sans transition-colors duration-150">
         <ThemeProvider>
+          <ToastProvider>
           {isAuthPage ? (
             <>
               <TopBar />
@@ -67,6 +69,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               </main>
             </div>
           )}
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

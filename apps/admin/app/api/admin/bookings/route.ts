@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { assertAdminSession } from '@/lib/auth'
 import { SUPABASE_CONFIGURED, MOCK_BOOKINGS } from '@/lib/mock-data'
 
 export const dynamic = 'force-dynamic'
@@ -20,6 +21,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ bookings: results.slice(from, to + 1), total: results.length, page, per_page: perPage })
   }
 
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   const supabase = createAdminClient()
 
   let query = supabase
@@ -38,7 +42,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (search) {
-    const safe = search.replace(/[,()]/g, '')
+    const safe = search.replace(/[^a-zA-Z0-9 @.\-]/g, '').slice(0, 100)
     query = query.or(`booking_ref.ilike.%${safe}%,driver_email.ilike.%${safe}%`)
   }
 

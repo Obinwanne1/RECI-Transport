@@ -4,6 +4,17 @@ import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
+interface BookingRow {
+  id: string
+  booking_ref: string
+  status: string
+  pickup_datetime: string
+  total_price: number | string
+  driver_first_name: string
+  driver_last_name: string
+  vehicle: { make: string; model: string } | Array<{ make: string; model: string }> | null
+}
+
 const STATUSES = ['all', 'pending', 'confirmed', 'active', 'completed', 'cancelled']
 
 const STATUS_BADGE: Record<string, string> = {
@@ -39,20 +50,26 @@ function BookingsContent() {
   const page = parseInt(searchParams.get('page') ?? '1', 10)
 
   const [search, setSearch] = useState(searchParams.get('search') ?? '')
-  const [bookings, setBookings] = useState<any[]>([])
+  const [bookings, setBookings] = useState<BookingRow[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
+    setError(null)
     const params = new URLSearchParams()
     if (status !== 'all') params.set('status', status)
     if (search) params.set('search', search)
     params.set('page', String(page))
 
     fetch(`/admin/api/admin/bookings?${params}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to load bookings')
+        return r.json()
+      })
       .then((d) => { setBookings(d.bookings ?? []); setTotal(d.total ?? 0) })
+      .catch(() => { setBookings([]); setError('Failed to load bookings. Please refresh.') })
       .finally(() => setLoading(false))
   }, [status, page, search])
 
@@ -115,6 +132,12 @@ function BookingsContent() {
           <tbody>
             {loading ? (
               <BookingsSkeleton />
+            ) : error ? (
+              <tr>
+                <td colSpan={6} className="px-4 py-12 text-center">
+                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                </td>
+              </tr>
             ) : bookings.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center">
@@ -122,7 +145,7 @@ function BookingsContent() {
                   <p className="text-xs text-[#9CA3AF] dark:text-gray-500 mt-1">Try a different filter or search term.</p>
                 </td>
               </tr>
-            ) : bookings.map((b: any) => {
+            ) : bookings.map((b) => {
               const v = Array.isArray(b.vehicle) ? b.vehicle[0] : b.vehicle
               return (
                 <tr

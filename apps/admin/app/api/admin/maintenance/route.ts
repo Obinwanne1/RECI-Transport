@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { assertAdminSession } from '@/lib/auth'
 import Anthropic from '@anthropic-ai/sdk'
 
 export const dynamic = 'force-dynamic'
@@ -76,6 +77,9 @@ Reply with only a JSON array, no extra text. Example: ["Oil change overdue — s
 }
 
 export async function GET(_req: NextRequest) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   const supabase = createAdminClient()
 
   const { data: vehicles, error } = await supabase
@@ -143,6 +147,9 @@ export async function GET(_req: NextRequest) {
 
 // PATCH: resolve an alert (mark vehicle serviced)
 export async function PATCH(request: NextRequest) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   let body: unknown
   try { body = await request.json() } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import CheckoutStepper from '@/components/booking/CheckoutStepper'
 import DemandBanner from '@/components/search/DemandBanner'
+import Image from 'next/image'
 import { useBookingStore } from '@/hooks/useBookingStore'
 import { calculatePrice } from '@reci/utils'
 import type { Vehicle } from '@/lib/schemas'
@@ -106,12 +107,19 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
           {/* Vehicle detail */}
           <div className="lg:col-span-2 space-y-4">
             <div className="card">
-              <div className="aspect-[16/9] bg-[#F3F4F6] dark:bg-gray-800 rounded-md mb-4 flex items-center justify-center overflow-hidden">
+              <div className="relative aspect-[16/9] bg-[#F3F4F6] dark:bg-gray-800 rounded-md mb-4 overflow-hidden">
                 {vehicle.image_urls?.[0] ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={vehicle.image_urls[0]} alt={`${vehicle.make} ${vehicle.model}`} className="w-full h-full object-cover" />
+                  <Image
+                    src={vehicle.image_urls[0]}
+                    alt={`${vehicle.make} ${vehicle.model}`}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
                 ) : (
-                  <span className="text-[#6B7280] dark:text-gray-400 text-sm">No image</span>
+                  <div className="flex items-center justify-center w-full h-full">
+                    <span className="text-[#6B7280] dark:text-gray-400 text-sm">No image</span>
+                  </div>
                 )}
               </div>
               <div className="flex items-start justify-between">

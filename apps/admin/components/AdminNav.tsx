@@ -2,7 +2,13 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { createBrowserSupabaseClient } from '@/lib/supabase/browser'
+
+// Module-level cache — survives re-renders/re-mounts, one fetch per 30s
+let _reviewCount = 0
+let _reviewFetchedAt = 0
+const REVIEW_TTL_MS = 30_000
 
 const NAV_ITEMS = [
   {
@@ -53,6 +59,23 @@ const ADMIN_ONLY_ITEMS = [
 export default function AdminNav({ userEmail, userRole }: { userEmail: string; userRole?: string }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [pendingReviews, setPendingReviews] = useState(0)
+
+  useEffect(() => {
+    const now = Date.now()
+    if (now - _reviewFetchedAt < REVIEW_TTL_MS) {
+      setPendingReviews(_reviewCount)
+      return
+    }
+    Promise.all([
+      fetch('/admin/api/admin/reviews/licences').then(r => r.json()).catch(() => ({ total: 0 })),
+      fetch('/admin/api/admin/reviews/damage').then(r => r.json()).catch(() => ({ total: 0 })),
+    ]).then(([l, d]) => {
+      _reviewCount = (l.total ?? 0) + (d.total ?? 0)
+      _reviewFetchedAt = Date.now()
+      setPendingReviews(_reviewCount)
+    })
+  }, [])
 
   async function handleSignOut() {
     const supabase = createBrowserSupabaseClient()
@@ -104,6 +127,43 @@ export default function AdminNav({ userEmail, userRole }: { userEmail: string; u
             </Link>
           )
         })}
+        {/* AI Reviews + Integrations — visible to all staff */}
+        <p className="text-white/25 text-[9px] font-bold uppercase tracking-widest px-3 pt-3 mb-2.5">AI Verification</p>
+        <Link
+          href="/reviews"
+          className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+            pathname === '/reviews' || pathname.startsWith('/reviews/')
+              ? 'bg-[#407E3C] text-white shadow-sm'
+              : 'text-white/55 hover:bg-white/8 hover:text-white'
+          }`}
+        >
+          <span className="flex items-center gap-3">
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Reviews
+          </span>
+          {pendingReviews > 0 && (
+            <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+              {pendingReviews}
+            </span>
+          )}
+        </Link>
+
+        <Link
+          href="/integrations"
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+            pathname === '/integrations' || pathname.startsWith('/integrations/')
+              ? 'bg-[#407E3C] text-white shadow-sm'
+              : 'text-white/55 hover:bg-white/8 hover:text-white'
+          }`}
+        >
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Integrations
+        </Link>
+
         {userRole === 'admin' && (
           <>
             <p className="text-white/25 text-[9px] font-bold uppercase tracking-widest px-3 pt-3 mb-2.5">Admin</p>

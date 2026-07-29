@@ -2,8 +2,6 @@ import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import DemandCard from '@/components/DemandCard'
 
-export const dynamic = 'force-dynamic'
-
 const SUPABASE_CONFIGURED =
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
   process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co'

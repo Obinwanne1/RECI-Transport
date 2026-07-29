@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { assertAdminSession } from '@/lib/auth'
 import { z } from 'zod'
 import { SUPABASE_CONFIGURED, MOCK_BOOKINGS } from '@/lib/mock-data'
 
@@ -27,6 +28,9 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json(booking)
   }
 
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   const supabase = createAdminClient()
 
   const { data, error } = await supabase
@@ -48,6 +52,9 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   let body: unknown
   try { body = await request.json() } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })

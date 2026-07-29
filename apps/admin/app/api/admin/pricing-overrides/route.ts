@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { assertAdminSession } from '@/lib/auth'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -14,6 +15,9 @@ const CreateSchema = z.object({
 })
 
 export async function GET() {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('pricing_overrides')
@@ -25,6 +29,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   let body: unknown
   try { body = await request.json() } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })

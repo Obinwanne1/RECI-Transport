@@ -1,26 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import type Anthropic from '@anthropic-ai/sdk'
-import anthropic from '@/lib/anthropic'
 import { DamageDetectionRequestSchema, DamageReportSchema } from '@/lib/schemas'
 import { createAdminClient } from '@/lib/supabase/admin-server'
 import { getUserFromRequest } from '@/lib/supabase/server'
 import { logAICall } from '@/lib/ai-logger'
+import { callVisionAI } from '@/lib/ai-vision-adapter'
 
-const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX = 5
-const ipCounts = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = ipCounts.get(ip)
-  if (!entry || now > entry.resetAt) {
-    ipCounts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return true
-  }
-  if (entry.count >= RATE_LIMIT_MAX) return false
-  entry.count++
-  return true
-}
+import { checkDbRateLimit } from '@/lib/rate-limit'
 
 const SYSTEM_PROMPT = `You are an expert automotive damage inspector for a vehicle rental company.
 Your job is to carefully compare vehicle photos and identify any new damage.
@@ -53,8 +38,8 @@ export async function POST(request: NextRequest) {
   const { user } = await getUserFromRequest(request)
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? 'unknown'
-  if (!checkRateLimit(ip)) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? request.headers.get('x-real-ip') ?? 'unknown'
+  if (!(await checkDbRateLimit(ip, 'ai/damage', 5, 60_000))) {
     return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a moment.' }, { status: 429 })
   }
 
@@ -89,9 +74,11 @@ export async function POST(request: NextRequest) {
 
   // Build vision message content
   const angles = ['front', 'back', 'left', 'right']
-  type MessageContent = Anthropic.ImageBlockParam | Anthropic.TextBlockParam
+  type ContentBlock =
+    | { type: 'text'; text: string }
+    | { type: 'image'; source: { type: 'url'; url: string } }
 
-  const messageContent: MessageContent[] = []
+  const messageContent: ContentBlock[] = []
 
   if (inspection_type === 'return' && baseline_photo_urls && baseline_photo_urls.length > 0) {
     messageContent.push({
@@ -137,21 +124,13 @@ export async function POST(request: NextRequest) {
   let rawText: string
 
   try {
-    const message = await anthropic.messages.create(
-      {
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: messageContent }],
-      },
-      { signal: AbortSignal.timeout(30_000) }
-    )
-
-    const block = message.content[0]
-    if (block.type !== 'text') throw new Error('Unexpected response type')
-    rawText = block.text
+    rawText = await callVisionAI({
+      systemPrompt: SYSTEM_PROMPT,
+      maxTokens: 1024,
+      messages: [{ role: 'user', content: messageContent }],
+    })
   } catch (err) {
-    console.error('[ai/damage] Claude API error:', err)
+    console.error('[ai/damage] Vision AI error:', err)
     return NextResponse.json({ error: 'Damage inspection failed' }, { status: 502 })
   }
 
@@ -173,9 +152,10 @@ export async function POST(request: NextRequest) {
 
   const report = result.data
   const needsReview = report.confidence < 0.7 || report.needs_human_review === true
-  const autoDispute = report.new_damage && report.confidence >= 0.7
+  // pending_review = true whenever damage is detected — staff must confirm before any dispute is raised
+  const pendingReview = report.new_damage === true
 
-  // Save inspection record
+  // Save inspection record — no automatic dispute raised on bookings
   const { error: insertError } = await supabase.from('vehicle_inspections').insert({
     booking_id,
     inspection_type,
@@ -183,26 +163,14 @@ export async function POST(request: NextRequest) {
     ai_damage_report: {
       ...report,
       needs_human_review: needsReview,
-      auto_dispute_raised: autoDispute,
+      auto_dispute_raised: false,
+      pending_review: pendingReview,
     },
   })
 
   if (insertError) {
     console.error('[ai/damage] Failed to save inspection:', insertError)
-  }
-
-  // Raise dispute flag on booking
-  if (autoDispute) {
-    const disputeNote = `DISPUTE: AI detected ${report.severity} damage at return (${Math.round(report.confidence * 100)}% confidence). Locations: ${report.locations.join(', ')}`
-    await supabase
-      .from('bookings')
-      .update({ notes: disputeNote })
-      .eq('id', booking_id)
-  } else if (needsReview && report.new_damage) {
-    await supabase
-      .from('bookings')
-      .update({ notes: `REVIEW NEEDED: AI flagged possible damage (${Math.round(report.confidence * 100)}% confidence)` })
-      .eq('id', booking_id)
+    return NextResponse.json({ error: 'Failed to save inspection record' }, { status: 500 })
   }
 
   void logAICall({
@@ -212,7 +180,7 @@ export async function POST(request: NextRequest) {
       new_damage: report.new_damage,
       severity: report.severity,
       confidence: report.confidence,
-      auto_dispute: autoDispute,
+      pending_review: pendingReview,
     },
     confidence: report.confidence,
   })
@@ -220,6 +188,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     ...report,
     needs_human_review: needsReview,
-    dispute_raised: autoDispute,
+    dispute_raised: false,
+    pending_review: pendingReview,
   })
 }

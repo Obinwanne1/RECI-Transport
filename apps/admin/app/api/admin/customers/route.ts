@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { assertAdminSession } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   const { searchParams } = request.nextUrl
   const search = searchParams.get('search') ?? ''
   const page = parseInt(searchParams.get('page') ?? '1', 10)
@@ -24,7 +28,7 @@ export async function GET(request: NextRequest) {
     .range(from, to)
 
   if (search) {
-    const safe = search.replace(/[,()]/g, '')
+    const safe = search.replace(/[^a-zA-Z0-9 @.\-]/g, '').slice(0, 100)
     query = query.or(`first_name.ilike.%${safe}%,last_name.ilike.%${safe}%,email.ilike.%${safe}%`)
   }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { assertAdminSession } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +15,9 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export async function GET(request: NextRequest) {
+  const session = await assertAdminSession()
+  if (!session.authorized) return session.response
+
   const { searchParams } = request.nextUrl
   const start = searchParams.get('start')
   const end = searchParams.get('end')

@@ -1,25 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import anthropic from '@/lib/anthropic'
 import { LicenceOCRResponseSchema } from '@/lib/schemas'
+import { callVisionAI } from '@/lib/ai-vision-adapter'
 import { createAdminClient } from '@/lib/supabase/admin-server'
 import { getUserFromRequest } from '@/lib/supabase/server'
 import { logAICall, hashInput } from '@/lib/ai-logger'
 
-const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX = 5
-const ipCounts = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = ipCounts.get(ip)
-  if (!entry || now > entry.resetAt) {
-    ipCounts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return true
-  }
-  if (entry.count >= RATE_LIMIT_MAX) return false
-  entry.count++
-  return true
-}
+import { checkDbRateLimit } from '@/lib/rate-limit'
 
 const SYSTEM_PROMPT = `You are a driving licence OCR specialist. Extract information from EU/German driving licence photos.
 
@@ -48,8 +34,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Licence verification unavailable' }, { status: 503 })
   }
 
-  const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? 'unknown'
-  if (!checkRateLimit(ip)) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? request.headers.get('x-real-ip') ?? 'unknown'
+  if (!(await checkDbRateLimit(ip, 'ai/licence', 5, 60_000))) {
     return NextResponse.json({ error: 'Rate limit exceeded. Please wait a moment.' }, { status: 429 })
   }
 
@@ -90,39 +76,31 @@ export async function POST(request: NextRequest) {
   let rawText: string
 
   try {
-    const message = await anthropic.messages.create(
-      {
-        model: 'claude-sonnet-4-6',
-        max_tokens: 512,
-        system: SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  media_type: media_type as 'image/jpeg' | 'image/png' | 'image/webp',
-                  data: image_base64,
-                },
+    rawText = await callVisionAI({
+      systemPrompt: SYSTEM_PROMPT,
+      maxTokens: 512,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: media_type as 'image/jpeg' | 'image/png' | 'image/webp',
+                data: image_base64,
               },
-              {
-                type: 'text',
-                text: `Extract driving licence information from this image.${userContext}`,
-              },
-            ],
-          },
-        ],
-      },
-      { signal: AbortSignal.timeout(30_000) }
-    )
-
-    const block = message.content[0]
-    if (block.type !== 'text') throw new Error('Unexpected response type')
-    rawText = block.text
+            },
+            {
+              type: 'text',
+              text: `Extract driving licence information from this image.${userContext}`,
+            },
+          ],
+        },
+      ],
+    })
   } catch (err) {
-    console.error('[ai/licence] Claude API error:', err)
+    console.error('[ai/licence] Vision AI error:', err)
     return NextResponse.json({ error: 'AI verification failed' }, { status: 502 })
   }
 
@@ -145,29 +123,22 @@ export async function POST(request: NextRequest) {
   const ocr = result.data
   const confidence = ocr.confidence ?? 0
 
-  // Determine verification status
-  let status: 'verified' | 'pending' | 'failed'
-  if (confidence >= 0.85) status = 'verified'
-  else if (confidence >= 0.6) status = 'pending'
-  else status = 'failed'
+  // Staff must approve — AI never auto-verifies regardless of confidence
+  // 'pending' = readable, awaiting staff approval; 'failed' = unreadable
+  const status: 'pending' | 'failed' = confidence >= 0.6 ? 'pending' : 'failed'
 
-  // Persist to licence_verifications + update user profile (non-blocking)
+  // Persist OCR result for staff review — do NOT update user_profiles here
   const supabase = createAdminClient()
   const inputHash = await hashInput(image_base64.slice(0, 100))
 
   if (user) {
-    void Promise.all([
-      supabase.from('licence_verifications').insert({
-        user_id: user.id,
-        extracted_data: ocr,
-        confidence,
-        status,
-        verified_at: status === 'verified' ? new Date().toISOString() : null,
-      }),
-      status === 'verified'
-        ? supabase.from('user_profiles').update({ licence_verified: true }).eq('id', user.id)
-        : Promise.resolve(),
-    ])
+    void supabase.from('licence_verifications').insert({
+      user_id: user.id,
+      extracted_data: ocr,
+      confidence,
+      status,
+      verified_at: null,
+    })
   }
 
   void logAICall({
@@ -182,13 +153,11 @@ export async function POST(request: NextRequest) {
     status,
     confidence,
     name_match: ocr.name_match,
-    licence_number: status === 'verified' ? ocr.licence_number : null,
-    expiry_date: status !== 'failed' ? ocr.expiry_date : null,
+    licence_number: null,
+    expiry_date: status === 'pending' ? ocr.expiry_date : null,
     message:
-      status === 'verified'
-        ? `Licence verified — ${Math.round(confidence * 100)}% confidence`
-        : status === 'pending'
-        ? `Licence under review — staff will verify before pickup`
+      status === 'pending'
+        ? `Licence submitted for review — staff will verify before your pickup`
         : `Could not read licence clearly — please enter your number manually`,
   })
 }

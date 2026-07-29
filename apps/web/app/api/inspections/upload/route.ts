@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
   }
 
   const buffer = Buffer.from(base64Data, 'base64')
-  const ext = mimeType.split('/')[1].replace('jpeg', 'jpg')
+  const EXT_MAP: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
+  const ext = EXT_MAP[mimeType] ?? 'jpg'
   const path = `${booking_id}/${inspection_type}/${angle}.${ext}`
 
   const { error: uploadError } = await supabase.storage

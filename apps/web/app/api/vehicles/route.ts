@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest } from '@/lib/supabase/server'
 
+export const revalidate = 60
+
 const SUPABASE_CONFIGURED =
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
   process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co'
@@ -20,11 +22,18 @@ export async function GET(request: NextRequest) {
   const dropoff_date = searchParams.get('dropoff_date')
   const location_id = searchParams.get('location_id')
   const category_slug = searchParams.get('category_slug')
+  const fuel_type = searchParams.get('fuel_type')
+  const transmission = searchParams.get('transmission')
+  const passenger_capacity = searchParams.get('passenger_capacity')
+    ? parseInt(searchParams.get('passenger_capacity')!, 10)
+    : null
 
   if (!SUPABASE_CONFIGURED) {
-    const filtered = category_slug
-      ? MOCK_VEHICLES.filter((v) => v.category.slug === category_slug)
-      : MOCK_VEHICLES
+    let filtered = MOCK_VEHICLES
+    if (category_slug) filtered = filtered.filter(v => v.category.slug === category_slug)
+    if (fuel_type) filtered = filtered.filter(v => v.fuel_type === fuel_type)
+    if (transmission) filtered = filtered.filter(v => v.transmission === transmission)
+    if (passenger_capacity) filtered = filtered.filter(v => v.category.passenger_capacity >= passenger_capacity)
     return NextResponse.json(filtered)
   }
 
@@ -80,6 +89,8 @@ export async function GET(request: NextRequest) {
     .eq('is_active', true)
 
   if (location_id) query = query.eq('location_id', location_id)
+  if (fuel_type) query = query.eq('fuel_type', fuel_type)
+  if (transmission) query = query.eq('transmission', transmission)
 
   const { data: vehicles, error } = await query
 
@@ -135,9 +146,16 @@ export async function GET(request: NextRequest) {
     return { ...vehicle, daily_rate }
   })
 
-  const filtered = category_slug
+  let filtered = category_slug
     ? result.filter((v) => (v.category as { slug: string } | null)?.slug === category_slug)
     : result
+
+  if (passenger_capacity) {
+    filtered = filtered.filter((v) => {
+      const cap = (v.category as { passenger_capacity?: number } | null)?.passenger_capacity ?? 0
+      return cap >= passenger_capacity
+    })
+  }
 
   return NextResponse.json(filtered)
 }

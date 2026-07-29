@@ -1,26 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { assertAdminOnly } from '@/lib/auth'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
 
-async function assertCallerIsAdmin(): Promise<boolean> {
-  const supabase = createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return false
-
-  const admin = createAdminClient()
-  const { data: profile } = await admin
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  return profile?.role === 'admin'
-}
-
 export async function GET(request: NextRequest) {
+  const session = await assertAdminOnly()
+  if (!session.authorized) return session.response
+
   const { searchParams } = request.nextUrl
   const search = searchParams.get('search') ?? ''
   const page = parseInt(searchParams.get('page') ?? '1', 10)
@@ -38,7 +26,7 @@ export async function GET(request: NextRequest) {
     .range(from, to)
 
   if (search) {
-    const safe = search.replace(/[,()]/g, '')
+    const safe = search.replace(/[^a-zA-Z0-9 @.\-]/g, '').slice(0, 100)
     query = query.or(`first_name.ilike.%${safe}%,last_name.ilike.%${safe}%,email.ilike.%${safe}%`)
   }
 
@@ -55,9 +43,8 @@ const CreateUserSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
-  if (!(await assertCallerIsAdmin())) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const session = await assertAdminOnly()
+  if (!session.authorized) return session.response
 
   let body: unknown
   try { body = await request.json() } catch {
