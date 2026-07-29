@@ -1,21 +1,35 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 
 const COOKIE_KEY = 'reci-cookie-consent'
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false)
+  const bannerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     try {
       if (!localStorage.getItem(COOKIE_KEY)) setVisible(true)
     } catch {
-      // Private browsing — show banner
       setVisible(true)
     }
   }, [])
+
+  useEffect(() => {
+    if (!visible || !bannerRef.current) return
+    const el = bannerRef.current
+    const observer = new ResizeObserver(() => {
+      document.body.style.paddingBottom = `${el.offsetHeight}px`
+    })
+    observer.observe(el)
+    document.body.style.paddingBottom = `${el.offsetHeight}px`
+    return () => {
+      observer.disconnect()
+      document.body.style.paddingBottom = ''
+    }
+  }, [visible])
 
   function accept() {
     try { localStorage.setItem(COOKIE_KEY, 'accepted') } catch { /* noop */ }
@@ -31,6 +45,7 @@ export default function CookieBanner() {
 
   return (
     <div
+      ref={bannerRef}
       role="dialog"
       aria-live="polite"
       aria-label="Cookie consent"

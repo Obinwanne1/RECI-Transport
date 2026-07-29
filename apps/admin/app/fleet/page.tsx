@@ -197,7 +197,7 @@ export default function FleetPage() {
 
                 {/* Maintenance badge */}
                 {(() => {
-                  const sev = getMaintenanceSeverity(v.mileage, v.last_service_mileage)
+                  const sev = getMaintenanceSeverity(v.mileage ?? 0, v.last_service_mileage ?? 0)
                   if (!sev) return null
                   const km = (v.mileage ?? 0) - (v.last_service_mileage ?? 0)
                   return (
