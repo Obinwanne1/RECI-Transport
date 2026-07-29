@@ -6,6 +6,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Vehicle } from '@/lib/schemas'
 
+function unsplashUrl(url: string, w: number): string {
+  if (!url.includes('unsplash.com')) return url
+  const base = url.split('?')[0]
+  return `${base}?auto=format&fit=crop&w=${w}&q=80`
+}
+
 const FUEL_BADGES: Record<string, { label: string; cls: string }> = {
   petrol:   { label: 'Petrol',   cls: 'bg-orange-50 text-orange-600 border-orange-100' },
   diesel:   { label: 'Diesel',   cls: 'bg-blue-50 text-blue-600 border-blue-100' },
@@ -29,7 +35,7 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
       <div className="aspect-[16/9] bg-[#F3F4F6] dark:bg-gray-800 relative overflow-hidden">
         {image && !imgError ? (
           <Image
-            src={image}
+            src={unsplashUrl(image, 640)}
             alt={`${make} ${model}`}
             fill
             unoptimized

@@ -36,6 +36,9 @@ export const useVehicleSearch = create<VehicleSearchState>((set, get) => ({
     if (params.dropoff_date) qs.set('dropoff_date', params.dropoff_date)
     if (params.pickup_location_id) qs.set('location_id', params.pickup_location_id)
     if (params.category_slug) qs.set('category_slug', params.category_slug)
+    if (params.fuel_type) qs.set('fuel_type', params.fuel_type)
+    if (params.transmission) qs.set('transmission', params.transmission)
+    if (params.passenger_capacity) qs.set('passenger_capacity', String(params.passenger_capacity))
 
     try {
       const res = await fetch(`/api/vehicles?${qs.toString()}`)

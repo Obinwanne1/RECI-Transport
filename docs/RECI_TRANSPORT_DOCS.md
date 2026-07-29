@@ -1,7 +1,7 @@
 # RECI Transport — Complete System Documentation
 
-**Version:** 1.0  
-**Last Updated:** May 2025  
+**Version:** 1.2  
+**Last Updated:** July 2026  
 **Brand:** RECI Transport, Berlin
 
 ---
@@ -12,6 +12,7 @@
 - [1.1 Welcome to RECI Transport](#11-welcome-to-reci-transport)
 - [1.2 Browsing Vehicles](#12-browsing-vehicles)
 - [1.3 Using the AI Search Assistant](#13-using-the-ai-search-assistant)
+- [1.3a Advanced Filter Search (No AI)](#13a-advanced-filter-search-no-ai)
 - [1.4 The 5-Step Booking Process](#14-the-5-step-booking-process)
 - [1.5 The RECI Rewards Program](#15-the-reci-rewards-program)
 - [1.6 Managing Your Account](#16-managing-your-account)
@@ -34,6 +35,10 @@
 - [2.13 Roles and Permissions Reference](#213-roles-and-permissions-reference)
 - [2.14 Booking Status Reference](#214-booking-status-reference)
 - [2.15 Daily Operations Checklist](#215-daily-operations-checklist)
+- [2.16 AI Verification Reviews (HITL)](#216-ai-verification-reviews-hitl)
+- [2.17 AI Damage Detection](#217-ai-damage-detection)
+- [2.18 AI Driving Licence Verification](#218-ai-driving-licence-verification)
+- [2.19 IoT Integrations Roadmap](#219-iot-integrations-roadmap)
 
 **Part 3 — For Technical Staff**
 - [3.1 Who This Section Is For](#31-who-this-section-is-for)
@@ -44,9 +49,10 @@
 - [3.6 Payments — Stripe](#36-payments--stripe)
 - [3.7 Email — Resend](#37-email--resend)
 - [3.8 AI Features — Anthropic Claude](#38-ai-features--anthropic-claude)
-- [3.9 Common Issues and Fixes](#39-common-issues-and-fixes)
-- [3.10 Webhook Reference](#310-webhook-reference)
-- [3.11 Deployment Notes](#311-deployment-notes)
+- [3.9 AI Vision Adapter — Local/Open-Source Models](#39-ai-vision-adapter--localopen-source-models)
+- [3.10 Common Issues and Fixes](#310-common-issues-and-fixes)
+- [3.11 Webhook Reference](#311-webhook-reference)
+- [3.12 Deployment Notes](#312-deployment-notes)
 
 ---
 
@@ -91,25 +97,50 @@ Above the vehicle grid, you will find category filter buttons. Click any categor
 
 ## 1.3 Using the AI Search Assistant
 
-At the top of the home page, above the date and location fields, is the AI search bar. You can describe your trip in plain language, and the AI will fill in the search form for you.
+The search area at the top of the home page has two modes. A toggle at the top-left of the search card lets you switch between them:
 
-**Examples you can type:**
+- **✦ AI Search** — describe your trip in plain language and the AI fills in the form
+- **⊟ Filters** — use dropdowns to filter by fuel type, transmission, passenger count, and more
+
+By default, AI Search is active.
+
+**Examples you can type in AI Search:**
 
 - "I need a car for 3 days next week"
 - "I'm looking for an SUV from 15 June to 22 June"
 - "Compact car, pick up Friday, return Monday"
 - "Electric car for a week"
 
-After you type your request and press Enter or click the search button, the AI will:
+After you type your request and press Enter, the AI will:
 
 1. Work out your pick-up and drop-off dates from your description
 2. Identify the vehicle category if you mentioned one
 3. Fill in the date fields automatically
 4. Filter the vehicle grid to show matching results
 
-> **Tip:** You do not have to use the AI assistant. You can ignore it entirely and use the manual date and category fields below it — whichever you prefer.
+> **Note:** The AI understands natural language but works best with clear date references. If you say "next Friday", it calculates the date from today. If dates are unclear, the fields remain empty for you to fill manually.
 
-> **Note:** The AI understands natural language but works best with clear date references. If you say "next Friday", it will calculate the date based on today. If the dates are unclear, the fields will remain empty for you to fill manually.
+---
+
+## 1.3a Advanced Filter Search (No AI)
+
+Click the **⊟ Filters** toggle (top-left of the search card) to switch to the structured filter grid. No AI is used — all filtering is done by the options you select.
+
+**Available filters:**
+
+| Filter | Options |
+|---|---|
+| Pick-up Location | Dropdown of available locations |
+| Pick-up Date | Date picker (today or later) |
+| Drop-off Date | Date picker (must be after pick-up) |
+| Vehicle Type | Any / Economy / Compact / SUV / Van |
+| Fuel Type | Any / Petrol / Diesel / Electric / Hybrid |
+| Transmission | Any / Automatic / Manual |
+| Min. Passengers | Any / 2+ / 4+ / 5+ / 7+ |
+
+Select your options and click **Search**. The vehicle grid below updates to show only matching vehicles. Leave a filter on "Any" to include all vehicles for that attribute.
+
+> **Tip:** Use Filters mode if you know exactly what you want and prefer dropdowns over typing. Use AI Search if you want a faster, conversational experience.
 
 ---
 
@@ -368,7 +399,8 @@ The admin portal is separate from the customer website. All management functions
 ## 2.2 Accessing the Admin Portal
 
 **Development (testing) URL:** `http://localhost:3001/admin`  
-**Production URL:** `https://[your-domain].com/admin` (provided by your technical team)
+**Production URL:** `https://admin-umber-seven.vercel.app/admin`  
+**Demo credentials:** `demo@reci-transport.com` / `RecIDemo2026!`
 
 Log in with your staff or admin credentials. If you cannot log in, contact your technical team — your account may need the correct staff role assigned.
 
@@ -752,8 +784,133 @@ Use this checklist to start each day:
 2. If there is a yellow pending alert, click "Review" and action any bookings awaiting payment.
 3. Go to the **Fleet Calendar** and confirm you know which vehicles are being collected and returned today.
 4. Check the **Maintenance** page for any critical or alert-level vehicles. Schedule service for any vehicle at "Alert" or above before its next booking.
-5. As customers collect vehicles, change the booking status from "confirmed" to **Active**.
-6. As customers return vehicles, change the booking status from "active" to **Completed**, and update the vehicle mileage in the Fleet record.
+5. Check the **AI Verification → Reviews** page for any pending licence or damage reviews (red badge on nav). Action these before the relevant booking pickup time.
+6. As customers collect vehicles, change the booking status from "confirmed" to **Active**.
+7. As customers return vehicles, change the booking status from "active" to **Completed**, update the vehicle mileage in the Fleet record, and check Reviews for any newly flagged damage reports.
+
+---
+
+## 2.16 AI Verification Reviews (HITL)
+
+Go to **AI Verification → Reviews** in the left navigation. A red badge shows the count of items waiting for staff action.
+
+**What is Human-in-the-Loop (HITL)?**
+
+RECI Transport uses AI to scan driving licence photos and vehicle damage photos. However, AI results are **never applied automatically** — a staff member must review every AI assessment and either approve or reject it before any action is taken. This protects against AI errors and keeps staff in control of all binding decisions.
+
+The Reviews page has two tabs: **Licence OCR** and **Damage Reports**.
+
+---
+
+### Licence OCR Tab
+
+Each card represents a licence that a customer uploaded during booking. The AI has attempted to extract the driver's details but a staff member must verify before the licence is marked as verified.
+
+**Each card shows:**
+- Customer name and email
+- AI-extracted data: full name, licence number, expiry date
+- Confidence score (percentage)
+- A warning if the extracted name does not match the account name
+- Editable fields — you can correct any field the AI got wrong before approving
+
+**Actions:**
+
+| Button | What it does |
+|---|---|
+| **Verify & Approve** (green) | Marks the licence as verified. Updates the customer's account. The customer is now approved for pickup. |
+| **Reject** (red) | Marks the licence as failed. The customer will need to re-upload or present the licence in person. |
+
+> **Important:** If the AI confidence is low (below ~60%) or the name does not match, review the image carefully before approving. You can correct the name, licence number, or expiry date in the editable fields before clicking Approve — your corrected values are saved, not the AI's.
+
+Once you take an action, the card disappears from the list. The result is locked.
+
+---
+
+### Damage Reports Tab
+
+Each card represents a vehicle inspection (return or pickup) where the AI detected possible new damage. Staff must confirm or dismiss before any dispute is recorded.
+
+**Each card shows:**
+- Booking reference, vehicle, and inspection date
+- 4-photo grid (click any photo to enlarge)
+- AI severity assessment: None / Minor / Major
+- Confidence score
+- AI reasoning — a plain-English explanation of what the AI detected and where
+- Damage location description
+
+**Actions:**
+
+| Button | What it does |
+|---|---|
+| **Confirm Dispute** (red) | Confirms the damage is real. A dispute note is written to the booking record. |
+| **Partial** (yellow) | Confirms some damage but not the full AI assessment. Add a note describing what was agreed. |
+| **No Damage** (green) | Dismisses the AI flag. No dispute is recorded. |
+
+> **Tip:** Always look at the photos yourself. The AI can be fooled by shadows, dirt, or reflections. If unsure, ask a colleague to look before confirming a dispute.
+
+---
+
+## 2.17 AI Damage Detection
+
+When a vehicle is returned, staff upload photos of the vehicle. The AI vision system:
+
+1. Compares return photos against pickup baseline photos
+2. Identifies any new scratches, dents, or damage not present at pickup
+3. Classifies severity: none, minor, or major
+4. Produces a written damage report with location descriptions and confidence score
+
+The result is held in a **pending review** state. No dispute is raised automatically. A staff member must go to **Reviews → Damage Reports** and take action (see 2.16).
+
+This system exists to:
+- Speed up post-return checks
+- Create a documented audit trail with photos and AI reasoning
+- Protect both the customer and the business with a clear human decision on record
+
+**Photos are stored in Supabase Storage** and linked to the inspection record. Both pickup and return photo sets are retained permanently for each booking.
+
+---
+
+## 2.18 AI Driving Licence Verification
+
+During the booking step 3 (Driver Details), customers can upload a photo of their driving licence. The AI reads the licence and extracts:
+
+- Full name
+- Licence number
+- Expiry date
+
+The extracted data is stored alongside the original image. The customer's licence status is set to **pending review** — not verified — until a staff member approves it in **Reviews → Licence OCR** (see 2.16).
+
+**What staff see on the Reviews page:**
+- The AI's extracted values, editable before approval
+- A name-match warning if the name does not match what's on the account
+- Confidence score for the extraction
+
+**After approval:**
+- The customer's account is marked as licence-verified
+- The verified name, licence number, and expiry date are saved to their profile
+- Faster checkout may apply on future bookings (no re-upload needed)
+
+**After rejection:**
+- The customer is notified to present their licence in person at pickup
+- The booking is not cancelled — the pickup still proceeds, but licence is checked manually
+
+---
+
+## 2.19 IoT Integrations Roadmap
+
+Go to **AI Verification → Integrations** in the left navigation.
+
+This page shows the planned hardware integrations that will allow RECI Transport to manage vehicles digitally — keyless access, GPS tracking, and vehicle diagnostics. These are marked **Coming Soon** as they require physical hardware partnerships.
+
+| Integration | Partners | Benefit |
+|---|---|---|
+| Keyless Entry | Sharebox, Keynest | Customers collect cars without staff present — 24/7 pickup |
+| GPS Tracking | Teltonika FMB920, Rewire Security | Real-time vehicle location, geofence alerts, theft recovery |
+| OBD-II Diagnostics | Geotab GO9, Bouncie | Live mileage, fuel level, fault codes from the vehicle itself |
+
+**To request early access** to any integration, click the **Request Access** button on the relevant card. The RECI team will contact you when a hardware partner agreement is in place.
+
+> **Note:** IoT integrations require a compatible OBD-II port on each vehicle (standard on all EU cars manufactured after 2001) and a SIM card installed in the device. Per-vehicle hardware costs apply. Contact the RECI team for a quote.
 
 ---
 
@@ -774,8 +931,8 @@ RECI Transport is a monorepo built with pnpm workspaces and Turborepo.
 ```
 reci-transport/
   apps/
-    web/        # Customer-facing Next.js app (port 3000)
-    admin/      # Admin portal Next.js app (port 3001)
+    web/        # Customer-facing Next.js app (port 3002 local / web-lilac-nine-19.vercel.app)
+    admin/      # Admin portal Next.js app (port 3001 local / admin-umber-seven.vercel.app/admin)
     mobile/     # Mobile app (separate, not covered in this document)
   packages/     # Shared utilities (e.g., price calculation logic)
   supabase/     # Database migrations, seed files, edge functions
@@ -797,6 +954,11 @@ reci-transport/
 **Admin portal authentication:**  
 The admin portal uses Supabase Auth with a JWT claim check. The user's `app_metadata.role` must be set to `staff` or `admin` in Supabase Auth (so the JWT includes the role). The `user_profiles` table must also have the matching role. Both must be set — one alone is insufficient.
 
+Every admin API route additionally calls `assertAdminSession()` from `apps/admin/lib/auth.ts` as a defence-in-depth check inside the handler — not relying on middleware alone.
+
+**Admin portal — mobile responsive:**  
+The admin portal is fully responsive. On mobile, the sidebar is a slide-in drawer triggered by a hamburger button in the top bar. On desktop (`lg:` breakpoint and above), the sidebar is always visible. This is managed by `AdminShell.tsx` — a client component wrapping all authenticated admin pages.
+
 ---
 
 ## 3.3 Environment Variables Reference
@@ -811,9 +973,13 @@ All environment variables must be set in `.env.local` (development) or in your h
 | `STRIPE_SECRET_KEY` | Both (server only) | Stripe secret API key. Never expose to client. | No — server only |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | web | Stripe publishable key — loaded into the payment form | Yes (safe) |
 | `STRIPE_WEBHOOK_SECRET` | web (server only) | Validates incoming Stripe webhook payloads. | No — server only |
-| `ANTHROPIC_API_KEY` | Both (server only) | Claude AI API key. Used for maintenance recommendations, AI search, extras recommendations, and trip co-pilot. | No — server only |
+| `ANTHROPIC_API_KEY` | Both (server only) | Claude AI API key. Used for maintenance recommendations, AI search, extras recommendations, trip co-pilot, damage detection, and licence OCR. | No — server only |
 | `RESEND_API_KEY` | web (server only) | Resend email API key for sending booking confirmations. | No — server only |
 | `RESEND_FROM_EMAIL` | web (server only) | Sender email address (must be from a verified domain in Resend). | No — server only |
+| `AI_VISION_PROVIDER` | web (server only) | Vision AI provider: `anthropic` (default) or `openai-compatible` (for LLaVA, Ollama, LM Studio). | No — server only |
+| `AI_VISION_BASE_URL` | web (server only) | Base URL for OpenAI-compatible vision API. Required when `AI_VISION_PROVIDER=openai-compatible`. Example: `http://localhost:11434/v1` (Ollama). | No — server only |
+| `AI_VISION_MODEL` | web (server only) | Model name for the vision provider. Default: `claude-sonnet-4-6`. For Ollama: `llava` or `llava-v1.6-mistral-7b`. | No — server only |
+| `AI_VISION_API_KEY` | web (server only) | API key for OpenAI-compatible provider. Leave blank for local Ollama/LM Studio (no auth required). | No — server only |
 
 > **Security:** Any variable not prefixed with `NEXT_PUBLIC_` is server-side only and never sent to the browser. Never move a secret variable into a `NEXT_PUBLIC_` prefixed name, as this would expose it to all visitors.
 
@@ -830,14 +996,16 @@ pnpm dev
 ```
 
 This starts:
-- Customer website at `http://localhost:3000`
-- Admin portal at `http://localhost:3001`
+- Customer website at `http://localhost:3002`
+- Admin portal at `http://localhost:3001/admin`
+
+> **Important:** Port 3000 is occupied by an unrelated system process on the development machine. Do not attempt to use or free port 3000. The customer web app intentionally runs on port 3002. `NEXT_PUBLIC_APP_URL` in `apps/web/.env.local` is set to `http://localhost:3002`.
 
 ### Stopping a Process on a Specific Port (Windows)
 
 ```bash
 # Find the PID using the port
-netstat -ano | findstr :3000
+netstat -ano | findstr :3002
 
 # Kill the process (replace 12345 with actual PID)
 taskkill /F /PID 12345
@@ -897,6 +1065,7 @@ node apps/web/create_admin.mjs
 | `availability_blocks` | Manual date blocks on vehicles |
 | `vehicle_categories` | Category definitions (Economy, SUV, etc.) |
 | `locations` | Pick-up and drop-off location records |
+| `api_rate_limits` | DB-backed rate limiting (ip, endpoint, count, reset_at) — serverless-safe |
 
 ### Migrations
 
@@ -976,26 +1145,80 @@ In the Resend dashboard, go to **Logs** to see all send attempts with their stat
 
 **Console:** [https://console.anthropic.com](https://console.anthropic.com)
 
-The Anthropic API key is used in three places:
+The Anthropic API key is used across these features:
 
 | Feature | Route | Model Used |
 |---|---|---|
-| AI search assistant | `POST /api/ai/search` | Claude (latest available) |
-| Extras recommendations | `POST /api/ai/extras-recommend` | Claude |
-| Predictive maintenance notes | `GET /admin/api/admin/maintenance` | Claude |
-| Trip Co-pilot | `POST /api/ai/trip-copilot` (streaming) | Claude |
+| AI search assistant | `POST /api/ai/search` | claude-sonnet-4-6 |
+| Extras recommendations | `POST /api/ai/extras-recommend` | claude-haiku-4-5-20251001 |
+| Predictive maintenance notes | `GET /admin/api/admin/maintenance` | claude-haiku-4-5-20251001 |
+| Trip Co-pilot | `POST /api/ai/trip-copilot` (streaming) | claude-sonnet-4-6 |
+| Damage detection (vision) | `POST /api/ai/damage` | via AI Vision Adapter (see 3.9) |
+| Driving licence OCR (vision) | `POST /api/ai/licence` | via AI Vision Adapter (see 3.9) |
 
 All AI calls are server-side only. The API key is never sent to the browser.
 
 **Soft failure design:**  
-All AI features are designed to fail gracefully. If the Anthropic API is unavailable or returns an error:
+All AI features fail gracefully. If the Anthropic API is unavailable:
 
-- The AI search assistant falls back to showing all vehicles
-- The extras recommendations do not display (the extras page still works)
-- The maintenance page loads without AI notes (mileage-based alerts still appear)
-- The Trip Co-pilot shows an error message but the confirmation page remains functional
+- AI search assistant falls back to showing all vehicles
+- Extras recommendations do not display (the extras page still works)
+- Maintenance page loads without AI notes (mileage-based alerts still appear)
+- Trip Co-pilot shows an error message but the confirmation page remains functional
+- Damage and licence routes return an error — the booking is not blocked, but staff must review manually
 
-This means an Anthropic API outage does not break the core booking flow.
+---
+
+## 3.9 AI Vision Adapter — Local/Open-Source Models
+
+Vision calls (damage detection and licence OCR) go through a provider adapter in `apps/web/lib/ai-vision-adapter.ts`. This allows you to swap Anthropic Claude for any OpenAI-compatible vision model — including local models like LLaVA running in Ollama or LM Studio.
+
+**Why use a local model?**
+- Zero per-call API cost for high-volume fleets
+- Data stays on-premise — photos never leave your server
+- Useful for EU data-residency compliance
+
+### Configuration
+
+Set these variables in `.env.local` (or Vercel project settings for production):
+
+```bash
+# Default (Anthropic Claude — no extra config needed)
+AI_VISION_PROVIDER=anthropic
+
+# Local Ollama (LLaVA running at localhost)
+AI_VISION_PROVIDER=openai-compatible
+AI_VISION_BASE_URL=http://localhost:11434/v1
+AI_VISION_MODEL=llava
+
+# LM Studio (local desktop app)
+AI_VISION_PROVIDER=openai-compatible
+AI_VISION_BASE_URL=http://localhost:1234/v1
+AI_VISION_MODEL=llava-v1.6-mistral-7b
+
+# Remote OpenAI-compatible API (e.g. Together.ai, Groq)
+AI_VISION_PROVIDER=openai-compatible
+AI_VISION_BASE_URL=https://api.together.xyz/v1
+AI_VISION_MODEL=llava-hf/llava-1.5-7b-hf
+AI_VISION_API_KEY=your-api-key-here
+```
+
+### How the Adapter Works
+
+The adapter converts Anthropic-style image blocks to the `image_url` format used by OpenAI-compatible APIs. The calling code (damage and licence routes) does not need to change — only the env vars.
+
+**Supported image inputs:** base64 data URIs and public HTTPS URLs. Both formats work with Anthropic and OpenAI-compatible providers.
+
+### Trade-offs
+
+| Provider | Cost | Privacy | Quality | Setup |
+|---|---|---|---|---|
+| Anthropic (default) | Pay per token | Photos sent to Anthropic | Highest | None (just API key) |
+| LLaVA via Ollama | Free | Stays on your server | Good | Install Ollama + pull model |
+| LM Studio | Free | Stays on your machine | Good | Download LM Studio app |
+| Remote OpenAI-compatible | Pay per token | Depends on provider | Varies | API key |
+
+> **Note:** Local LLaVA models are significantly slower than Claude for the same image analysis (typically 5–30 seconds vs under 3 seconds). This is acceptable for post-return damage checks, but may feel slow for licence OCR during the live booking flow. Consider using Claude for licence OCR and LLaVA only for damage detection if cost is the concern.
 
 ---
 
@@ -1125,6 +1348,16 @@ Events handled:
 
 The project includes a `vercel.json` at the root. The two Next.js apps (`web` and `admin`) are deployed as separate Vercel projects with separate environment variables.
 
+**Live production URLs:**
+
+| App | URL |
+|---|---|
+| Customer portal | `https://web-lilac-nine-19.vercel.app` |
+| Admin portal | `https://admin-umber-seven.vercel.app/admin` |
+| Supabase project | `https://ewrknfmpdifdgxlmqbzi.supabase.co` |
+
+Both apps auto-deploy from the `main` branch on GitHub push.
+
 **Checklist before deploying to production:**
 
 1. All environment variables are set in the Vercel project settings — verify each one.
@@ -1134,6 +1367,7 @@ The project includes a `vercel.json` at the root. The two Next.js apps (`web` an
 5. `RESEND_FROM_EMAIL` uses a domain that is verified in Resend.
 6. Supabase Auth redirect URLs include the production domain.
 7. Run `pnpm build` locally before pushing to confirm there are no TypeScript or build errors.
+8. Apply `supabase/migrations/008_rate_limits.sql` to the production Supabase project if not already applied.
 
 ### After Any Environment Variable Change
 
@@ -1161,7 +1395,7 @@ Always back up the database before applying migrations to production. Supabase p
 
 ## 4. Coming Soon — Planned Features
 
-This section lists features that are planned or partially prepared in the system. Business owners and staff can expect these to be available in future releases.
+This section lists features that are planned but not yet available. Features previously listed here as "Coming Soon" that are now live: AI Damage Detection (see 2.17), AI Driving Licence Verification (see 2.18), Hybrid Search Filters (see 1.3a), Human-in-the-Loop Reviews (see 2.16), and Local AI Vision Adapter (see 3.9).
 
 ---
 
@@ -1194,26 +1428,19 @@ Business partners will receive an API key and can query vehicle availability, pr
 
 ---
 
-### 4.4 AI Damage Detection
+### 4.4 IoT Hardware Integrations
 
-At vehicle pickup and return, staff or customers will be able to upload photos. The system will use AI (Claude vision) to:
-- Compare pickup vs return photos automatically
-- Identify new damage (scratches, dents, etc.)
-- Classify severity as none, minor, or major
-- Generate a written damage report instantly
+See also: section 2.19 for the current Integrations roadmap page in the admin portal.
 
-Admins will be able to review the AI report, view both photo sets side by side, and override the assessment if needed.
+Full IoT integration (Keyless Entry, GPS Tracking, OBD-II Diagnostics) requires hardware device procurement, SIM provisioning, and a partnership agreement with a device vendor. Once hardware is in place, the platform is designed to ingest telemetry via webhooks and surface it in the admin portal.
 
----
+**Planned capabilities after hardware onboarding:**
+- Live vehicle location on the fleet map
+- Customer-initiated keyless pickup via mobile app (no staff required)
+- Automatic mileage sync — no manual odometer entry
+- Low-fuel and fault-code alerts in the admin portal
 
-### 4.5 AI Driving Licence Verification
-
-Customers will be able to upload a photo of their driving licence directly in their account. The AI will:
-- Automatically read the name, date of birth, licence number, and expiry date
-- Verify the information matches their account
-- Flag expired or unclear licences for admin review
-
-Once verified, the customer's account is marked as licence-verified, which may unlock faster checkout on future bookings.
+Contact the RECI team to start the hardware partner onboarding process.
 
 ---
 

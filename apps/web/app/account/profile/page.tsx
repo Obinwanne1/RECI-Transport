@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -24,11 +25,28 @@ const UpdateSchema = z.object({
 type UpdateForm = z.infer<typeof UpdateSchema>
 
 export default function ProfilePage() {
+  const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  async function handleDeleteAccount() {
+    setDeleting(true)
+    setDeleteError(null)
+    const res = await fetch('/api/account/delete', { method: 'DELETE' })
+    if (res.ok) {
+      router.push('/?deleted=1')
+    } else {
+      const data = await res.json().catch(() => ({}))
+      setDeleteError(data.error ?? 'Deletion failed. Contact support@reci-transport.com.')
+      setDeleting(false)
+    }
+  }
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<UpdateForm>({
     resolver: zodResolver(UpdateSchema),
@@ -140,6 +158,40 @@ export default function ProfilePage() {
             {saving ? 'Saving…' : 'Save changes'}
           </button>
         </form>
+      </div>
+      {/* GDPR — right to erasure */}
+      <div className="card border border-red-200 dark:border-red-900">
+        <h2 className="text-base font-semibold text-[#DC2626] mb-1">Delete account</h2>
+        <p className="text-sm text-[#6B7280] dark:text-gray-400 mb-4">
+          Permanently deletes your account and personal data. Booking records are anonymised (retained for legal compliance). This cannot be undone.
+        </p>
+        {deleteError && (
+          <p className="text-sm text-[#DC2626] bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded px-3 py-2 mb-3">{deleteError}</p>
+        )}
+        {!deleteConfirm ? (
+          <button
+            onClick={() => setDeleteConfirm(true)}
+            className="px-4 py-2 text-sm font-medium text-[#DC2626] border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
+            Delete my account
+          </button>
+        ) : (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleting}
+              className="px-4 py-2 text-sm font-semibold bg-[#DC2626] hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+            >
+              {deleting ? 'Deleting…' : 'Confirm — delete permanently'}
+            </button>
+            <button
+              onClick={() => { setDeleteConfirm(false); setDeleteError(null) }}
+              className="text-sm text-[#6B7280] hover:text-[#374151] dark:hover:text-gray-200"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

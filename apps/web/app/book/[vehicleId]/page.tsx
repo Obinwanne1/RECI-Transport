@@ -10,6 +10,11 @@ import { useBookingStore } from '@/hooks/useBookingStore'
 import { calculatePrice } from '@reci/utils'
 import type { Vehicle } from '@/lib/schemas'
 
+function unsplashUrl(url: string, w: number): string {
+  if (!url.includes('unsplash.com')) return url
+  return `${url.split('?')[0]}?auto=format&fit=crop&w=${w}&q=80`
+}
+
 export default function BookStep1Page({ params }: { params: { vehicleId: string } }) {
   const { vehicleId } = params
   const router = useRouter()
@@ -110,7 +115,7 @@ export default function BookStep1Page({ params }: { params: { vehicleId: string 
               <div className="relative aspect-[16/9] bg-[#F3F4F6] dark:bg-gray-800 rounded-md mb-4 overflow-hidden">
                 {vehicle.image_urls?.[0] ? (
                   <Image
-                    src={vehicle.image_urls[0]}
+                    src={unsplashUrl(vehicle.image_urls[0], 800)}
                     alt={`${vehicle.make} ${vehicle.model}`}
                     fill
                     className="object-cover"

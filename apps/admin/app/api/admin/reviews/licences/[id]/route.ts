@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { assertAdminSession } from '@/lib/auth'
+import { logAudit } from '@/lib/audit'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -80,6 +81,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       )
     }
 
+    void logAudit({ adminId: session.userId, adminEmail: session.email, action: 'licence.approved', resource: 'licence_verifications', resourceId: params.id })
     return NextResponse.json({ success: true, action: 'approved' })
   }
 
@@ -97,5 +99,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ error: rejectErr.message }, { status: 500 })
   }
 
+  void logAudit({ adminId: session.userId, adminEmail: session.email, action: 'licence.rejected', resource: 'licence_verifications', resourceId: params.id, details: { note } })
   return NextResponse.json({ success: true, action: 'rejected' })
 }

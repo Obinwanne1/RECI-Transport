@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RECI Transport — Smoke Test &amp; User Journey Document</title>
+<style>
+  /* ── Reset + base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #1a1a1a;
+    background: #fff;
+    padding: 32px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ── Print styles ── */
+  @media print {
+    body { padding: 0; font-size: 11px; }
+    .page-break { page-break-before: always; }
+    .no-print { display: none; }
+    h1, h2 { page-break-after: avoid; }
+    table { page-break-inside: avoid; }
+  }
+
+  /* ── Cover ── */
+  .cover {
+    background: linear-gradient(135deg, #1A2E18 0%, #2d4d29 50%, #407E3C 100%);
+    color: white;
+    padding: 48px 40px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+  }
+  .cover .logo { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .cover .subtitle { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 32px; }
+  .cover h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+  .cover .doc-meta { color: rgba(255,255,255,0.55); font-size: 12px; margin-top: 24px; }
+  .cover .doc-meta span { margin-right: 24px; }
+  .cover .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 8px;
+    margin-top: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Section headers ── */
+  .section-header {
+    background: #407E3C;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 36px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header .num {
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+  }
+
+  h2 { font-size: 15px; font-weight: 700; color: #1A2E18; margin: 28px 0 10px; border-bottom: 2px solid #407E3C; padding-bottom: 6px; }
+  h3 { font-size: 13px; font-weight: 700; color: #2d4d29; margin: 18px 0 8px; }
+
+  /* ── Scenario meta bar ── */
+  .scenario-meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    background: #F9FAFB; border: 1px solid #E5E7EB;
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 12px;
+  }
+  .scenario-meta .label { color: #6B7280; font-weight: 600; }
+  .scenario-meta .val { color: #1a1a1a; font-weight: 500; }
+
+  /* ── Steps table ── */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+  thead tr { background: #1A2E18; color: white; }
+  thead th { padding: 8px 10px; text-align: left; font-weight: 700; font-size: 11px; letter-spacing: 0.3px; }
+  tbody tr { border-bottom: 1px solid #E5E7EB; }
+  tbody tr:nth-child(even) { background: #F9FAFB; }
+  tbody td { padding: 8px 10px; vertical-align: top; }
+  td.step-num { font-weight: 700; color: #407E3C; width: 32px; }
+  td.action { width: 30%; }
+  td.expected { width: 35%; }
+  td.result { width: 18%; }
+  td.notes { width: 17%; color: #6B7280; font-size: 11px; }
+
+  /* ── Checkbox ── */
+  .cb { display: inline-block; width: 14px; height: 14px; border: 2px solid #407E3C; border-radius: 3px; margin-right: 6px; vertical-align: middle; flex-shrink: 0; }
+
+  /* ── Pass/Fail cells ── */
+  .result-cell {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pass-box, .fail-box {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 20px; border-radius: 4px; font-size: 10px; font-weight: 700;
+  }
+  .pass-box { border: 1.5px solid #407E3C; color: #407E3C; }
+  .fail-box { border: 1.5px solid #DC2626; color: #DC2626; }
+
+  /* ── Summary table ── */
+  .summary-table table { margin: 0; }
+  .summary-table thead tr { background: #2d4d29; }
+
+  /* ── Note boxes ── */
+  .note {
+    background: #FEF9C3; border-left: 4px solid #EAB308;
+    padding: 10px 14px; border-radius: 0 6px 6px 0;
+    font-size: 12px; margin: 12px 0; color: #713F12;
+  }
+  .note strong { color: #92400E; }
+  .prereq {
+    background: #EFF6FF; border-left: 4px solid #3B82F6;
+    padding: 10px 14px; border-radius: 0 6px 6px 0;
+    font-size: 12px; margin: 12px 0; color: #1E3A5F;
+  }
+  .prereq strong { display: block; color: #1D4ED8; font-weight: 700; margin-bottom: 4px; }
+  .prereq ul { margin: 0; padding-left: 16px; }
+  .prereq li { margin-bottom: 2px; }
+
+  /* ── Legend ── */
+  .legend { display: flex; gap: 20px; margin: 16px 0; font-size: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+
+  /* ── Footer ── */
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 2px solid #E5E7EB; font-size: 11px; color: #9CA3AF; text-align: center; }
+  .footer strong { color: #407E3C; }
+
+  /* ── Signature block ── */
+  .sign-block {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px; margin-top: 32px;
+  }
+  .sign-row {
+    border-top: 1.5px solid #9CA3AF;
+    padding-top: 6px; font-size: 11px; color: #6B7280;
+  }
+
+  code { background: #F3F4F6; padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="logo">RECI Transport</div>
+  <div class="subtitle">Berlin's AI-Native Vehicle Rental Platform</div>
+  <h1>Smoke Test &amp; User Journey Document</h1>
+  <p style="color:rgba(255,255,255,0.7); margin-top:8px;">End-to-end acceptance tests covering core flows and all client-feedback improvements implemented July 2026</p>
+  <div>
+    <span class="tag">v1.2 — July 2026</span>
+    <span class="tag">HITL Reviews</span>
+    <span class="tag">Hybrid Search</span>
+    <span class="tag">AI Vision Adapter</span>
+    <span class="tag">IoT Roadmap</span>
+  </div>
+  <div class="doc-meta">
+    <span><strong>Web app:</strong> http://localhost:3000</span>
+    <span><strong>Admin portal:</strong> http://localhost:3001/admin</span>
+    <span><strong>Supabase:</strong> ewrknfmpdifdgxlmqbzi.supabase.co</span>
+  </div>
+</div>
+
+<!-- HOW TO USE -->
+<h2>How to Use This Document</h2>
+<p>Work through each scenario in order. For each step: perform the action, compare the result to the Expected column, then tick Pass or Fail. If a step fails, note the error in the Notes column before continuing to the next scenario.</p>
+
+<div class="legend">
+  <div class="legend-item"><span class="pass-box">P</span> Step passed — result matches expected</div>
+  <div class="legend-item"><span class="fail-box">F</span> Step failed — note the deviation</div>
+  <div class="legend-item"><span class="cb"></span> Manual checkbox to tick off</div>
+</div>
+
+<div class="note"><strong>Before starting:</strong> Confirm both servers are running (<code>pnpm exec turbo run dev --parallel</code>), Supabase is awake (check Supabase Dashboard), and Stripe CLI is forwarding webhooks (<code>stripe listen --forward-to localhost:3000/api/webhooks/stripe</code>).</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENARIO 1 — AI SEARCH
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header"><span class="num">1</span> Scenario 1 — AI Conversational Search</div>
+
+<div class="scenario-meta">
+  <div><span class="label">URL: </span><span class="val">http://localhost:3000</span></div>
+  <div><span class="label">Role: </span><span class="val">Guest (not logged in)</span></div>
+  <div><span class="label">Feature: </span><span class="val">AI Search toggle + conversational vehicle search</span></div>
+  <div><span class="label">Est. time: </span><span class="val">3 min</span></div>
+</div>
+
+<table>
+  <thead><tr><th>#</th><th class="action">Action</th><th class="expected">Expected Result</th><th class="result">Pass / Fail</th><th class="notes">Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="step-num">1</td><td>Open <code>http://localhost:3000</code></td><td>Home page loads. Hero section shows green gradient. Vehicle grid shows below. Search card visible with two toggle buttons: "✦ AI Search" and "⊟ Filters".</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">2</td><td>Confirm "✦ AI Search" toggle is active (green background)</td><td>AI Search button has green <code>#407E3C</code> background. Filters button is grey. AgentChat input box is visible inside the search card.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">3</td><td>Type: <em>"I need an SUV from next Monday for 5 days"</em> and press Enter</td><td>AI thinking indicator appears. After response: pickup and drop-off date fields fill automatically. Vehicle grid filters to show only SUV-category vehicles.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">4</td><td>Check the vehicle grid after AI response</td><td>Grid shows only SUV vehicles (Toyota RAV4, Audi Q5 or similar). Non-SUV vehicles are hidden.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">5</td><td>Click a category filter chip above the grid (e.g. "Economy")</td><td>Grid filters to Economy vehicles only. Dates from AI step remain in the search widget.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENARIO 2 — HYBRID FILTER SEARCH
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header"><span class="num">2</span> Scenario 2 — Hybrid Filter Search (No AI)</div>
+
+<div class="scenario-meta">
+  <div><span class="label">URL: </span><span class="val">http://localhost:3000</span></div>
+  <div><span class="label">Role: </span><span class="val">Guest</span></div>
+  <div><span class="label">Feature: </span><span class="val">⊟ Filters toggle — structured filter grid</span></div>
+  <div><span class="label">Client concern addressed: </span><span class="val">Users who prefer dropdowns over AI chat</span></div>
+</div>
+
+<table>
+  <thead><tr><th>#</th><th class="action">Action</th><th class="expected">Expected Result</th><th class="result">Pass / Fail</th><th class="notes">Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="step-num">1</td><td>Click the "⊟ Filters" toggle button (top-left of search card)</td><td>Toggle switches to Filters mode (green background). AgentChat disappears. A structured form appears with: Location, Pick-up Date, Drop-off Date, Vehicle Type, Fuel Type, Transmission, Min. Passengers dropdowns.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">2</td><td>Set Fuel Type = "Electric", leave all other filters on "Any" / blank. Click Search.</td><td>Vehicle grid updates to show only electric vehicles (e.g. Renault Clio Electric). Petrol/diesel/hybrid vehicles hidden.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">3</td><td>Set Transmission = "Automatic" (keep Fuel = Electric). Click Search.</td><td>Grid shows only electric + automatic vehicles. Should be 1–2 results.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">4</td><td>Set Min. Passengers = "7+", Fuel = "Any", Transmission = "Any". Click Search.</td><td>Grid shows only vehicles with passenger_capacity ≥ 7 (Toyota RAV4 or Van category). Economy and Compact cards hidden.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">5</td><td>Set a Drop-off date BEFORE the Pick-up date. Click Search.</td><td>Red error message appears: "Drop-off must be after pick-up". Search does not fire. Vehicle grid unchanged.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">6</td><td>Switch back to "✦ AI Search" toggle</td><td>Filter form disappears. AgentChat input reappears. Vehicle grid resets to show all vehicles.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENARIO 3 — FULL BOOKING FLOW
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header"><span class="num">3</span> Scenario 3 — Complete Booking Flow (5 Steps)</div>
+
+<div class="scenario-meta">
+  <div><span class="label">URL: </span><span class="val">http://localhost:3000 → booking flow</span></div>
+  <div><span class="label">Role: </span><span class="val">Logged-in customer</span></div>
+  <div><span class="label">Stripe test card: </span><span class="val">4242 4242 4242 4242 | Any future date | Any CVC</span></div>
+  <div><span class="label">Est. time: </span><span class="val">8 min</span></div>
+</div>
+
+<div class="prereq"><strong>Prerequisites</strong>
+  <ul>
+    <li>Customer account exists and is logged in</li>
+    <li>Stripe CLI running: <code>stripe listen --forward-to localhost:3000/api/webhooks/stripe</code></li>
+    <li>At least one active vehicle in fleet</li>
+  </ul>
+</div>
+
+<table>
+  <thead><tr><th>#</th><th class="action">Action</th><th class="expected">Expected Result</th><th class="result">Pass / Fail</th><th class="notes">Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="step-num">1</td><td>Click any vehicle card on the home page → click "Book Now"</td><td>Redirected to <code>/book/[vehicleId]</code>. Step 1 of 5 shown. Vehicle image, specs, and price/day visible.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">2</td><td>Set Pick-up date = tomorrow, Drop-off date = 3 days later. Click "Continue to Extras".</td><td>Price preview updates: 3 × daily_rate shown. Step 2 loads (Extras).</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">3</td><td>Add one extra (e.g. GPS). Click "Continue to Driver Details".</td><td>Order summary shows base price + GPS add-on. Step 3 loads (Driver Details form).</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">4</td><td>Fill in: First name, Last name, Email, Phone, Licence number. Click "Continue to Payment".</td><td>Step 4 loads. Stripe payment form visible. Order total matches Step 2 summary.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">5</td><td>Enter Stripe test card: 4242 4242 4242 4242, any future date, any CVC. Click Pay.</td><td>"Processing…" shown. After 2–5 seconds, redirected to confirmation page.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">6</td><td>Check confirmation page</td><td>Green tick. Booking reference shown (e.g. RECI-2026-XXXXX). Vehicle, dates, driver name, total all visible. "Trip Co-pilot" section appears below.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">7</td><td>Check admin portal → Bookings</td><td>New booking appears with status "confirmed". Booking reference matches confirmation page.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">8</td><td>Check customer's loyalty points (Account → Rewards)</td><td>Points balance increased by the booking total (1 point per €1 spent).</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENARIO 4 — LICENCE OCR + HITL REVIEW
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header page-break"><span class="num">4</span> Scenario 4 — Driving Licence OCR + HITL Staff Review</div>
+
+<div class="scenario-meta">
+  <div><span class="label">Feature: </span><span class="val">AI Licence OCR → pending state → Admin review → approve</span></div>
+  <div><span class="label">Client concern addressed: </span><span class="val">AI liability — no auto-verification without human sign-off</span></div>
+  <div><span class="label">Roles: </span><span class="val">Customer (uploads licence) → Staff (reviews + approves)</span></div>
+</div>
+
+<div class="prereq"><strong>Prerequisites</strong>
+  <ul>
+    <li>A test driving licence image (photo or scan of any document works for testing)</li>
+    <li>Customer logged in on the web app, in the booking flow at Step 3 (Driver Details)</li>
+    <li>Admin portal open in a second browser tab, logged in as staff/admin</li>
+  </ul>
+</div>
+
+<table>
+  <thead><tr><th>#</th><th class="action">Action</th><th class="expected">Expected Result</th><th class="result">Pass / Fail</th><th class="notes">Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="step-num">1</td><td>On Step 3 of booking, upload a driving licence photo using the licence upload field</td><td>Upload progress shows. After a few seconds, a response appears: <em>"Licence submitted for review — staff will verify before your pickup."</em> No "verified" message.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">2</td><td>Check Supabase: <code>licence_verifications</code> table for the new row</td><td>Row exists with <code>status = 'pending'</code>. <code>admin_override</code> is NULL. <code>verified_at</code> is NULL.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">3</td><td>Check Supabase: <code>user_profiles</code> for the customer's row</td><td><code>licence_verified = false</code>. NOT automatically set to true. (This is the HITL guard.)</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">4</td><td>In admin portal, check the sidebar nav "Reviews" link</td><td>Red badge with count ≥ 1 visible on the Reviews nav item in the "AI Verification" section.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">5</td><td>Click "Reviews" → go to the "Licence OCR" tab</td><td>A card appears for the uploaded licence. Shows: customer name, email, AI-extracted name/licence number/expiry, confidence %, editable fields.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">6</td><td>Edit the "Name" field on the card to correct any AI extraction error (or leave as-is if correct). Click "Verify &amp; Approve".</td><td>Card disappears from the list. Badge count decrements.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">7</td><td>Check Supabase: <code>licence_verifications</code> row again</td><td><code>status = 'verified'</code>. <code>admin_override = true</code>. <code>verified_at</code> is set to now.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">8</td><td>Check Supabase: <code>user_profiles</code> for the customer</td><td><code>licence_verified = true</code>. Now set — only after staff approval.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">9</td><td>Repeat steps 1–4 with a second licence upload. On step 6, click "Reject" instead of Approve.</td><td>Card disappears. In Supabase: <code>status = 'failed'</code>, <code>admin_override = false</code>. <code>user_profiles.licence_verified</code> remains false.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENARIO 5 — DAMAGE DETECTION + HITL REVIEW
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header page-break"><span class="num">5</span> Scenario 5 — Vehicle Damage Detection + HITL Staff Review</div>
+
+<div class="scenario-meta">
+  <div><span class="label">Feature: </span><span class="val">AI Damage vision scan → pending_review → Admin confirms/dismisses dispute</span></div>
+  <div><span class="label">Client concern addressed: </span><span class="val">AI liability — no auto-dispute without human decision</span></div>
+  <div><span class="label">Roles: </span><span class="val">Staff (uploads inspection photos) → Staff (reviews AI report)</span></div>
+</div>
+
+<div class="prereq"><strong>Prerequisites</strong>
+  <ul>
+    <li>An existing <strong>active</strong> booking in the system (status = active)</li>
+    <li>Test photos ready: 2–4 photos of a vehicle (use any car photos; for a real damage test, use a photo with a visible scratch)</li>
+    <li>Admin portal open, logged in</li>
+  </ul>
+</div>
+
+<table>
+  <thead><tr><th>#</th><th class="action">Action</th><th class="expected">Expected Result</th><th class="result">Pass / Fail</th><th class="notes">Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="step-num">1</td><td>Via API or booking detail page: trigger a damage inspection by POSTing to <code>/api/ai/damage</code> with <code>booking_id</code> and 2–4 base64 or URL photos</td><td>API returns JSON with: <code>dispute_raised: false</code>, <code>pending_review: true/false</code>, damage report with severity and confidence. No dispute written to booking notes.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">2</td><td>Check Supabase: <code>vehicle_inspections</code> table for the new row</td><td>Row exists. <code>ai_damage_report</code> JSONB column has <code>pending_review: true</code> (if damage detected) or <code>pending_review: false</code> (if no damage). <code>admin_override</code> is NULL.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">3</td><td>Check Supabase: <code>bookings</code> table for the booking's <code>notes</code> field</td><td><code>notes</code> is NULL or unchanged. No dispute note auto-written. (This is the HITL guard.)</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">4</td><td>In admin portal → Reviews → "Damage Reports" tab</td><td>Card appears for the inspection (if <code>pending_review = true</code>). Shows: vehicle, booking ref, 4-photo grid, AI severity badge, confidence score, reasoning text.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">5</td><td>Click "Confirm Dispute" on the damage card</td><td>Card disappears. Modal or inline confirmation accepted.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">6</td><td>Check Supabase: <code>vehicle_inspections</code> row</td><td><code>admin_override = true</code>. <code>admin_override_at</code> is set.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">7</td><td>Check Supabase: <code>bookings</code> row for the related booking</td><td><code>notes</code> field now contains a dispute text written by the PATCH endpoint.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">8</td><td>Trigger another inspection. On the Reviews card, click "No Damage" (dismiss).</td><td>Card disappears. In Supabase: <code>admin_override = false</code>. <code>bookings.notes</code> remains NULL / unchanged. No dispute raised.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENARIO 6 — LOCAL AI VISION ADAPTER
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header page-break"><span class="num">6</span> Scenario 6 — Local AI Vision Adapter (LLaVA / Ollama)</div>
+
+<div class="scenario-meta">
+  <div><span class="label">Feature: </span><span class="val">Swap vision model from Anthropic Claude to local LLaVA via env var</span></div>
+  <div><span class="label">Client concern addressed: </span><span class="val">API cost at scale — high-volume fleets can use local models at zero per-call cost</span></div>
+  <div><span class="label">Env file: </span><span class="val">apps/web/.env.local</span></div>
+</div>
+
+<div class="prereq"><strong>Prerequisites</strong>
+  <ul>
+    <li>Ollama installed locally: <a href="https://ollama.com">https://ollama.com</a></li>
+    <li>LLaVA model pulled: run <code>ollama pull llava</code> in a terminal</li>
+    <li>Ollama running: <code>ollama serve</code> (listens on port 11434 by default)</li>
+  </ul>
+</div>
+
+<div class="note"><strong>Skip this scenario</strong> if Ollama is not installed. The Anthropic provider (default) was already tested in Scenarios 4 and 5. This scenario only verifies the swap mechanism.</div>
+
+<table>
+  <thead><tr><th>#</th><th class="action">Action</th><th class="expected">Expected Result</th><th class="result">Pass / Fail</th><th class="notes">Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="step-num">1</td><td>Edit <code>apps/web/.env.local</code> — add:<br><code>AI_VISION_PROVIDER=openai-compatible</code><br><code>AI_VISION_BASE_URL=http://localhost:11434/v1</code><br><code>AI_VISION_MODEL=llava</code></td><td>File saved. No syntax errors.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">2</td><td>Restart the web dev server (kill port 3000, then <code>pnpm exec turbo run dev</code>)</td><td>Server starts. Console shows no startup errors.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">3</td><td>POST a licence image to <code>/api/ai/licence</code> (via browser booking flow or curl with a base64 image)</td><td>Response received (may take 5–30 seconds with local LLaVA). JSON has <code>status: "pending"</code> and extracted fields. No Anthropic API calls made (verify in Anthropic console — no new usage).</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">4</td><td>Check server logs (terminal running <code>pnpm dev</code>) for any errors</td><td>No "fetch failed" or "connection refused" errors. If Ollama returned a result, logs show the route completed successfully.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">5</td><td>Revert <code>.env.local</code>: remove the 3 added lines (or set <code>AI_VISION_PROVIDER=anthropic</code>). Restart server.</td><td>Server restarts. Anthropic is the active provider again. Subsequent vision calls use Claude.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENARIO 7 — ADMIN CORE FUNCTIONS
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header page-break"><span class="num">7</span> Scenario 7 — Admin Portal Core Functions</div>
+
+<div class="scenario-meta">
+  <div><span class="label">URL: </span><span class="val">http://localhost:3001/admin</span></div>
+  <div><span class="label">Role: </span><span class="val">Admin (role = admin in both user_profiles + app_metadata)</span></div>
+  <div><span class="label">Est. time: </span><span class="val">10 min</span></div>
+</div>
+
+<table>
+  <thead><tr><th>#</th><th class="action">Action</th><th class="expected">Expected Result</th><th class="result">Pass / Fail</th><th class="notes">Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="step-num">1</td><td>Navigate to <code>http://localhost:3001/admin</code></td><td>Redirected to <code>/admin/auth/login</code>. Login form with RECI branding shown.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">2</td><td>Log in with admin credentials</td><td>Redirected to <code>/admin/dashboard</code>. Sidebar visible with all nav items: Dashboard, Bookings, Fleet, Calendar, Customers, Pricing, Availability, Maintenance, Settings, AI Verification section (Reviews + Integrations), Admin section (Users).</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">3</td><td>Check dashboard KPI cards</td><td>Four cards visible: Pickups Today, Monthly Revenue, Active Bookings, Fleet Size. All show numeric values (not "—" or error).</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">4</td><td>Click "Bookings" in nav → find the test booking from Scenario 3 → click it</td><td>Booking detail page loads. All fields visible. Status update buttons present.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">5</td><td>Update booking status from "confirmed" → "active"</td><td>Status badge updates immediately. Timeline shows the transition.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">6</td><td>Go to Fleet → click any vehicle → click Edit</td><td>Vehicle edit form loads with all current values pre-filled.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">7</td><td>Go to Calendar</td><td>FullCalendar resource timeline loads. Vehicles as rows, bookings as colour blocks. Navigation arrows work.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">8</td><td>Go to Pricing → add a new base rate for Economy category (e.g. €65/day)</td><td>New rate appears in table with "Current" badge. Old rate shows "Superseded".</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">9</td><td>Go to Maintenance</td><td>Page loads. If any vehicles have mileage set, flagged vehicles appear with severity badges and AI recommendation text.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENARIO 8 — IOT INTEGRATIONS ROADMAP PAGE
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header"><span class="num">8</span> Scenario 8 — IoT Integrations Roadmap Page</div>
+
+<div class="scenario-meta">
+  <div><span class="label">URL: </span><span class="val">http://localhost:3001/admin/integrations</span></div>
+  <div><span class="label">Role: </span><span class="val">Staff or Admin</span></div>
+  <div><span class="label">Client concern addressed: </span><span class="val">Missing IoT integration — roadmap communicates planned hardware partnerships</span></div>
+</div>
+
+<table>
+  <thead><tr><th>#</th><th class="action">Action</th><th class="expected">Expected Result</th><th class="result">Pass / Fail</th><th class="notes">Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="step-num">1</td><td>In admin sidebar, click "Integrations" under AI Verification</td><td>Integrations page loads at <code>/admin/integrations</code>. Page title "IoT Integrations" visible. Yellow info banner explains hardware requirements.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">2</td><td>Check for Keyless Entry card</td><td>Card shows "Keyless Entry" with partners Sharebox / Keynest listed. "Coming Soon" badge visible. "Request Access" button present (but disabled).</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">3</td><td>Check for GPS Tracking card</td><td>Card shows "GPS Tracking" with Teltonika FMB920 / Rewire Security. "Coming Soon" badge. Benefits listed (real-time location, geofence alerts).</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">4</td><td>Check for OBD-II card</td><td>Card shows "OBD-II Diagnostics" with Geotab GO9 / Bouncie. "Coming Soon" badge. Benefits listed (live mileage, fuel level, fault codes).</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">5</td><td>Click "Request Access" on any card</td><td>Button is disabled (cursor not-allowed or visually disabled). No form submits. This is intentional — access requests handled offline.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENARIO 9 — NEGATIVE / EDGE CASES
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header page-break"><span class="num">9</span> Scenario 9 — Negative Tests &amp; Edge Cases</div>
+
+<div class="scenario-meta">
+  <div><span class="label">Purpose: </span><span class="val">Verify error handling and guard rails work correctly</span></div>
+</div>
+
+<table>
+  <thead><tr><th>#</th><th class="action">Action</th><th class="expected">Expected Result</th><th class="result">Pass / Fail</th><th class="notes">Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="step-num">1</td><td>Try to access admin portal without logging in: <code>http://localhost:3001/admin/dashboard</code></td><td>Redirected to <code>/admin/auth/login</code>. Dashboard not accessible.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">2</td><td>Log in to admin portal as a "staff" role user (not admin). Check sidebar.</td><td>"Admin → Users" section NOT visible in sidebar. All other nav items visible.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">3</td><td>In booking flow Step 1: set Drop-off date = same day as Pick-up.</td><td>Error shown: drop-off must be at least 1 day after pick-up. Cannot proceed.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">4</td><td>In booking flow Step 4: enter declined Stripe card: <code>4000 0000 0000 0002</code></td><td>Payment fails. Error message: "Your card was declined." Booking not confirmed. Can retry.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">5</td><td>Access customer website while Supabase is paused (if testable)</td><td>Vehicle grid shows mock data (fallback). No crash. Error boundary does NOT trigger for the main grid.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td>Supabase must be paused to test</td></tr>
+    <tr><td class="step-num">6</td><td>Set <code>AI_VISION_PROVIDER=openai-compatible</code> without setting <code>AI_VISION_BASE_URL</code>. Trigger a licence upload.</td><td>API returns error response. Booking flow is NOT blocked — error shown but user can continue and present licence in person.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+    <tr><td class="step-num">7</td><td>On Reviews page with no pending items</td><td>Each tab shows an empty state message (e.g. "No pending reviews"). No errors. Badge disappears from nav.</td><td><span class="pass-box">P</span> <span class="fail-box">F</span></td><td></td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     RESULTS SUMMARY
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-header page-break"><span class="num">✓</span> Test Results Summary</div>
+
+<div class="summary-table">
+<table>
+  <thead><tr><th style="width:4%">#</th><th style="width:36%">Scenario</th><th style="width:10%">Total Steps</th><th style="width:10%">Passed</th><th style="width:10%">Failed</th><th style="width:30%">Notes / Blockers</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>AI Conversational Search</td><td>5</td><td></td><td></td><td></td></tr>
+    <tr><td>2</td><td>Hybrid Filter Search</td><td>6</td><td></td><td></td><td></td></tr>
+    <tr><td>3</td><td>Full Booking Flow (5 Steps)</td><td>8</td><td></td><td></td><td></td></tr>
+    <tr><td>4</td><td>Licence OCR + HITL Review</td><td>9</td><td></td><td></td><td></td></tr>
+    <tr><td>5</td><td>Damage Detection + HITL Review</td><td>8</td><td></td><td></td><td></td></tr>
+    <tr><td>6</td><td>Local AI Vision Adapter</td><td>5</td><td></td><td></td><td></td></tr>
+    <tr><td>7</td><td>Admin Portal Core Functions</td><td>9</td><td></td><td></td><td></td></tr>
+    <tr><td>8</td><td>IoT Integrations Roadmap Page</td><td>5</td><td></td><td></td><td></td></tr>
+    <tr><td>9</td><td>Negative Tests &amp; Edge Cases</td><td>7</td><td></td><td></td><td></td></tr>
+    <tr style="background:#F9FAFB; font-weight:700;"><td></td><td>TOTAL</td><td>62</td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+</div>
+
+<br>
+
+<table>
+  <thead><tr><th style="width:25%">Overall Result</th><th style="width:25%">Tested By</th><th style="width:25%">Date</th><th style="width:25%">Environment</th></tr></thead>
+  <tbody>
+    <tr style="height:40px"><td></td><td></td><td></td><td>☐ Local dev &nbsp; ☐ Staging &nbsp; ☐ Production</td></tr>
+  </tbody>
+</table>
+
+<!-- SIGN-OFF -->
+<h2 style="margin-top:32px">Sign-off</h2>
+<div class="sign-block">
+  <div class="sign-row">Tested by<br><br><br></div>
+  <div class="sign-row">Reviewed by<br><br><br></div>
+  <div class="sign-row">Approved by<br><br><br></div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <strong>RECI Transport</strong> — Smoke Test &amp; User Journey Document v1.2 — July 2026<br>
+  To print as PDF: open in browser → File → Print → Save as PDF (set margins to Minimum / None, enable Background graphics)
+</div>
+
+</body>
+</html>

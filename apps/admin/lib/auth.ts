@@ -7,6 +7,7 @@ export type AdminRole = 'admin' | 'staff'
 export interface AuthorizedSession {
   authorized: true
   userId: string
+  email: string
   role: AdminRole
 }
 
@@ -36,7 +37,7 @@ export async function assertAdminSession(): Promise<SessionResult> {
       return { authorized: false, response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) }
     }
 
-    return { authorized: true, userId: user.id, role: profile.role as AdminRole }
+    return { authorized: true, userId: user.id, email: user.email ?? '', role: profile.role as AdminRole }
   } catch {
     return { authorized: false, response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
   }
