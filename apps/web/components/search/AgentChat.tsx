@@ -223,6 +223,30 @@ export default function AgentChat({ onSearchParams }: AgentChatProps) {
         </div>
       )}
 
+      {/* Prompt chips — shown only before first message */}
+      {messages.length === 0 && !loading && (
+        <div className="flex flex-wrap gap-2 mb-3">
+          {[
+            'Electric car for a weekend road trip',
+            'Van for moving a sofa in Mitte',
+            'Automatic car available next Friday',
+            'SUV for 5 people this weekend',
+          ].map((chip) => (
+            <button
+              key={chip}
+              type="button"
+              onClick={() => {
+                setInput(chip)
+                setTimeout(() => inputRef.current?.focus(), 0)
+              }}
+              className="text-xs px-3 py-1.5 rounded-full border border-[#407E3C]/40 text-[#407E3C] dark:text-[#5a9e56] bg-[#407E3C]/5 dark:bg-[#407E3C]/10 hover:bg-[#407E3C]/15 transition-colors font-medium"
+            >
+              {chip}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Input */}
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input

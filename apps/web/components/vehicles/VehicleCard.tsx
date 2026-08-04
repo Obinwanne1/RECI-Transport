@@ -104,13 +104,20 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
               <span className="text-sm text-[#9CA3AF]">Price on request</span>
             )}
           </div>
-          <Link
-            href={`/book/${id}`}
-            className="relative z-10 bg-[#407E3C] hover:bg-[#356834] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Book Now
-          </Link>
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            <Link
+              href={`/vehicles/${id}`}
+              className="relative z-10 text-sm font-semibold text-[#407E3C] dark:text-[#5a9e56] px-3 py-2.5 rounded-xl border border-[#407E3C]/30 hover:bg-[#407E3C]/5 transition-colors"
+            >
+              Details
+            </Link>
+            <Link
+              href={`/book/${id}`}
+              className="relative z-10 bg-[#407E3C] hover:bg-[#356834] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+            >
+              Book Now
+            </Link>
+          </div>
         </div>
       </div>
     </div>

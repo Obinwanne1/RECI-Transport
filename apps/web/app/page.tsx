@@ -55,6 +55,25 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Trust bar */}
+      <div className="bg-white/10 dark:bg-black/10 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex flex-wrap justify-center sm:justify-start gap-x-8 gap-y-2">
+            {[
+              { icon: '🛡️', label: 'Insurance included' },
+              { icon: '✅', label: 'Free cancellation up to 48h' },
+              { icon: '⚡', label: 'Instant confirmation' },
+              { icon: '📍', label: '3 Berlin pickup locations' },
+            ].map(({ icon, label }) => (
+              <span key={label} className="flex items-center gap-1.5 text-xs text-white/80 font-medium">
+                <span>{icon}</span>
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Search Card — overlaps hero */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10 mb-10">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-[#E5E7EB] dark:border-gray-700 overflow-hidden">
