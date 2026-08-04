@@ -102,20 +102,19 @@ export default function OGImage() {
             gap: '20px',
           }}
         >
-          <p
+          <div
             style={{
+              display: 'flex',
+              flexDirection: 'column',
               fontSize: '64px',
               fontWeight: 800,
-              color: '#ffffff',
               lineHeight: 1.1,
-              margin: 0,
               letterSpacing: '-1.5px',
             }}
           >
-            Vehicle Rental
-            <br />
+            <span style={{ color: '#ffffff' }}>Vehicle Rental</span>
             <span style={{ color: '#407E3C' }}>in Berlin.</span>
-          </p>
+          </div>
 
           <p
             style={{
