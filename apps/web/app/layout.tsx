@@ -33,20 +33,11 @@ export const metadata: Metadata = {
     siteName: 'RECI Transport',
     title: 'RECI Transport — AI-Powered Vehicle Rental in Berlin',
     description: 'Book cars, vans, and trucks in Berlin with AI-powered search. Instant confirmation, flexible extras, corporate accounts available.',
-    images: [
-      {
-        url: `${BASE_URL}/og-image.png`,
-        width: 1200,
-        height: 630,
-        alt: 'RECI Transport — AI-Powered Vehicle Rental in Berlin',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'RECI Transport — AI-Powered Vehicle Rental in Berlin',
     description: 'Book vehicles in Berlin with AI-powered search.',
-    images: [`${BASE_URL}/og-image.png`],
   },
   robots: {
     index: true,
