@@ -187,13 +187,13 @@ export default function MaintenancePage() {
                         <span>Last serviced: {new Date(v.last_service_date).toLocaleDateString('en-DE', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                       )}
                       {v.category && <span>{v.category.name}</span>}
-                      {v.location && <span>📍 {v.location.name}</span>}
+                      {v.location && <span>{v.location.name}</span>}
                     </div>
 
                     {/* AI recommendation */}
                     {v.ai_note && (
                       <div className="flex items-start gap-2 p-2.5 bg-[#F9FAFB] dark:bg-gray-800 border border-[#E5E7EB] dark:border-gray-700 rounded-lg">
-                        <span className="text-sm shrink-0 mt-0.5">🤖</span>
+                        <svg className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#9CA3AF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
                         <p className="text-xs text-[#374151] dark:text-gray-300">{v.ai_note}</p>
                       </div>
                     )}

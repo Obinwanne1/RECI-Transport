@@ -3,7 +3,7 @@
 const INTEGRATIONS = [
   {
     category: 'Keyless Entry',
-    icon: '🔑',
+    icon: null,
     items: [
       {
         name: 'Sharebox API',
@@ -21,7 +21,7 @@ const INTEGRATIONS = [
   },
   {
     category: 'GPS Tracking',
-    icon: '📍',
+    icon: null,
     items: [
       {
         name: 'Teltonika FMB920',
@@ -39,7 +39,7 @@ const INTEGRATIONS = [
   },
   {
     category: 'OBD-II Telemetry',
-    icon: '⚙️',
+    icon: null,
     items: [
       {
         name: 'Geotab GO9',
@@ -81,7 +81,6 @@ export default function IntegrationsPage() {
         {INTEGRATIONS.map((group) => (
           <section key={group.category}>
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-xl">{group.icon}</span>
               <h2 className="text-lg font-bold text-[#1A1A1A]">{group.category}</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

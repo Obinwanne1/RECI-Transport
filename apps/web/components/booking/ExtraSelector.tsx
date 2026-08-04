@@ -55,7 +55,7 @@ export default function ExtraSelector({ extras, days, recommendations = [] }: Ex
               : 'bg-[#F9FAFB] text-[#6B7280] border border-[#E5E7EB]'
           }`}
         >
-          ✦ {rec.priority === 'high' ? 'AI Recommended' : 'Suggested'}
+          {rec.priority === 'high' ? 'Recommended' : 'Suggested'}
         </span>
         <span className="text-xs text-[#9CA3AF]">{rec.reason}</span>
       </div>
@@ -104,8 +104,7 @@ export default function ExtraSelector({ extras, days, recommendations = [] }: Ex
     <div className="space-y-6">
       {recommendations.length > 0 && (
         <div className="flex items-center gap-2 text-xs text-[#407E3C] font-medium">
-          <span>✦</span>
-          <span>AI recommendations shown based on your trip profile</span>
+          <span>Extras suggested based on your trip dates and vehicle</span>
         </div>
       )}
 

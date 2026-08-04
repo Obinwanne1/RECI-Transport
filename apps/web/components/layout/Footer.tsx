@@ -27,9 +27,9 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-bold text-[#1A1A1A] dark:text-gray-100 uppercase tracking-widest mb-3">Pickup Locations</h4>
             <ul className="space-y-2 text-xs text-[#6B7280] dark:text-gray-400">
-              <li>📍 Berlin Mitte — Mon–Sun 07:00–22:00</li>
-              <li>📍 Berlin Schönefeld Airport — Daily 06:00–23:00</li>
-              <li>📍 Berlin Friedrichshain — Mon–Sat 08:00–20:00</li>
+              <li>Berlin Mitte — Mon–Sun 07:00–22:00</li>
+              <li>Berlin Schönefeld Airport — Daily 06:00–23:00</li>
+              <li>Berlin Friedrichshain — Mon–Sat 08:00–20:00</li>
             </ul>
           </div>
 
@@ -51,10 +51,10 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-bold text-[#1A1A1A] dark:text-gray-100 uppercase tracking-widest mb-3">Quick FAQ</h4>
             <ul className="space-y-2 text-xs text-[#6B7280] dark:text-gray-400">
-              <li>✅ Insurance included in all rates</li>
-              <li>✅ Free cancellation up to 48h before</li>
-              <li>✅ Corporate accounts available</li>
-              <li>✅ Min. age 21 · Valid EU licence required</li>
+              <li>Insurance included in all rates</li>
+              <li>Free cancellation up to 48h before pickup</li>
+              <li>Corporate accounts available</li>
+              <li>Min. age 21 · Valid EU licence required</li>
             </ul>
           </div>
         </div>

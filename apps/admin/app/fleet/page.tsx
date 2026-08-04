@@ -191,7 +191,7 @@ export default function FleetPage() {
                     <span className="bg-[#F3F4F6] dark:bg-gray-800 text-[#374151] dark:text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-md capitalize">{v.transmission}</span>
                   )}
                   {loc?.name && (
-                    <span className="bg-[#F3F4F6] dark:bg-gray-800 text-[#374151] dark:text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-md">📍 {loc.name}</span>
+                    <span className="bg-[#F3F4F6] dark:bg-gray-800 text-[#374151] dark:text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-md">{loc.name}</span>
                   )}
                 </div>
 

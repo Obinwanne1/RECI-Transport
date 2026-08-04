@@ -66,10 +66,12 @@ export default function TripCopilot({
         className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-card hover:border-primary/40 hover:bg-[#F0FDF4] transition-colors text-left"
       >
         <div className="flex items-center gap-2">
-          <span className="text-xl">✦</span>
+          <svg className="w-4 h-4 text-[#407E3C] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+          </svg>
           <div>
             <p className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100">Plan Your Trip</p>
-            <p className="text-xs text-[#6B7280] dark:text-gray-400">AI route guide, fuel estimate & top stops</p>
+            <p className="text-xs text-[#6B7280] dark:text-gray-400">Route guide, fuel estimate & top stops</p>
           </div>
         </div>
         <svg className="w-4 h-4 text-[#6B7280]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -119,7 +121,9 @@ export default function TripCopilot({
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F9FAFB] transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-xl">✦</span>
+          <svg className="w-4 h-4 text-[#407E3C] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+          </svg>
           <p className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100">Your Trip Plan</p>
         </div>
         <svg className="w-4 h-4 text-[#6B7280] rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -137,7 +141,7 @@ export default function TripCopilot({
         {/* Fuel cost */}
         {data.estimated_fuel_cost_eur != null && (
           <div className="flex items-center gap-2">
-            <span className="text-lg">⛽</span>
+            <svg className="w-4 h-4 text-[#6B7280] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 22V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16"/><path d="M14 10h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2 2 2 0 0 0 2-2V8l-3-3"/><path d="M3 22h13"/><rect x="5" y="10" width="6" height="4"/></svg>
             <div>
               <p className="text-xs font-semibold text-[#6B7280] dark:text-gray-400 uppercase tracking-wider">Est. Fuel Cost</p>
               <p className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100">
@@ -150,7 +154,7 @@ export default function TripCopilot({
 
         {data.fuel_note && (
           <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-md">
-            <span className="text-base mt-0.5">🔋</span>
+            <svg className="w-4 h-4 shrink-0 mt-0.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg>
             <p className="text-xs text-blue-700 dark:text-blue-400">{data.fuel_note}</p>
           </div>
         )}
@@ -164,9 +168,10 @@ export default function TripCopilot({
               ? 'bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800'
               : 'bg-orange-50 border-orange-100 dark:bg-orange-900/20 dark:border-orange-800'
           }`}>
-            <span className="text-base mt-0.5">
-              {data.eco_rating === 'green' ? '🌿' : data.eco_rating === 'moderate' ? '🍃' : '🌫️'}
-            </span>
+            <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a10 10 0 1 0 10 10"/>
+              <path d="M12 12 2.1 9.1"/>
+            </svg>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <span className={`text-xs font-semibold uppercase tracking-wide ${

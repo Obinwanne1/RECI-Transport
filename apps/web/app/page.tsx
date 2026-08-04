@@ -60,13 +60,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-wrap justify-center sm:justify-start gap-x-8 gap-y-2">
             {[
-              { icon: '🛡️', label: 'Insurance included' },
-              { icon: '✅', label: 'Free cancellation up to 48h' },
-              { icon: '⚡', label: 'Instant confirmation' },
-              { icon: '📍', label: '3 Berlin pickup locations' },
-            ].map(({ icon, label }) => (
+              { label: 'Insurance included' },
+              { label: 'Free cancellation up to 48h' },
+              { label: 'Instant confirmation' },
+              { label: '3 Berlin pickup locations' },
+            ].map(({ label }) => (
               <span key={label} className="flex items-center gap-1.5 text-xs text-white/80 font-medium">
-                <span>{icon}</span>
+                <span className="w-1 h-1 rounded-full bg-[#5a9e56] shrink-0" />
                 {label}
               </span>
             ))}
@@ -87,7 +87,8 @@ export default function HomePage() {
                   : 'text-[#6B7280] dark:text-gray-400 hover:bg-[#F3F4F6] dark:hover:bg-gray-800'
               }`}
             >
-              ✦ AI Search
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Smart Search
             </button>
             <button
               onClick={() => setSearchMode('filters')}

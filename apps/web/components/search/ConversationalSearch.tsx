@@ -58,7 +58,7 @@ export default function ConversationalSearch({ onResult }: ConversationalSearchP
   return (
     <div>
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-xs font-semibold text-[#407E3C] uppercase tracking-widest">✦ AI Search</span>
+        <span className="text-xs font-semibold text-[#407E3C] uppercase tracking-widest">Vehicle Search</span>
         <span className="text-xs text-[#9CA3AF]">— describe what you need in plain language</span>
       </div>
       <form onSubmit={handleSubmit} className="flex gap-2">
@@ -83,7 +83,7 @@ export default function ConversationalSearch({ onResult }: ConversationalSearchP
               Thinking…
             </>
           ) : (
-            <>✦ Search</>
+            <>Search</>
           )}
         </button>
       </form>

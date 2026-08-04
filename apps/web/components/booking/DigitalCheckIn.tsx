@@ -40,8 +40,10 @@ export default function DigitalCheckIn({ bookingRef, driverName, licenceVerified
         className="w-full flex items-center justify-between px-5 py-4 hover:bg-[#F9FAFB] dark:hover:bg-gray-800/50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <span className="w-9 h-9 bg-[#F0FDF4] dark:bg-green-900/30 border border-[#BBF7D0] dark:border-green-800 rounded-lg flex items-center justify-center text-base">
-            📱
+          <span className="w-9 h-9 bg-[#F0FDF4] dark:bg-green-900/30 border border-[#BBF7D0] dark:border-green-800 rounded-lg flex items-center justify-center">
+            <svg className="w-4 h-4 text-[#407E3C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
+            </svg>
           </span>
           <div className="text-left">
             <p className="text-sm font-semibold text-[#1A1A1A] dark:text-gray-100">Digital Check-in</p>

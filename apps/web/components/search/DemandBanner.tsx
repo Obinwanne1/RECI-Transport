@@ -41,7 +41,11 @@ export default function DemandBanner({ categoryId, dateRange }: DemandBannerProp
           : 'bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-400'
       }`}
     >
-      <span className="text-lg">{isPeak ? '🔥' : '⚡'}</span>
+      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        {isPeak
+          ? <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
+          : <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>}
+      </svg>
       <span>{signal.message}</span>
       {signal.surcharge_pct > 0 && (
         <span className="ml-auto font-semibold">+{signal.surcharge_pct}%</span>

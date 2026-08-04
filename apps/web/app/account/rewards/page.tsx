@@ -32,10 +32,10 @@ interface LoyaltyData {
 }
 
 const TIER_ICONS: Record<string, string> = {
-  bronze: '🥉',
-  silver: '🥈',
-  gold: '🥇',
-  platinum: '💎',
+  bronze: 'B',
+  silver: 'S',
+  gold: 'G',
+  platinum: 'P',
 }
 
 function formatDate(iso: string) {
@@ -132,7 +132,7 @@ export default function RewardsPage() {
           </>
         ) : (
           <div className="flex items-center gap-3 p-3 bg-[#F0FDF4] dark:bg-green-900/20 border border-[#BBF7D0] dark:border-green-800 rounded-lg">
-            <span className="text-2xl">💎</span>
+            <span className="w-8 h-8 rounded-full bg-[#407E3C] flex items-center justify-center text-white text-xs font-bold shrink-0">P</span>
             <div>
               <p className="font-semibold text-[#407E3C]">Platinum member</p>
               <p className="text-xs text-[#6B7280] dark:text-gray-400">You've reached our highest tier. Thank you!</p>

@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     const blockEvents = (blocks ?? []).map((bl) => ({
       id: `block-${bl.id}`,
       resourceId: bl.vehicle_id,
-      title: `🔒 ${bl.reason ?? 'Blocked'}`,
+      title: bl.reason ?? 'Blocked',
       start: bl.start_date,
       end: bl.end_date,
       color: '#374151',
