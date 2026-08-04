@@ -18,6 +18,7 @@ const MOCK_KPIS = {
     { id: 'mock-3', booking_ref: 'REC-0003', status: 'active', total_price: 596, created_at: new Date().toISOString(), driver_first_name: 'Klaus', driver_last_name: 'Weber', vehicle: { make: 'Mercedes', model: 'Sprinter' } },
   ],
   demand_rows: [],
+  pending_reviews: 0,
 }
 
 async function getKpis() {
@@ -50,6 +51,11 @@ async function getKpis() {
       .limit(10),
   ])
 
+  const [{ count: pendingLicences }, { count: pendingDamage }] = await Promise.all([
+    supabase.from('licence_verifications').select('*', { count: 'exact', head: true }).eq('status', 'pending').is('admin_override', null),
+    supabase.from('vehicle_inspections').select('*', { count: 'exact', head: true }).eq('ai_damage_report->>pending_review', 'true').is('admin_override', null),
+  ])
+
   const { data: demandSignals } = await supabase
     .from('pricing_signals')
     .select('demand_score, signal_type, vehicles_remaining, computed_at, vehicle_categories(name)')
@@ -75,6 +81,7 @@ async function getKpis() {
     pending_payment: pendingPayment ?? 0,
     recent_bookings: recentBookings ?? [],
     demand_rows: demandRows,
+    pending_reviews: (pendingLicences ?? 0) + (pendingDamage ?? 0),
   }
 }
 
@@ -133,6 +140,23 @@ export default async function DashboardPage() {
           {new Date().toLocaleDateString('en-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </div>
+
+      {/* AI Reviews alert */}
+      {kpis.pending_reviews > 0 && (
+        <div className="mb-4 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700/50 rounded-xl px-5 py-4 flex items-center gap-4">
+          <div className="w-8 h-8 bg-violet-100 dark:bg-violet-800/50 rounded-full flex items-center justify-center shrink-0">
+            <svg className="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-sm font-semibold text-violet-800 dark:text-violet-300 flex-1">
+            {kpis.pending_reviews} AI verification{kpis.pending_reviews !== 1 ? 's' : ''} awaiting human review
+          </p>
+          <Link href="/reviews" className="text-xs font-semibold text-violet-700 dark:text-violet-300 hover:text-violet-900 dark:hover:text-violet-100 bg-violet-100 dark:bg-violet-800/50 hover:bg-violet-200 dark:hover:bg-violet-700/50 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
+            Review →
+          </Link>
+        </div>
+      )}
 
       {/* Alert */}
       {kpis.pending_payment > 0 && (
@@ -212,6 +236,7 @@ export default async function DashboardPage() {
             <div className="space-y-2">
               {[
                 { href: '/bookings', label: 'All Bookings', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', primary: true },
+                { href: '/fleet/new', label: 'Add Vehicle', icon: 'M12 4v16m8-8H4', primary: false },
                 { href: '/fleet', label: 'Manage Fleet', icon: 'M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0', primary: false },
                 { href: '/calendar', label: 'Fleet Calendar', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', primary: false },
                 { href: '/availability', label: 'Block Dates', icon: 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636', primary: false },

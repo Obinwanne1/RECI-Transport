@@ -204,7 +204,18 @@ export default function AdminNav({ userEmail, userRole, onClose }: { userEmail: 
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-xs font-medium truncate leading-snug">{userEmail || 'Admin'}</p>
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <p className="text-white text-xs font-medium truncate leading-none">{userEmail || 'Admin'}</p>
+              {userRole && (
+                <span className={`shrink-0 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded leading-none ${
+                  userRole === 'admin'
+                    ? 'bg-[#407E3C]/40 text-[#5a9e56]'
+                    : 'bg-white/10 text-white/50'
+                }`}>
+                  {userRole}
+                </span>
+              )}
+            </div>
             <button
               onClick={handleSignOut}
               className="text-white/35 hover:text-red-400 text-[10px] transition-colors leading-snug"
